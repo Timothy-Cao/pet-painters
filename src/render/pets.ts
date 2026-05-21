@@ -1,27 +1,25 @@
-import { RenderContext, tileToPixel } from './canvas';
+import { RenderContext } from './canvas';
 import type { Pet } from '../types/pet';
-import type { Direction } from '../types/game';
 import { getPetDef } from '../sim/pet-defs';
+import { BOARD_SIZE } from '../config/constants';
+import { getRenderPosition, pruneRenderHistory } from './interpolation';
 
 const RING = {
   A: { color: '#5b8def', glow: 'rgba(91, 141, 239, 0.55)' },
   B: { color: '#f25f5c', glow: 'rgba(242, 95, 92, 0.55)' },
 };
 
-const FACING_RAD: Record<Direction, number> = {
-  N: 0,
-  E: Math.PI / 2,
-  S: Math.PI,
-  W: -Math.PI / 2,
-};
-
 export function renderPets(rc: RenderContext, pets: Pet[]): void {
-  const { ctx } = rc;
+  const { ctx, tileSize } = rc;
   for (const pet of pets) {
     const def = getPetDef(pet.defId);
-    const { px, py } = tileToPixel(rc, pet.anchor.x, pet.anchor.y + def.size.h - 1);
-    const w = def.size.w * rc.tileSize;
-    const h = def.size.h * rc.tileSize;
+    const { x: fx, y: fy, rad } = getRenderPosition(pet);
+
+    // Convert fractional board coords → screen pixel top-left of the sprite.
+    const px = fx * tileSize;
+    const py = (BOARD_SIZE - def.size.h - fy) * tileSize;
+    const w = def.size.w * tileSize;
+    const h = def.size.h * tileSize;
     const ring = RING[pet.owner];
 
     // Soft glow background
@@ -41,7 +39,7 @@ export function renderPets(rc: RenderContext, pets: Pet[]): void {
     // Emoji rotates with facing direction
     ctx.save();
     ctx.translate(px + w / 2, py + h / 2);
-    ctx.rotate(FACING_RAD[pet.facing]);
+    ctx.rotate(rad);
     ctx.font = `${Math.floor(h * 0.65)}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -61,6 +59,8 @@ export function renderPets(rc: RenderContext, pets: Pet[]): void {
       ctx.fillRect(barX, barY, barW * hpFrac, 4);
     }
   }
+
+  pruneRenderHistory(pets.map((p) => p.petId));
 }
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {

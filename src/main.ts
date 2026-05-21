@@ -10,6 +10,7 @@ import {
 import { mountSandboxUI, refreshAll, showBanner } from './ui/sandbox-ui';
 import { GameLoop } from './loop';
 import { renderEffects, clearEffects } from './render/effects';
+import { clearRenderHistory } from './render/interpolation';
 
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 const rc = createRenderContext(canvas);
@@ -20,6 +21,7 @@ const ui = createDeployUIState();
 function resetMatch(): void {
   resetMatchInPlace(state, { sandbox: true });
   clearEffects();
+  clearRenderHistory();
   ui.hoverTile = null;
   refreshAll(state, ui);
   showBanner('Match reset');
