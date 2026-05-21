@@ -9,13 +9,15 @@ type Effect =
   | { kind: 'splat'; x: number; y: number; owner: PlayerId; born: number; angle: number }
   | { kind: 'poof'; x: number; y: number; owner: PlayerId; born: number }
   | { kind: 'damage'; x: number; y: number; owner: PlayerId; born: number; amount: number; jitterX: number }
-  | { kind: 'roar'; x: number; y: number; owner: PlayerId; born: number };
+  | { kind: 'roar'; x: number; y: number; owner: PlayerId; born: number }
+  | { kind: 'web'; x: number; y: number; owner: PlayerId; born: number };
 
 const DURATION_MS = 360;
 const SPLAT_MS = 480;
 const POOF_MS = 420;
 const DAMAGE_MS = 700;
 const ROAR_MS = 520;
+const WEB_MS = 600;
 const effects: Effect[] = [];
 
 import { side } from './palette';
@@ -55,6 +57,9 @@ export function pushDamage(x: number, y: number, owner: PlayerId, amount: number
 export function pushRoar(x: number, y: number, owner: PlayerId): void {
   effects.push({ kind: 'roar', x, y, owner, born: now() });
 }
+export function pushWeb(x: number, y: number, owner: PlayerId): void {
+  effects.push({ kind: 'web', x, y, owner, born: now() });
+}
 
 export function clearEffects(): void {
   effects.length = 0;
@@ -69,6 +74,7 @@ export function renderEffects(rc: RenderContext): void {
                    : e.kind === 'poof' ? POOF_MS
                    : e.kind === 'damage' ? DAMAGE_MS
                    : e.kind === 'roar' ? ROAR_MS
+                   : e.kind === 'web' ? WEB_MS
                    : DURATION_MS;
     if (age >= lifetime) { effects.splice(i, 1); continue; }
     const t = age / lifetime;       // 0..1
@@ -142,6 +148,26 @@ export function renderEffects(rc: RenderContext): void {
       const r = size * 0.4 + size * 0.3 * t;
       rc.ctx.beginPath();
       rc.ctx.arc(0, 0, r, 0, Math.PI * 2);
+      rc.ctx.stroke();
+    } else if (e.kind === 'web') {
+      // 8 fine purple threads radiate from the tile center, then a small
+      // pulse settles in the middle — reads as "you are caught."
+      rc.ctx.globalAlpha = 1 - t;
+      rc.ctx.strokeStyle = '#c084fc';
+      rc.ctx.lineWidth = 1.3;
+      const threads = 8;
+      const r = size * (0.18 + 0.40 * t);
+      for (let k = 0; k < threads; k++) {
+        const ang = (Math.PI * 2 * k) / threads;
+        rc.ctx.beginPath();
+        rc.ctx.moveTo(0, 0);
+        rc.ctx.lineTo(Math.cos(ang) * r, Math.sin(ang) * r);
+        rc.ctx.stroke();
+      }
+      // Connecting ring
+      rc.ctx.globalAlpha = (1 - t) * 0.55;
+      rc.ctx.beginPath();
+      rc.ctx.arc(0, 0, r * 0.55, 0, Math.PI * 2);
       rc.ctx.stroke();
     } else if (e.kind === 'roar') {
       // Two concentric warm-yellow rings expanding outward — reads as a

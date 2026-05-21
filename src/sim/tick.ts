@@ -11,6 +11,8 @@ export function advanceTick(state: MatchState): void {
 
   for (const pet of state.pets) {
     if (pet.hp <= 0) continue;
+    // Frozen pets (e.g. webbed by a spider) skip all tuple firing this tick.
+    if (pet.frozenUntilTick !== undefined && state.tick < pet.frozenUntilTick) continue;
     const def = getPetDef(pet.defId);
     for (let i = 0; i < def.tuples.length; i++) {
       if (pet.hp <= 0) break;

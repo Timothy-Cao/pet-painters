@@ -68,4 +68,6 @@ export interface Pet {
   deployTick: number;
   // last-fired tick per tuple index, parallel to def.tuples; -1 means never fired
   tupleLastFireTick: number[];
+  /** While state.tick < this, the pet's tuples don't fire (e.g. spider web). */
+  frozenUntilTick?: number;
 }
