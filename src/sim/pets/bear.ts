@@ -3,7 +3,7 @@ import { enemiesInFront, applyAttack } from '../combat';
 import { walkOrTurnAtWall } from '../behaviors';
 
 const STATS = {
-  cost: 7,
+  cost: 8,
   speedTilesPerSec: 0.8,
   rageSpeedTilesPerSec: 1.6,      // double when wounded
   weight: 8,                      // lighter than elephant (10) — Elephant CAN push Bear

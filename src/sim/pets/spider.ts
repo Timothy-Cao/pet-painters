@@ -8,7 +8,7 @@ const STATS = {
   cost: 2,
   speedTilesPerSec: 0,            // stationary
   weight: 2,
-  maxHp: 6,
+  maxHp: 12,
   atk: 0,
   atkSpeedPerSec: 0,
   order: 3,                       // late — webs apply after enemies have tried to act

@@ -9,7 +9,7 @@ const STATS = {
   weight: 9,                      // just under Elephant — still pushable by an elephant
   maxHp: 20,
   atk: 3,                         // damage per affected tile in the cone
-  atkSpeedPerSec: 0.5,            // breathes every 2s
+  atkSpeedPerSec: 0.75,           // breathes every ~1.33s (was every 2s)
   order: 1,
   breathRange: 3,                 // tiles ahead of the front edge to scorch
 } as const;

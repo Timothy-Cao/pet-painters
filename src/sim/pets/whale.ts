@@ -2,7 +2,7 @@ import type { PetDefinition } from '../../types/pet';
 import { walkOrTurnAtWall } from '../behaviors';
 
 const STATS = {
-  cost: 9,                        // most expensive pet to deploy
+  cost: 7,                        // reduced from 9 — cost nerf was too steep, whale needs to fit more comps
   speedTilesPerSec: 0.4,          // slowest — even a touch slower than elephant
   weight: 15,                     // 50% heavier than elephant; pushes everything except itself
   maxHp: 35,                      // largest HP pool of any pet

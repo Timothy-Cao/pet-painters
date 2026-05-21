@@ -5,7 +5,7 @@ import { declareMove, facingDelta, frontIsWall, turnAround } from '../behaviors'
 import { pushDust, pushHit, pushDamage } from '../../render/effects';
 
 const STATS = {
-  cost: 8,
+  cost: 9,
   speedTilesPerSec: 1.5,
   weight: 9,                      // close to elephant's 10 — barely pushable
   maxHp: 15,
