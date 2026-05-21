@@ -2,6 +2,7 @@ import type { PetDefinition, Pet } from '../types/pet';
 import type { MatchState } from '../types/game';
 import { MOUSE_STATS, ELEPHANT_STATS } from '../config/balance';
 import { frontTiles } from './pets';
+import { enemiesInFront, applyAttack } from './combat';
 
 function getPetDefLocal(id: string): PetDefinition {
   return REGISTRY[id];
@@ -27,12 +28,6 @@ function declareMove(pet: Pet, state: MatchState): void {
   state.moveIntents.push({ petId: pet.petId, from: pet.anchor, to });
 }
 
-const stubAttackTuple = {
-  intervalSec: 1,
-  trigger: () => false,
-  action: () => {},
-};
-
 export const MOUSE: PetDefinition = {
   id: 'mouse',
   displayName: 'Mouse',
@@ -49,7 +44,11 @@ export const MOUSE: PetDefinition = {
       trigger: frontTilesOnBoard,
       action: declareMove,
     },
-    { ...stubAttackTuple, intervalSec: 1 / MOUSE_STATS.atkSpeedPerSec },   // attack (Task 8)
+    {
+      intervalSec: 1 / MOUSE_STATS.atkSpeedPerSec,
+      trigger: (pet, state) => enemiesInFront(pet, state).length > 0,
+      action: applyAttack,
+    },
   ],
 };
 
@@ -69,7 +68,11 @@ export const ELEPHANT: PetDefinition = {
       trigger: frontTilesOnBoard,
       action: declareMove,
     },
-    { ...stubAttackTuple, intervalSec: 1 / ELEPHANT_STATS.atkSpeedPerSec }, // attack (Task 8)
+    {
+      intervalSec: 1 / ELEPHANT_STATS.atkSpeedPerSec,
+      trigger: (pet, state) => enemiesInFront(pet, state).length > 0,
+      action: applyAttack,
+    },
   ],
 };
 
