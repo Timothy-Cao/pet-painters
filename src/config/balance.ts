@@ -42,6 +42,17 @@ export const RABBIT_STATS = {
   order: 3,
 };
 
+export const SKUNK_STATS = {
+  cost: 3,
+  speedTilesPerSec: 1,
+  sprayPerSec: 2,             // pushes adjacent enemies' facing twice a second
+  weight: 2,
+  maxHp: 4,
+  atk: 1,
+  atkSpeedPerSec: 1,
+  order: 2,
+};
+
 export const TURTLE_STATS = {
   cost: 4,
   speedTilesPerSec: 0.5,      // very slow walker

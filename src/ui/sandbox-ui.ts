@@ -1,7 +1,7 @@
 import type { MatchState, Direction } from '../types/game';
-import { MOUSE, ELEPHANT, CAT, RABBIT, TURTLE, getPetDef } from '../sim/pet-defs';
+import { MOUSE, ELEPHANT, CAT, RABBIT, TURTLE, SKUNK, getPetDef } from '../sim/pet-defs';
 import { submitReady } from '../sim/match';
-import { MOUSE_STATS, ELEPHANT_STATS, CAT_STATS, RABBIT_STATS, TURTLE_STATS, WIN_PAINT_THRESHOLD } from '../config/balance';
+import { MOUSE_STATS, ELEPHANT_STATS, CAT_STATS, RABBIT_STATS, TURTLE_STATS, SKUNK_STATS, WIN_PAINT_THRESHOLD } from '../config/balance';
 import { BOARD_SIZE } from '../config/constants';
 import { scoreFor } from '../sim/board';
 import { EXECUTION_PHASE_SECONDS } from '../config/balance';
@@ -44,6 +44,11 @@ const ROSTER: PetRosterEntry[] = [
     hotkey: '5',
     ability: 'Splash — once per second, paints all four neighboring tiles in its color. Slow walker, but its real damage is in coverage.',
   },
+  {
+    defId: SKUNK.id,
+    hotkey: '6',
+    ability: 'Spray — every adjacent enemy is forced to face directly away from the skunk, scattering enemy formations.',
+  },
 ];
 
 const STAT_LABELS = {
@@ -52,6 +57,7 @@ const STAT_LABELS = {
   [CAT.id]: CAT_STATS,
   [RABBIT.id]: RABBIT_STATS,
   [TURTLE.id]: TURTLE_STATS,
+  [SKUNK.id]: SKUNK_STATS,
 } as const;
 
 const FACING_NAME: Record<Direction, string> = { N: 'North', E: 'East', S: 'South', W: 'West' };

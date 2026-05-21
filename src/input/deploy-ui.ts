@@ -1,7 +1,7 @@
 import type { MatchState, Direction, Vec2 } from '../types/game';
 import { tryDeploy, petAtTile, undeploy } from '../sim/deploy';
 import { submitReady } from '../sim/match';
-import { MOUSE, ELEPHANT, CAT, RABBIT, TURTLE, getPetDef } from '../sim/pet-defs';
+import { MOUSE, ELEPHANT, CAT, RABBIT, TURTLE, SKUNK, getPetDef } from '../sim/pet-defs';
 import { BOARD_SIZE, HOME_ROWS } from '../config/constants';
 import type { RenderContext } from '../render/canvas';
 import { tileToPixel } from '../render/canvas';
@@ -16,6 +16,7 @@ const PET_HOTKEYS: Record<string, string> = {
   '3': CAT.id,
   '4': RABBIT.id,
   '5': TURTLE.id,
+  '6': SKUNK.id,
 };
 
 export interface DeployUIState extends SandboxUIState {

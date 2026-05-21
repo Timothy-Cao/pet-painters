@@ -1,6 +1,6 @@
 import type { PetDefinition, Pet } from '../types/pet';
 import type { MatchState, Direction, Vec2 } from '../types/game';
-import { MOUSE_STATS, ELEPHANT_STATS, CAT_STATS, RABBIT_STATS, TURTLE_STATS } from '../config/balance';
+import { MOUSE_STATS, ELEPHANT_STATS, CAT_STATS, RABBIT_STATS, TURTLE_STATS, SKUNK_STATS } from '../config/balance';
 import { frontTiles, footprintTiles } from './pets';
 import { enemiesInFront, applyAttack } from './combat';
 import { paintTile } from './board';
@@ -334,12 +334,66 @@ export const TURTLE: PetDefinition = {
   ],
 };
 
+function skunkStep(pet: Pet, state: MatchState): void {
+  if (frontBlocked(pet, state)) scurryTurn(pet);
+  else declareMove(pet, state);
+}
+
+function skunkSpray(pet: Pet, state: MatchState): void {
+  // For each orthogonal neighbor of the skunk, if an enemy pet occupies that
+  // tile, force its facing to point directly away from the skunk.
+  const neighbors: { delta: Vec2; faceAway: Direction }[] = [
+    { delta: { x: 0, y: 1 }, faceAway: 'N' },
+    { delta: { x: 0, y: -1 }, faceAway: 'S' },
+    { delta: { x: 1, y: 0 }, faceAway: 'E' },
+    { delta: { x: -1, y: 0 }, faceAway: 'W' },
+  ];
+  for (const { delta, faceAway } of neighbors) {
+    const t: Vec2 = { x: pet.anchor.x + delta.x, y: pet.anchor.y + delta.y };
+    if (!tileInBounds(state, t)) continue;
+    const occupant = anyPetAt(state, t, pet);
+    if (!occupant) continue;
+    if (occupant.owner === pet.owner) continue;
+    occupant.facing = faceAway;
+  }
+}
+
+export const SKUNK: PetDefinition = {
+  id: 'skunk',
+  displayName: 'Skunk',
+  emoji: '🦨',
+  cost: SKUNK_STATS.cost,
+  size: { w: 1, h: 1 },
+  weight: SKUNK_STATS.weight,
+  maxHp: SKUNK_STATS.maxHp,
+  atk: SKUNK_STATS.atk,
+  order: SKUNK_STATS.order,
+  tuples: [
+    {
+      intervalSec: 1 / SKUNK_STATS.speedTilesPerSec,
+      trigger: () => true,
+      action: skunkStep,
+    },
+    {
+      intervalSec: 1 / SKUNK_STATS.sprayPerSec,
+      trigger: () => true,
+      action: skunkSpray,
+    },
+    {
+      intervalSec: 1 / SKUNK_STATS.atkSpeedPerSec,
+      trigger: (pet, state) => enemiesInFront(pet, state).length > 0,
+      action: applyAttack,
+    },
+  ],
+};
+
 const REGISTRY: Record<string, PetDefinition> = {
   [MOUSE.id]: MOUSE,
   [ELEPHANT.id]: ELEPHANT,
   [CAT.id]: CAT,
   [RABBIT.id]: RABBIT,
   [TURTLE.id]: TURTLE,
+  [SKUNK.id]: SKUNK,
 };
 
 export function getPetDef(id: string): PetDefinition {
