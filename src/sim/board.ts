@@ -1,5 +1,6 @@
 import type { Board, TileColor, Vec2, PlayerId } from '../types/game';
 import { BOARD_SIZE, HOME_ROWS } from '../config/constants';
+import { pushSplat } from '../render/effects';
 
 function inBounds(board: Board, p: Vec2): boolean {
   return p.x >= 0 && p.x < board.size && p.y >= 0 && p.y < board.size;
@@ -30,10 +31,13 @@ export function isHomeRow(p: Vec2): 'A' | 'B' | null {
 
 export function paintTile(board: Board, p: Vec2, color: TileColor): void {
   if (!inBounds(board, p)) return;
-  // Home rows are permanent — they always belong to the owning player and
-  // cannot be repainted by enemy pets, ally pets, or splash effects.
   if (isHomeRow(p) !== null) return;
-  board.tiles[p.y * board.size + p.x] = color;
+  const idx = p.y * board.size + p.x;
+  if (board.tiles[idx] === color) return;     // no-op when nothing changes
+  board.tiles[idx] = color;
+  if (color === 'A' || color === 'B') {
+    pushSplat(p.x, p.y, color);
+  }
 }
 
 export function scoreFor(board: Board, player: PlayerId): number {
