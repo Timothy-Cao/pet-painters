@@ -10,7 +10,8 @@ type Effect =
   | { kind: 'poof'; x: number; y: number; owner: PlayerId; born: number }
   | { kind: 'damage'; x: number; y: number; owner: PlayerId; born: number; amount: number; jitterX: number }
   | { kind: 'roar'; x: number; y: number; owner: PlayerId; born: number }
-  | { kind: 'web'; x: number; y: number; owner: PlayerId; born: number };
+  | { kind: 'web'; x: number; y: number; owner: PlayerId; born: number }
+  | { kind: 'flutter'; x: number; y: number; owner: PlayerId; born: number; dx: number; dy: number };
 
 const DURATION_MS = 360;
 const SPLAT_MS = 480;
@@ -18,6 +19,7 @@ const POOF_MS = 420;
 const DAMAGE_MS = 700;
 const ROAR_MS = 520;
 const WEB_MS = 600;
+const FLUTTER_MS = 400;
 const effects: Effect[] = [];
 
 import { side } from './palette';
@@ -60,6 +62,9 @@ export function pushRoar(x: number, y: number, owner: PlayerId): void {
 export function pushWeb(x: number, y: number, owner: PlayerId): void {
   effects.push({ kind: 'web', x, y, owner, born: now() });
 }
+export function pushFlutter(x: number, y: number, owner: PlayerId, dx: number, dy: number): void {
+  effects.push({ kind: 'flutter', x, y, owner, born: now(), dx, dy });
+}
 
 export function clearEffects(): void {
   effects.length = 0;
@@ -75,6 +80,7 @@ export function renderEffects(rc: RenderContext): void {
                    : e.kind === 'damage' ? DAMAGE_MS
                    : e.kind === 'roar' ? ROAR_MS
                    : e.kind === 'web' ? WEB_MS
+                   : e.kind === 'flutter' ? FLUTTER_MS
                    : DURATION_MS;
     if (age >= lifetime) { effects.splice(i, 1); continue; }
     const t = age / lifetime;       // 0..1
@@ -149,6 +155,28 @@ export function renderEffects(rc: RenderContext): void {
       rc.ctx.beginPath();
       rc.ctx.arc(0, 0, r, 0, Math.PI * 2);
       rc.ctx.stroke();
+    } else if (e.kind === 'flutter') {
+      // Three small dashes that trail in the eagle's flight direction, like
+      // feathers shed at takeoff. They drift outward and shrink as they fade.
+      rc.ctx.globalAlpha = 1 - t;
+      // Trailing direction is opposite the flight direction.
+      const angBase = Math.atan2(-e.dy, -e.dx);
+      const r0 = size * 0.10;
+      const r1 = size * 0.45;
+      rc.ctx.strokeStyle = '#dde8ff';
+      rc.ctx.lineWidth = 2;
+      for (let k = -1; k <= 1; k++) {
+        const angSpread = angBase + k * 0.45;
+        const r = r0 + (r1 - r0) * t;
+        const fx = Math.cos(angSpread) * r;
+        const fy = Math.sin(angSpread) * r;
+        const lx = Math.cos(angSpread) * (r - size * 0.13);
+        const ly = Math.sin(angSpread) * (r - size * 0.13);
+        rc.ctx.beginPath();
+        rc.ctx.moveTo(lx, ly);
+        rc.ctx.lineTo(fx, fy);
+        rc.ctx.stroke();
+      }
     } else if (e.kind === 'web') {
       // 8 fine purple threads radiate from the tile center, then a small
       // pulse settles in the middle — reads as "you are caught."
