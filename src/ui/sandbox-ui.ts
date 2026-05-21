@@ -33,6 +33,11 @@ export function createSandboxUIState(): SandboxUIState {
 
 export interface SandboxUIBindings {
   onReset: () => void;
+  /**
+   * If provided, called instead of the local submitReady(A/B) when the Start Round
+   * button is clicked. Used by online mode to route through the server.
+   */
+  onReady?: () => void;
 }
 
 // ---------- Scoped root element ----------
@@ -182,8 +187,12 @@ function bindFacing(ui: SandboxUIState): void {
 function bindActions(state: MatchState, bindings: SandboxUIBindings): void {
   q('btn-start')!.addEventListener('click', () => {
     if (state.phase !== 'planning') return;
-    submitReady(state, 'A');
-    submitReady(state, 'B');
+    if (bindings.onReady) {
+      bindings.onReady();
+    } else {
+      submitReady(state, 'A');
+      submitReady(state, 'B');
+    }
   });
   q('btn-reset')!.addEventListener('click', () => {
     bindings.onReset();

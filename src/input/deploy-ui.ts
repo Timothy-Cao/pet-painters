@@ -33,6 +33,17 @@ export function createDeployUIState(): DeployUIState {
 
 export interface DeployUIBindings {
   onReset: () => void;
+  /**
+   * If provided, called instead of tryDeploy when the player clicks a valid empty tile.
+   * Return value is ignored; the caller is responsible for any state changes.
+   * When this is set, tryDeploy is NOT called — state.pets is NOT mutated by the click.
+   */
+  onDeploy?: (defId: string, anchor: Vec2, facing: Direction) => void;
+  /**
+   * If provided, called instead of the local submitReady(A/B) when Space/Enter is pressed.
+   * The sandbox-ui Ready button equivalent (btn-start) is handled separately via SandboxUIBindings.
+   */
+  onReady?: () => void;
 }
 
 export function attachDeployUI(
@@ -50,12 +61,15 @@ export function attachDeployUI(
       ui.facing = CW_NEXT[ui.facing];
     } else if (k === ' ' || k === 'enter') {
       e.preventDefault();
-      submitReady(state, 'A');
-      submitReady(state, 'B');
+      if (bindings.onReady) {
+        bindings.onReady();
+      } else {
+        submitReady(state, 'A');
+        submitReady(state, 'B');
+      }
     }
     refreshAll(state, ui);
   });
-  void bindings;
 
   canvas.addEventListener('mousemove', (e) => {
     const rect = canvas.getBoundingClientRect();
@@ -103,11 +117,18 @@ export function attachDeployUI(
       showBanner('Deploy onto a tile in your own territory');
       return;
     }
-    const result = tryDeploy(state, player, ui.selectedDefId, ui.hoverTile, ui.facing);
-    if (!result.ok) {
-      showBanner(`Cannot deploy: ${result.reason}`);
-    } else if (state.lastRoundSummary) {
-      state.lastRoundSummary = null;
+    if (bindings.onDeploy) {
+      // Online mode: hand off to the controller; do NOT mutate state.pets here.
+      bindings.onDeploy(ui.selectedDefId, ui.hoverTile, ui.facing);
+      showBanner('Deployment queued');
+      if (state.lastRoundSummary) state.lastRoundSummary = null;
+    } else {
+      const result = tryDeploy(state, player, ui.selectedDefId, ui.hoverTile, ui.facing);
+      if (!result.ok) {
+        showBanner(`Cannot deploy: ${result.reason}`);
+      } else if (state.lastRoundSummary) {
+        state.lastRoundSummary = null;
+      }
     }
     refreshAll(state, ui);
   });

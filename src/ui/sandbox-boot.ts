@@ -6,6 +6,7 @@
  * Previously this logic lived in src/main.ts.
  */
 
+import type { Vec2, Direction } from '../types/game';
 import { createInitialMatch, resetMatchInPlace } from '../sim/match';
 import { createRenderContext, clearCanvas } from '../render/canvas';
 import { renderBoard } from '../render/board';
@@ -23,7 +24,32 @@ import { clearEvents } from './event-log';
 import { loadPalette, applyPalette, getPaletteName } from '../render/palette';
 import { setWinOverlayRoot, bindWinOverlay, refreshWinOverlay } from './win-overlay';
 
-export function bootSandbox(container: HTMLElement): void {
+/** Optional bindings for online mode.  All fields are optional so sandbox mode is unaffected. */
+export interface SandboxBootBindings {
+  /** If set, override the starting round number (for online reconnect). */
+  initialRound?: number;
+  /**
+   * If provided, called instead of tryDeploy when the player clicks to deploy.
+   * state.pets is NOT mutated when this is set — the controller owns that transition.
+   */
+  onDeploy?: (defId: string, anchor: Vec2, facing: Direction) => void;
+  /**
+   * If provided, called instead of the local submitReady(A/B) when the player
+   * presses Space/Enter or clicks the Start Round button.
+   */
+  onReady?: () => void;
+  /** If provided, called each time the local execution phase ends. */
+  onExecutionEnd?: () => void;
+}
+
+export interface SandboxBootHandle {
+  /** The live MatchState — the online controller reads/mutates this. */
+  state: ReturnType<typeof createInitialMatch>;
+  /** Stop the RAF loop and do whatever cleanup is possible. */
+  stop(): void;
+}
+
+export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindings): SandboxBootHandle {
   // Scope all sandbox-ui and win-overlay DOM queries to this container.
   setSandboxRoot(container);
   setWinOverlayRoot(container);
@@ -32,6 +58,9 @@ export function bootSandbox(container: HTMLElement): void {
   const rc = createRenderContext(canvas);
 
   const state = createInitialMatch({ sandbox: true });
+  if (bindings?.initialRound !== undefined) {
+    state.round = bindings.initialRound;
+  }
   const ui = createDeployUIState();
 
   function resetMatch(): void {
@@ -44,8 +73,15 @@ export function bootSandbox(container: HTMLElement): void {
     showBanner('Match reset');
   }
 
-  attachDeployUI(canvas, rc, state, ui, { onReset: resetMatch });
-  mountSandboxUI(state, ui, { onReset: resetMatch });
+  attachDeployUI(canvas, rc, state, ui, {
+    onReset: resetMatch,
+    onDeploy: bindings?.onDeploy,
+    onReady: bindings?.onReady,
+  });
+  mountSandboxUI(state, ui, {
+    onReset: resetMatch,
+    onReady: bindings?.onReady,
+  });
   bindWinOverlay(resetMatch);
 
   // Settings + accessibility wiring.
@@ -99,8 +135,15 @@ export function bootSandbox(container: HTMLElement): void {
     refreshWinOverlay(state);
   }
 
-  const loop = new GameLoop(state, render);
+  const loop = new GameLoop(state, render, {
+    onExecutionEnd: bindings?.onExecutionEnd,
+  });
   loop.start();
 
   refreshAll(state, ui);
+
+  return {
+    state,
+    stop() { loop.stop(); },
+  };
 }

@@ -1,0 +1,299 @@
+import type { Screen } from '../router';
+import { navigate } from '../router';
+import { OnlineMatchController } from '../../online/online-match';
+import { getRoom } from '../../online/rooms';
+import { ensureProfile } from '../../online/auth';
+import { bootSandbox } from '../../ui/sandbox-boot';
+
+// The sandbox HTML markup, scoped under .online-match-screen instead of .sandbox-screen.
+// Must include the same element IDs that sandbox-ui.ts queries.
+const SANDBOX_MARKUP = `
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">🎨</span>
+      <span class="brand-name">Pet Painters</span>
+      <span class="brand-mode">Online</span>
+    </div>
+    <div class="phase-pill" id="phase-pill">
+      <span class="phase-dot"></span>
+      <span id="phase-text">Planning</span>
+    </div>
+    <div class="territory">
+      <div class="territory-side territory-side-a">
+        <div class="territory-tag">A</div>
+        <div class="territory-pct" id="pct-a">0%</div>
+      </div>
+      <div class="territory-bar">
+        <div class="territory-fill territory-fill-a" id="fill-a"></div>
+        <div class="territory-fill territory-fill-n" id="fill-n"></div>
+        <div class="territory-fill territory-fill-b" id="fill-b"></div>
+        <div class="threshold-marker threshold-a" title="Player A wins at this share"></div>
+        <div class="threshold-marker threshold-b" title="Player B wins at this share"></div>
+      </div>
+      <div class="territory-side territory-side-b">
+        <div class="territory-pct" id="pct-b">0%</div>
+        <div class="territory-tag">B</div>
+      </div>
+    </div>
+    <div class="settings-wrap">
+      <button class="settings-btn" id="settings-btn" aria-label="Settings" aria-expanded="false" aria-haspopup="true">⚙</button>
+      <div class="settings-menu" id="settings-menu" role="menu" hidden>
+        <div class="settings-section-title">Accessibility</div>
+        <label class="settings-row">
+          <span>Colorblind palette</span>
+          <input type="checkbox" id="settings-cb-palette" />
+        </label>
+        <div class="settings-hint">Swaps red → orange for deuteranopia / protanopia compatibility.</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar sidebar-left">
+      <div class="panel-title">Pet Roster</div>
+      <div class="panel-hint">Choose a pet, then click any tile you own to deploy.</div>
+      <div id="pet-roster" class="pet-roster"></div>
+
+      <div class="panel-title panel-title-sm">Legend</div>
+      <div class="legend">
+        <div class="legend-item"><span class="swatch swatch-a"></span> Player A territory</div>
+        <div class="legend-item"><span class="swatch swatch-b"></span> Player B territory</div>
+        <div class="legend-item"><span class="swatch swatch-n"></span> Neutral tile</div>
+        <div class="legend-item"><span class="swatch swatch-home swatch-home-a">⫽</span> A home (locked)</div>
+        <div class="legend-item"><span class="swatch swatch-home swatch-home-b">⫽</span> B home (locked)</div>
+      </div>
+    </aside>
+
+    <section class="stage">
+      <div class="canvas-frame">
+        <div class="player-tag player-tag-b">Player B (top)</div>
+        <canvas id="game" width="640" height="640"></canvas>
+        <div class="player-tag player-tag-a">Player A (bottom)</div>
+        <div class="pet-inspect" id="pet-inspect" hidden>
+          <div class="inspect-head">
+            <span class="inspect-emoji" id="inspect-emoji">🐭</span>
+            <span class="inspect-name" id="inspect-name">Mouse</span>
+            <span class="inspect-owner-pill" id="inspect-owner">A</span>
+            <button class="inspect-close" id="inspect-close" aria-label="Close">×</button>
+          </div>
+          <div class="inspect-stats">
+            <div class="inspect-row">
+              <span class="inspect-key">HP</span>
+              <span class="inspect-val">
+                <span class="inspect-hp-bar"><span class="inspect-hp-fill" id="inspect-hp-fill"></span></span>
+                <span id="inspect-hp">3 / 3</span>
+              </span>
+            </div>
+            <div class="inspect-row">
+              <span class="inspect-key">Facing</span>
+              <span class="inspect-val" id="inspect-facing">North</span>
+            </div>
+            <div class="inspect-row">
+              <span class="inspect-key">Position</span>
+              <span class="inspect-val" id="inspect-pos">(0, 0)</span>
+            </div>
+          </div>
+          <div class="inspect-blurb" id="inspect-blurb"></div>
+          <button class="btn-secondary inspect-undeploy" id="inspect-undeploy">Undeploy</button>
+        </div>
+        <div class="round-summary" id="round-summary" hidden>
+          <div class="rs-head">
+            <span class="rs-title">Round <span id="rs-round">1</span> complete</span>
+            <button class="rs-close" id="rs-close" aria-label="Dismiss">×</button>
+          </div>
+          <div class="rs-cols">
+            <div class="rs-col rs-col-a">
+              <div class="rs-col-tag">A</div>
+              <div class="rs-stats">
+                <div class="rs-stat"><span>Tiles</span><span class="rs-delta" id="rs-a-delta">+0</span></div>
+                <div class="rs-stat"><span>Total</span><span class="rs-total" id="rs-a-total">0</span></div>
+                <div class="rs-stat"><span>Pets lost</span><span class="rs-lost" id="rs-a-lost">0</span></div>
+              </div>
+            </div>
+            <div class="rs-momentum">
+              <div class="rs-momentum-arrow" id="rs-momentum-arrow"></div>
+              <div class="rs-momentum-label" id="rs-momentum-label">Even</div>
+            </div>
+            <div class="rs-col rs-col-b">
+              <div class="rs-col-tag">B</div>
+              <div class="rs-stats">
+                <div class="rs-stat"><span>Tiles</span><span class="rs-delta" id="rs-b-delta">+0</span></div>
+                <div class="rs-stat"><span>Total</span><span class="rs-total" id="rs-b-total">0</span></div>
+                <div class="rs-stat"><span>Pets lost</span><span class="rs-lost" id="rs-b-lost">0</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="exec-bar" id="exec-bar">
+        <div class="exec-fill" id="exec-fill"></div>
+        <div class="exec-label" id="exec-label">Execution 0.0s / 8.0s</div>
+      </div>
+    </section>
+
+    <aside class="sidebar sidebar-right">
+      <div class="panel-title">Facing</div>
+      <div class="facing-row">
+        <div class="facing-display" id="facing-display">
+          <div class="facing-arrow" id="facing-arrow">▲</div>
+          <div class="facing-name" id="facing-name">North</div>
+        </div>
+        <button class="btn-rotate" id="btn-rotate" title="Rotate clockwise">
+          <span class="rotate-icon">⟳</span>
+          <span class="rotate-label">Rotate</span>
+          <span class="btn-hotkey">R</span>
+        </button>
+      </div>
+
+      <div class="panel-title">Tactical</div>
+      <div class="tactical">
+        <div class="tac-row tac-row-tick" id="tac-tick-row">
+          <span class="tac-label">Exec tick</span>
+          <span class="tac-value"><span id="tac-tick">0</span> <span class="tac-of">/ <span id="tac-tick-total">160</span></span></span>
+        </div>
+        <div class="tac-row">
+          <span class="tac-label">Deployed</span>
+          <span class="tac-deploy">
+            <span class="tac-deploy-pill tac-deploy-a"><span class="tac-deploy-dot dot-a"></span><span id="tac-deploy-a">0</span></span>
+            <span class="tac-deploy-pill tac-deploy-b"><span class="tac-deploy-dot dot-b"></span><span id="tac-deploy-b">0</span></span>
+          </span>
+        </div>
+        <div class="tac-events-head">Recent events</div>
+        <ul class="tac-events" id="tac-events">
+          <li class="tac-events-empty">No events yet</li>
+        </ul>
+      </div>
+
+      <div class="panel-title">Energy</div>
+      <div class="energy-row">
+        <div class="energy-cell energy-a">
+          <div class="energy-label">A</div>
+          <div class="energy-val" id="energy-a">∞</div>
+        </div>
+        <div class="energy-cell energy-b">
+          <div class="energy-label">B</div>
+          <div class="energy-val" id="energy-b">∞</div>
+        </div>
+      </div>
+
+      <div class="action-area">
+        <button class="btn-primary" id="btn-start">
+          ▶ Ready
+          <span class="btn-hotkey-light">Space</span>
+        </button>
+        <button class="btn-secondary" id="btn-leave-room">
+          ⬅ Leave room
+        </button>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <span><kbd>1</kbd>–<kbd>9</kbd>,<kbd>0</kbd> select pet</span>
+    <span><kbd>R</kbd> or <kbd>right-click</kbd> rotate</span>
+    <span><kbd>Left-click</kbd> deploy on own tile</span>
+    <span><kbd>Space</kbd> ready up</span>
+  </footer>
+</div>
+
+<div class="win-overlay" id="win-overlay" hidden>
+  <div class="win-confetti" id="win-confetti"></div>
+  <div class="win-card">
+    <div class="win-eyebrow">Match complete</div>
+    <div class="win-headline">
+      Player <span id="win-winner">A</span> wins
+    </div>
+    <div class="win-recap">
+      <div class="win-recap-side">
+        <span class="win-recap-tag win-recap-tag-a">A</span>
+        <span class="win-recap-val" id="win-recap-a">0%</span>
+      </div>
+      <div class="win-recap-vs">vs</div>
+      <div class="win-recap-side">
+        <span class="win-recap-tag win-recap-tag-b">B</span>
+        <span class="win-recap-val" id="win-recap-b">0%</span>
+      </div>
+    </div>
+    <div class="win-actions">
+      <button class="btn-primary" id="win-rematch">⬅ Back to Lobby</button>
+    </div>
+  </div>
+</div>
+
+<div id="online-banner">
+  <span id="online-status">Connecting…</span>
+</div>
+`;
+
+export const OnlineMatchScreen: Screen = {
+  name: 'online-match',
+  mount(root, params) {
+    const roomId = params?.room;
+    if (!roomId) { navigate('lobby'); return; }
+
+    // Build the container element (mirrors sandbox structure but with online class).
+    const container = document.createElement('div');
+    container.className = 'online-match-screen';
+    container.id = 'online-match-container';
+    container.innerHTML = SANDBOX_MARKUP;
+    root.appendChild(container);
+
+    const statusEl = container.querySelector('#online-status') as HTMLElement;
+
+    let controller: OnlineMatchController | null = null;
+    let bootHandle: ReturnType<typeof bootSandbox> | null = null;
+
+    // Wire the Leave room / win-rematch buttons before async boot resolves so they
+    // are always available regardless of connection state.
+    container.querySelector('#btn-leave-room')?.addEventListener('click', () => navigate('lobby'));
+    container.querySelector('#win-rematch')?.addEventListener('click', () => navigate('lobby'));
+
+    Promise.all([getRoom(roomId), ensureProfile()]).then(([room, profile]) => {
+      if (!room) {
+        statusEl.textContent = 'Room not found';
+        return;
+      }
+      const mySlot: 'A' | 'B' = room.host_id === profile.id ? 'A' : 'B';
+      statusEl.textContent = `Online · You are Player ${mySlot} · Room ${room.code}`;
+
+      // Boot sandbox inside our container, injecting online bindings.
+      bootHandle = bootSandbox(container, {
+        initialRound: room.current_round,
+        onDeploy(defId, anchor, facing) {
+          if (controller) {
+            const ok = controller.queueLocalDeployment({ defId, anchor, facing });
+            if (!ok) {
+              // showBanner is called by deploy-ui; no additional action needed here.
+              console.warn('queueLocalDeployment rejected — already readied?');
+            }
+          }
+        },
+        onReady() {
+          if (controller) {
+            controller.submitMyReady().catch((e) => {
+              console.error('submitMyReady failed', e);
+            });
+          }
+        },
+        onExecutionEnd() {
+          if (controller) {
+            controller.onExecutionEnd().catch((e) => {
+              console.warn('onExecutionEnd persistence failed', e);
+            });
+          }
+        },
+      });
+
+      controller = new OnlineMatchController(roomId, mySlot, bootHandle.state);
+      controller.attach();
+    }).catch((e) => {
+      statusEl.textContent = 'Error: ' + (e as Error).message;
+    });
+
+    return () => {
+      if (controller) controller.detach();
+      if (bootHandle) bootHandle.stop();
+    };
+  },
+};
