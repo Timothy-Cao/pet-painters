@@ -2,6 +2,8 @@ import type { MatchState } from '../types/game';
 import { getPetDef } from './pet-defs';
 import { TICKS_PER_SEC } from '../config/constants';
 import { resolveMovements } from './movement';
+import { pushEvent } from '../ui/event-log';
+import { pushPoof } from '../render/effects';
 
 export function advanceTick(state: MatchState): void {
   if (state.phase !== 'execution') return;
@@ -9,6 +11,8 @@ export function advanceTick(state: MatchState): void {
 
   for (const pet of state.pets) {
     if (pet.hp <= 0) continue;
+    // Frozen pets (e.g. webbed by a spider) skip all tuple firing this tick.
+    if (pet.frozenUntilTick !== undefined && state.tick < pet.frozenUntilTick) continue;
     const def = getPetDef(pet.defId);
     for (let i = 0; i < def.tuples.length; i++) {
       if (pet.hp <= 0) break;
@@ -25,7 +29,15 @@ export function advanceTick(state: MatchState): void {
     }
   }
 
-  // Death cleanup — remove dead pets before resolving movement
+  // Death cleanup — emit the death poof and log each dying pet.
+  for (const p of state.pets) {
+    if (p.hp <= 0) {
+      const d = getPetDef(p.defId);
+      pushEvent(d.emoji, `${d.displayName} (${p.owner}) fell`);
+      // Poof at the pet's center (anchor + half-size for multi-tile pets).
+      pushPoof(p.anchor.x + (d.size.w - 1) / 2, p.anchor.y + (d.size.h - 1) / 2, p.owner);
+    }
+  }
   state.pets = state.pets.filter((p) => p.hp > 0);
 
   resolveMovements(state);

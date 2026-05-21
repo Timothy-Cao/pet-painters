@@ -1,5 +1,6 @@
 import type { Board, TileColor, Vec2, PlayerId } from '../types/game';
 import { BOARD_SIZE, HOME_ROWS } from '../config/constants';
+import { pushSplat } from '../render/effects';
 
 function inBounds(board: Board, p: Vec2): boolean {
   return p.x >= 0 && p.x < board.size && p.y >= 0 && p.y < board.size;
@@ -22,9 +23,21 @@ export function getTile(board: Board, p: Vec2): TileColor {
   return board.tiles[p.y * board.size + p.x];
 }
 
+export function isHomeRow(p: Vec2): 'A' | 'B' | null {
+  if (p.y < HOME_ROWS) return 'A';
+  if (p.y >= BOARD_SIZE - HOME_ROWS) return 'B';
+  return null;
+}
+
 export function paintTile(board: Board, p: Vec2, color: TileColor): void {
   if (!inBounds(board, p)) return;
-  board.tiles[p.y * board.size + p.x] = color;
+  if (isHomeRow(p) !== null) return;
+  const idx = p.y * board.size + p.x;
+  if (board.tiles[idx] === color) return;     // no-op when nothing changes
+  board.tiles[idx] = color;
+  if (color === 'A' || color === 'B') {
+    pushSplat(p.x, p.y, color);
+  }
 }
 
 export function scoreFor(board: Board, player: PlayerId): number {

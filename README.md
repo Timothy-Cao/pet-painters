@@ -1,36 +1,59 @@
 # Pet Painters
 
-A two-player territory game where you drop autonomous emoji pets onto a board, and they walk and paint tiles in your color. First to paint 75% of the board wins.
+> A small tactical sandbox where each pet has unmistakable identity and every match feels juicy from start to finish.
 
-**Status:** v1.1 playable — see the [design spec](docs/superpowers/specs/2026-05-20-pet-painters-design.md) and [implementation plan](docs/superpowers/plans/2026-05-20-pet-painters-v1.1.md). 47 unit tests, deterministic simulation, hot-seat 2-player.
+Two players, twelve-by-twelve grid, six animals. Deploy your pets, hit go, and watch your color spread. First side to paint 75% of the board wins.
 
-## Concept
-
-- Pets are autonomous. You don't move them; you deploy them with a chosen position and facing direction, and they execute their behavior on their own.
-- Pets paint the tiles they walk across. Painting = territory.
-- The game runs as a 20 Hz simulation, paused every ~8 seconds for a planning phase where both players queue new deployments using accumulated energy.
-- v1.1 ships with two pets: a fast 1×1 **Mouse** and a slow 2×2 **Elephant**.
-
-## Known v1.1 limitations
-
-- Pets jump tile-to-tile each move tick instead of interpolating smoothly between them. Interpolation is purely a visual concern and can be added without changing simulation logic. (Tracked for v1.2.)
-- Hot-seat planning shows both players' deployed pets on the same screen — there is no "screen handoff" to hide one player's queue from the other. v1.1 is a single-developer playtest tool; secrecy can be added later.
-- Planning phase has no timer (the soft-timeout from the spec is unimplemented). Both players must press Space to ready.
-- Deployments are committed immediately on left-click (energy is debited and the pet appears on the board right away). The spec's "queue then batch-apply at execution start" flow and right-click cancel/refund are not implemented in v1.1.
-- Simultaneous-threshold tiebreak: if both players cross 75% on the exact same tick, A wins on equal score rather than declaring a draw. Mechanically near-impossible in v1.1.
-- No sound, no animations, no game-over restart button — refresh the page to play again.
-
-## Running locally
+## Play locally
 
 ```bash
 npm install
-npm run dev
+npm run dev          # http://localhost:5173
+npm test             # 65 tests, ~600ms
+npm run build        # production bundle
 ```
 
-Open the browser at http://localhost:5173.
+## The pets
 
-## Running tests
+| | Pet | Role | Trait |
+|--|--|--|--|
+| 🐭 | Mouse | Cheap quick painter | Scurries — turns randomly when blocked |
+| 🐘 | Elephant | Territory lock | Unshakable — cannot be pushed, only walls turn it |
+| 🐱 | Cat | Wide-area painter / mouse counter | Wanders unpredictably, pounces only on mice |
+| 🐰 | Rabbit | Penetrator | Vaults over single pet blockers |
+| 🐢 | Turtle | Area expander | Splashes paint onto all 4 neighbors every second |
+| 🦨 | Skunk | Disruptor | Adjacent enemies are forced to face away |
 
-```bash
-npm test
-```
+Hover a card in-app for full stats. The [`pet-designer` skill](./.claude/skills/pet-designer/SKILL.md) covers adding new ones.
+
+## Controls
+
+- **Click a roster card** (or **1–6**) to select a pet
+- **Click a tile** in your color to deploy
+- **R** or **right-click** rotates the deploying pet
+- **Space** starts the round
+- **Esc** deselects
+- The ⚙ in the top-right opens accessibility settings (colorblind-safe palette toggle)
+
+## Project layout (where to make changes)
+
+- `src/sim/` — pure simulation: board, movement, combat, behaviors
+- `src/sim/pets/<name>.ts` — one file per pet; stats + behavior + UI metadata co-located
+- `src/sim/behaviors.ts` — reusable trigger + action primitives
+- `src/render/` — canvas drawing, effects, interpolation, palette
+- `src/ui/` — DOM HUD, event log
+- `src/input/` — mouse + keyboard handlers
+- `tests/scenario.ts` — scripted-sim harness for matchup tests
+- `tests/pets-smoke.test.ts` — three invariants per pet, auto-iterates `ALL_PETS`
+
+Deeper docs:
+
+- [`ARCHITECTURE.md`](./ARCHITECTURE.md) — dataflow, layering rules, how a tick happens
+- [`ROADMAP.md`](./ROADMAP.md) — phased plan, north star, intentional non-goals
+- [`.claude/skills/pet-designer/SKILL.md`](./.claude/skills/pet-designer/SKILL.md) — design philosophy + integration checklist for new pets
+
+## Status
+
+Phase 1 (Feel) is complete: smooth interpolation, paint splats, damage numbers, death poofs, round summary, tactical sidebar, dot-grid texture, accessibility v1. Phase 2 (Content + readability) is next — see the [roadmap](./ROADMAP.md).
+
+Current branch: `sandbox-ui-overhaul`. The history is small, focused commits in single-letter "Part" chunks — easy to follow what each step delivered.

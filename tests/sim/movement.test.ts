@@ -3,13 +3,25 @@ import { createInitialMatch } from '../../src/sim/match';
 import { tryDeploy } from '../../src/sim/deploy';
 import { advanceTick } from '../../src/sim/tick';
 import { MOUSE, ELEPHANT } from '../../src/sim/pet-defs';
-import { TICKS_PER_SEC } from '../../src/config/constants';
+import { TICKS_PER_SEC, BOARD_SIZE } from '../../src/config/constants';
 import { getTile } from '../../src/sim/board';
 import type { MatchState } from '../../src/types/game';
+import type { Pet } from '../../src/types/pet';
 
 function runTicks(state: MatchState, n: number) {
   for (let i = 0; i < n; i++) advanceTick(state);
 }
+
+// Pin every tuple on the pet so its own behaviors won't fire until well past
+// the duration of any test. Useful for isolating push/conflict mechanics.
+function pin(pet: Pet) {
+  for (let i = 0; i < pet.tupleLastFireTick.length; i++) {
+    pet.tupleLastFireTick[i] = 1000;
+  }
+}
+
+// Mouse moves at 4 tiles/sec → one step every 5 ticks at 20Hz.
+const MOUSE_TICKS_PER_STEP = TICKS_PER_SEC / 4; // = 5
 
 describe('mouse movement', () => {
   let state: MatchState;
@@ -21,28 +33,37 @@ describe('mouse movement', () => {
 
   it('advances 1 tile after move interval', () => {
     tryDeploy(state, 'A', MOUSE.id, { x: 3, y: 0 }, 'N');
-    runTicks(state, 10); // 0.5s = 10 ticks
+    runTicks(state, MOUSE_TICKS_PER_STEP);
     expect(state.pets[0].anchor).toEqual({ x: 3, y: 1 });
   });
 
   it('paints the tile it enters', () => {
     tryDeploy(state, 'A', MOUSE.id, { x: 3, y: 1 }, 'N');
-    runTicks(state, 10);
+    runTicks(state, MOUSE_TICKS_PER_STEP);
     expect(getTile(state.board, { x: 3, y: 2 })).toBe('A');
   });
 
-  it('stops at board edge', () => {
+  it('scurries (changes facing) the first time it hits the board edge', () => {
+    // Mouse moves N at 4 tiles/sec = every 5 ticks. From y=0 to y=(BOARD_SIZE-1)
+    // takes (BOARD_SIZE-1) steps = (BOARD_SIZE-1)*5 ticks. One extra interval
+    // (5 ticks) past that is when scurry first fires — turning to W/E/S, never N.
+    const edgeY = BOARD_SIZE - 1;
+    const reachTicks = edgeY * MOUSE_TICKS_PER_STEP;
     tryDeploy(state, 'A', MOUSE.id, { x: 3, y: 0 }, 'N');
-    runTicks(state, TICKS_PER_SEC * 10);
-    expect(state.pets[0].anchor.y).toBe(11);
+    runTicks(state, reachTicks + MOUSE_TICKS_PER_STEP);
+    expect(state.pets[0].anchor.y).toBe(edgeY);
+    expect(state.pets[0].facing).not.toBe('N');
   });
 
-  it('stops when blocked by an allied pet in front', () => {
+  it('scurries (changes facing) when blocked by an allied pet in front', () => {
     tryDeploy(state, 'A', MOUSE.id, { x: 3, y: 0 }, 'N');
     tryDeploy(state, 'A', MOUSE.id, { x: 3, y: 1 }, 'N');
-    runTicks(state, 10);
+    // Pin the front mouse so it stays put as a blocker.
+    pin(state.pets[1]);
+    runTicks(state, MOUSE_TICKS_PER_STEP);
+    // The blocked mouse (state.pets[0]) should have turned rather than stepped into the blocker.
     expect(state.pets[0].anchor).toEqual({ x: 3, y: 0 });
-    expect(state.pets[1].anchor).toEqual({ x: 3, y: 2 });
+    expect(state.pets[0].facing).not.toBe('N');
   });
 });
 
@@ -58,7 +79,7 @@ describe('entry conflicts', () => {
     tryDeploy(state, 'A', MOUSE.id, { x: 5, y: 1 }, 'N'); // target (5,2)
     state.energy.B = 10;
     tryDeploy(state, 'B', MOUSE.id, { x: 5, y: 3 }, 'S'); // target (5,2)
-    runTicks(state, 10);
+    runTicks(state, MOUSE_TICKS_PER_STEP);
     const occupants = state.pets.filter(p => p.anchor.x === 5 && p.anchor.y === 2);
     expect(occupants.length).toBe(1);
   });
@@ -74,15 +95,13 @@ describe('push-through movement', () => {
 
   it('Elephant pushes a single Mouse forward', () => {
     tryDeploy(state, 'A', ELEPHANT.id, { x: 0, y: 0 }, 'N');
-    // Move Elephant out of home zone before deploying Mouse
-    state.pets[0].anchor = { x: 1, y: 6 }; // Elephant footprint (1,6)(2,6)(1,7)(2,7); facing N → fronts (1,8)(2,8)
+    state.pets[0].anchor = { x: 1, y: 6 };
     state.pets[0].facing = 'N';
     tryDeploy(state, 'A', MOUSE.id, { x: 3, y: 0 }, 'N');
     state.pets[1].anchor = { x: 1, y: 8 };
     state.pets[1].facing = 'W';
-    // Pin the Mouse so its own move tuple won't fire
-    state.pets[1].tupleLastFireTick[0] = 1000;
-    runTicks(state, 40); // 1 Elephant move interval
+    pin(state.pets[1]);
+    runTicks(state, 40); // 1 Elephant move interval (2s)
     expect(state.pets[1].anchor).toEqual({ x: 1, y: 9 });
     expect(state.pets[0].anchor).toEqual({ x: 1, y: 7 });
   });
@@ -95,8 +114,7 @@ describe('push-through movement', () => {
       tryDeploy(state, 'A', MOUSE.id, { x: 1, y: 1 }, 'N');
       state.pets[1 + i].anchor = { x: 1, y: 6 + i };
       state.pets[1 + i].facing = 'W';
-      // Pin each Mouse so its own move tuple won't fire
-      state.pets[1 + i].tupleLastFireTick[0] = 1000;
+      pin(state.pets[1 + i]);
     }
     runTicks(state, 40);
     for (let i = 0; i < 4; i++) {
@@ -113,36 +131,42 @@ describe('push-through movement', () => {
       tryDeploy(state, 'A', MOUSE.id, { x: 1, y: 1 }, 'N');
       state.pets[1 + i].anchor = { x: 1, y: 6 + i };
       state.pets[1 + i].facing = 'W';
-      // Pin each Mouse so its own move tuple won't fire
-      state.pets[1 + i].tupleLastFireTick[0] = 1000;
+      pin(state.pets[1 + i]);
     }
     runTicks(state, 40);
     expect(state.pets[0].anchor).toEqual({ x: 1, y: 4 });
   });
 
   it('Elephant blocked when chain hits board edge with no empty tile', () => {
+    // Anchor the elephant two tiles below the top edge (its 2-tall body sits
+    // on rows BOARD_SIZE-3..BOARD_SIZE-2), then place a mouse on the very top
+    // row. The chain bumps into the wall and can't move.
     tryDeploy(state, 'A', ELEPHANT.id, { x: 1, y: 0 }, 'N');
-    state.pets[0].anchor = { x: 1, y: 9 };
+    const eAnchor = BOARD_SIZE - 3;
+    state.pets[0].anchor = { x: 1, y: eAnchor };
     state.pets[0].facing = 'N';
     tryDeploy(state, 'A', MOUSE.id, { x: 1, y: 1 }, 'N');
-    state.pets[1].anchor = { x: 1, y: 11 };
+    state.pets[1].anchor = { x: 1, y: BOARD_SIZE - 1 };
     state.pets[1].facing = 'W';
-    // Pin the Mouse so its own move tuple won't fire
-    state.pets[1].tupleLastFireTick[0] = 1000;
+    pin(state.pets[1]);
     runTicks(state, 40);
-    expect(state.pets[0].anchor).toEqual({ x: 1, y: 9 });
+    expect(state.pets[0].anchor).toEqual({ x: 1, y: eAnchor });
   });
 
-  it('Mouse cannot push an Elephant (weight 1 vs 10)', () => {
+  it('Mouse facing an immovable Elephant scurries instead of pushing', () => {
+    // Both players deploy in their own home zones, then we manually reposition.
     tryDeploy(state, 'A', MOUSE.id, { x: 5, y: 1 }, 'N');
     state.pets[0].anchor = { x: 5, y: 5 };
     state.pets[0].facing = 'N';
-    tryDeploy(state, 'B', ELEPHANT.id, { x: 5, y: 10 }, 'S'); // 2x2 footprint at y=10,11 ✓
+    // Player B's home is now the last 3 rows of a 16-row board: y ∈ [13, 15].
+    // Elephant is 2×2 so the deepest fitting anchor is y = BOARD_SIZE - 2 = 14.
+    tryDeploy(state, 'B', ELEPHANT.id, { x: 5, y: BOARD_SIZE - 2 }, 'S');
     state.pets[1].anchor = { x: 5, y: 6 };
     state.pets[1].facing = 'W';
-    // Pin the Elephant so its own move tuple won't fire
-    state.pets[1].tupleLastFireTick[0] = 1000;
-    runTicks(state, 10);
-    expect(state.pets[0].anchor).toEqual({ x: 5, y: 5 });
+    pin(state.pets[1]);
+    runTicks(state, MOUSE_TICKS_PER_STEP);
+    expect(state.pets[0].anchor).not.toEqual({ x: 5, y: 6 });
+    expect(state.pets[0].facing).not.toBe('N');
+    expect(state.pets[1].anchor).toEqual({ x: 5, y: 6 });
   });
 });

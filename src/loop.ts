@@ -44,8 +44,7 @@ export class GameLoop {
 
     this.onRender();
 
-    if (this.state.phase !== 'ended') {
-      requestAnimationFrame(this.frame);
-    }
+    // Always keep rendering — phase transitions (incl. reset out of 'ended') are handled in-place.
+    requestAnimationFrame(this.frame);
   };
 }

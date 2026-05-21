@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { createInitialMatch } from '../../src/sim/match';
 import { tryDeploy } from '../../src/sim/deploy';
 import { advanceTick } from '../../src/sim/tick';
-import { MOUSE } from '../../src/sim/pet-defs';
+import { MOUSE, TUPLE_INDEX_MOVE } from '../../src/sim/pet-defs';
 import type { MatchState } from '../../src/types/game';
 
 function runTicks(state: MatchState, n: number) {
@@ -28,16 +28,15 @@ describe('advanceTick', () => {
     expect(state.tick).toBe(0);
   });
 
-  it('fires a pet tuple exactly once per interval', () => {
+  it('fires the mouse move tuple exactly once per interval', () => {
+    // Mouse move tuple interval = 0.25s = 5 ticks at 20Hz (speed 4 tiles/sec).
     tryDeploy(state, 'A', MOUSE.id, { x: 3, y: 0 }, 'N');
     const pet = state.pets[0];
-    // Mouse move tuple interval = 0.5s = 10 ticks at 20Hz.
-    // The tuple is currently a stub (trigger returns false), but lastFireTick is still set when timer elapses.
-    runTicks(state, 9);
-    expect(pet.tupleLastFireTick[0]).toBe(-1);
+    runTicks(state, 4);
+    expect(pet.tupleLastFireTick[TUPLE_INDEX_MOVE]).toBe(-1);
     advanceTick(state);
-    expect(pet.tupleLastFireTick[0]).toBe(10);
-    runTicks(state, 10);
-    expect(pet.tupleLastFireTick[0]).toBe(20);
+    expect(pet.tupleLastFireTick[TUPLE_INDEX_MOVE]).toBe(5);
+    runTicks(state, 5);
+    expect(pet.tupleLastFireTick[TUPLE_INDEX_MOVE]).toBe(10);
   });
 });

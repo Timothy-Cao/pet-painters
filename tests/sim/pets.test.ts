@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { footprintTiles, frontTiles } from '../../src/sim/pets';
+import { footprintTiles, frontTiles } from '../../src/sim/geometry';
 
 describe('footprintTiles', () => {
   it('returns single tile for 1x1', () => {

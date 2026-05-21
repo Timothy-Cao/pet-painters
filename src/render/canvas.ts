@@ -14,7 +14,7 @@ export function createRenderContext(canvas: HTMLCanvasElement): RenderContext {
 }
 
 export function clearCanvas(rc: RenderContext): void {
-  rc.ctx.fillStyle = '#1a1a1a';
+  rc.ctx.fillStyle = '#0a0d12';
   rc.ctx.fillRect(0, 0, rc.width, rc.height);
 }
 

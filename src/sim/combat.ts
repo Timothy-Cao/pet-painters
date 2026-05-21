@@ -1,7 +1,8 @@
 import type { MatchState } from '../types/game';
 import type { Pet } from '../types/pet';
 import { getPetDef } from './pet-defs';
-import { frontTiles, footprintTiles } from './pets';
+import { frontTiles, footprintTiles } from './geometry';
+import { pushHit, pushDamage } from '../render/effects';
 
 export function enemiesInFront(pet: Pet, state: MatchState): Pet[] {
   const def = getPetDef(pet.defId);
@@ -28,5 +29,7 @@ export function applyAttack(pet: Pet, state: MatchState): void {
   const def = getPetDef(pet.defId);
   for (const target of enemiesInFront(pet, state)) {
     target.hp -= def.atk;
+    pushHit(target.anchor.x, target.anchor.y, pet.owner);
+    if (def.atk > 0) pushDamage(target.anchor.x, target.anchor.y, pet.owner, def.atk);
   }
 }
