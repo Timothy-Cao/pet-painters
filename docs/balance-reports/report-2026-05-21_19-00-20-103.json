@@ -1,0 +1,5149 @@
+{
+  "config": {
+    "energyBudget": 20,
+    "maxSeconds": 30,
+    "soloSamples": 100,
+    "pairSamples": 30,
+    "tripletSamples": 20,
+    "winThreshold": 153
+  },
+  "solo": [
+    {
+      "petA": "mouse",
+      "petB": "mouse",
+      "agg": {
+        "winsA": 50,
+        "winsB": 44,
+        "draws": 6,
+        "avgScoreA": 128.71,
+        "avgScoreB": 125.98,
+        "avgPetsDeployedA": 10,
+        "avgPetsDeployedB": 10,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "mouse",
+      "petB": "elephant",
+      "agg": {
+        "winsA": 94,
+        "winsB": 6,
+        "draws": 0,
+        "avgScoreA": 146.14,
+        "avgScoreB": 94.25,
+        "avgPetsDeployedA": 10,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "mouse",
+      "petB": "cat",
+      "agg": {
+        "winsA": 63,
+        "winsB": 36,
+        "draws": 1,
+        "avgScoreA": 116.55,
+        "avgScoreB": 103.38,
+        "avgPetsDeployedA": 10,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "mouse",
+      "petB": "rabbit",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 153.76,
+        "avgScoreB": 74.37,
+        "avgPetsDeployedA": 10,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "mouse",
+      "petB": "turtle",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 153.64,
+        "avgScoreB": 76.91,
+        "avgPetsDeployedA": 10,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "mouse",
+      "petB": "skunk",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 153.11,
+        "avgScoreB": 73.13,
+        "avgPetsDeployedA": 10,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "mouse",
+      "petB": "lion",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 149.54,
+        "avgScoreB": 68.82,
+        "avgPetsDeployedA": 10,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "mouse",
+      "petB": "spider",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 152.17,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 10,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "mouse",
+      "petB": "eagle",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 153.4,
+        "avgScoreB": 65.25,
+        "avgPetsDeployedA": 10,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "mouse",
+      "petB": "bear",
+      "agg": {
+        "winsA": 66,
+        "winsB": 25,
+        "draws": 9,
+        "avgScoreA": 111.73,
+        "avgScoreB": 103.98,
+        "avgPetsDeployedA": 10,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "mouse",
+      "petB": "rhino",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 142.25,
+        "avgScoreB": 82.54,
+        "avgPetsDeployedA": 10,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "mouse",
+      "petB": "dragon",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 151.67,
+        "avgScoreB": 68.43,
+        "avgPetsDeployedA": 10,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "mouse",
+      "petB": "whale",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 153.25,
+        "avgScoreB": 76.08,
+        "avgPetsDeployedA": 10,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "elephant",
+      "petB": "mouse",
+      "agg": {
+        "winsA": 2,
+        "winsB": 98,
+        "draws": 0,
+        "avgScoreA": 90.63,
+        "avgScoreB": 146.01,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 10,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "elephant",
+      "petB": "elephant",
+      "agg": {
+        "winsA": 0,
+        "winsB": 0,
+        "draws": 100,
+        "avgScoreA": 88,
+        "avgScoreB": 88,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "elephant",
+      "petB": "cat",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 126.01,
+        "avgScoreB": 64.37,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "elephant",
+      "petB": "rabbit",
+      "agg": {
+        "winsA": 99,
+        "winsB": 1,
+        "draws": 0,
+        "avgScoreA": 125.06,
+        "avgScoreB": 71.81,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "elephant",
+      "petB": "turtle",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 115.57,
+        "avgScoreB": 60.43,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "elephant",
+      "petB": "skunk",
+      "agg": {
+        "winsA": 61,
+        "winsB": 35,
+        "draws": 4,
+        "avgScoreA": 93.97,
+        "avgScoreB": 90.84,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "elephant",
+      "petB": "lion",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 108,
+        "avgScoreB": 68,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "elephant",
+      "petB": "spider",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 128,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "elephant",
+      "petB": "eagle",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 125.74,
+        "avgScoreB": 61.89,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "elephant",
+      "petB": "bear",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 68,
+        "avgScoreB": 108,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "elephant",
+      "petB": "rhino",
+      "agg": {
+        "winsA": 0,
+        "winsB": 0,
+        "draws": 100,
+        "avgScoreA": 88,
+        "avgScoreB": 88,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "elephant",
+      "petB": "dragon",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 108,
+        "avgScoreB": 68,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "elephant",
+      "petB": "whale",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 98,
+        "avgScoreB": 78,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "cat",
+      "petB": "mouse",
+      "agg": {
+        "winsA": 17,
+        "winsB": 82,
+        "draws": 1,
+        "avgScoreA": 88.77,
+        "avgScoreB": 126.49,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 10,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "cat",
+      "petB": "elephant",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 61.96,
+        "avgScoreB": 126.61,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "cat",
+      "petB": "cat",
+      "agg": {
+        "winsA": 48,
+        "winsB": 52,
+        "draws": 0,
+        "avgScoreA": 93.45,
+        "avgScoreB": 96.68,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "cat",
+      "petB": "rabbit",
+      "agg": {
+        "winsA": 27,
+        "winsB": 73,
+        "draws": 0,
+        "avgScoreA": 92.07,
+        "avgScoreB": 104.03,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "cat",
+      "petB": "turtle",
+      "agg": {
+        "winsA": 27,
+        "winsB": 73,
+        "draws": 0,
+        "avgScoreA": 85.03,
+        "avgScoreB": 96,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "cat",
+      "petB": "skunk",
+      "agg": {
+        "winsA": 16,
+        "winsB": 83,
+        "draws": 1,
+        "avgScoreA": 82.97,
+        "avgScoreB": 103.91,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "cat",
+      "petB": "lion",
+      "agg": {
+        "winsA": 32,
+        "winsB": 65,
+        "draws": 3,
+        "avgScoreA": 70.22,
+        "avgScoreB": 75.89,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "cat",
+      "petB": "spider",
+      "agg": {
+        "winsA": 95,
+        "winsB": 0,
+        "draws": 5,
+        "avgScoreA": 101.4,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "cat",
+      "petB": "eagle",
+      "agg": {
+        "winsA": 90,
+        "winsB": 10,
+        "draws": 0,
+        "avgScoreA": 97.58,
+        "avgScoreB": 76.59,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "cat",
+      "petB": "bear",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 62.76,
+        "avgScoreB": 107.57,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "cat",
+      "petB": "rhino",
+      "agg": {
+        "winsA": 3,
+        "winsB": 97,
+        "draws": 0,
+        "avgScoreA": 56.67,
+        "avgScoreB": 87.73,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "cat",
+      "petB": "dragon",
+      "agg": {
+        "winsA": 33,
+        "winsB": 65,
+        "draws": 2,
+        "avgScoreA": 79.02,
+        "avgScoreB": 86.05,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "cat",
+      "petB": "whale",
+      "agg": {
+        "winsA": 2,
+        "winsB": 98,
+        "draws": 0,
+        "avgScoreA": 77.78,
+        "avgScoreB": 105.91,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rabbit",
+      "petB": "mouse",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 75.87,
+        "avgScoreB": 153.73,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 10,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rabbit",
+      "petB": "elephant",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 68.58,
+        "avgScoreB": 125.65,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rabbit",
+      "petB": "cat",
+      "agg": {
+        "winsA": 66,
+        "winsB": 33,
+        "draws": 1,
+        "avgScoreA": 101.12,
+        "avgScoreB": 93.64,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rabbit",
+      "petB": "rabbit",
+      "agg": {
+        "winsA": 0,
+        "winsB": 0,
+        "draws": 100,
+        "avgScoreA": 78,
+        "avgScoreB": 78,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rabbit",
+      "petB": "turtle",
+      "agg": {
+        "winsA": 12,
+        "winsB": 87,
+        "draws": 1,
+        "avgScoreA": 80.35,
+        "avgScoreB": 93.74,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rabbit",
+      "petB": "skunk",
+      "agg": {
+        "winsA": 56,
+        "winsB": 44,
+        "draws": 0,
+        "avgScoreA": 86.65,
+        "avgScoreB": 85,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rabbit",
+      "petB": "lion",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 104.03,
+        "avgScoreB": 64.06,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rabbit",
+      "petB": "spider",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 108,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rabbit",
+      "petB": "eagle",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 93,
+        "avgScoreB": 63,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rabbit",
+      "petB": "bear",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 108,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rabbit",
+      "petB": "rhino",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 68,
+        "avgScoreB": 88,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rabbit",
+      "petB": "dragon",
+      "agg": {
+        "winsA": 73,
+        "winsB": 19,
+        "draws": 8,
+        "avgScoreA": 94.24,
+        "avgScoreB": 80.69,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rabbit",
+      "petB": "whale",
+      "agg": {
+        "winsA": 20,
+        "winsB": 77,
+        "draws": 3,
+        "avgScoreA": 92.24,
+        "avgScoreB": 103.79,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "turtle",
+      "petB": "mouse",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 66.07,
+        "avgScoreB": 152.9,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 10,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "turtle",
+      "petB": "elephant",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 59,
+        "avgScoreB": 117,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "turtle",
+      "petB": "cat",
+      "agg": {
+        "winsA": 93,
+        "winsB": 7,
+        "draws": 0,
+        "avgScoreA": 108.24,
+        "avgScoreB": 81.88,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "turtle",
+      "petB": "rabbit",
+      "agg": {
+        "winsA": 90,
+        "winsB": 6,
+        "draws": 4,
+        "avgScoreA": 103.34,
+        "avgScoreB": 78.95,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "turtle",
+      "petB": "turtle",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 90,
+        "avgScoreB": 85,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "turtle",
+      "petB": "skunk",
+      "agg": {
+        "winsA": 2,
+        "winsB": 98,
+        "draws": 0,
+        "avgScoreA": 77.35,
+        "avgScoreB": 100.34,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "turtle",
+      "petB": "lion",
+      "agg": {
+        "winsA": 72,
+        "winsB": 0,
+        "draws": 28,
+        "avgScoreA": 81.87,
+        "avgScoreB": 74.13,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "turtle",
+      "petB": "spider",
+      "agg": {
+        "winsA": 0,
+        "winsB": 0,
+        "draws": 100,
+        "avgScoreA": 48,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "turtle",
+      "petB": "eagle",
+      "agg": {
+        "winsA": 93,
+        "winsB": 6,
+        "draws": 1,
+        "avgScoreA": 84.97,
+        "avgScoreB": 68.38,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "turtle",
+      "petB": "bear",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 55,
+        "avgScoreB": 101,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "turtle",
+      "petB": "rhino",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 70,
+        "avgScoreB": 86,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "turtle",
+      "petB": "dragon",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 93,
+        "avgScoreB": 79,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "turtle",
+      "petB": "whale",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 80,
+        "avgScoreB": 92,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "skunk",
+      "petB": "mouse",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 64.07,
+        "avgScoreB": 152.99,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 10,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "skunk",
+      "petB": "elephant",
+      "agg": {
+        "winsA": 58,
+        "winsB": 40,
+        "draws": 2,
+        "avgScoreA": 95.86,
+        "avgScoreB": 92.26,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "skunk",
+      "petB": "cat",
+      "agg": {
+        "winsA": 86,
+        "winsB": 9,
+        "draws": 5,
+        "avgScoreA": 105.12,
+        "avgScoreB": 79.21,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "skunk",
+      "petB": "rabbit",
+      "agg": {
+        "winsA": 94,
+        "winsB": 4,
+        "draws": 2,
+        "avgScoreA": 103.83,
+        "avgScoreB": 69.16,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "skunk",
+      "petB": "turtle",
+      "agg": {
+        "winsA": 91,
+        "winsB": 7,
+        "draws": 2,
+        "avgScoreA": 99.93,
+        "avgScoreB": 76.33,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "skunk",
+      "petB": "skunk",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 72,
+        "avgScoreB": 84,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "skunk",
+      "petB": "lion",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 100.95,
+        "avgScoreB": 61.26,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "skunk",
+      "petB": "spider",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 114.29,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "skunk",
+      "petB": "eagle",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 103.81,
+        "avgScoreB": 70.1,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "skunk",
+      "petB": "bear",
+      "agg": {
+        "winsA": 83,
+        "winsB": 15,
+        "draws": 2,
+        "avgScoreA": 94.68,
+        "avgScoreB": 69.84,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "skunk",
+      "petB": "rhino",
+      "agg": {
+        "winsA": 44,
+        "winsB": 55,
+        "draws": 1,
+        "avgScoreA": 89.15,
+        "avgScoreB": 90.77,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "skunk",
+      "petB": "dragon",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 105.15,
+        "avgScoreB": 67.65,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "skunk",
+      "petB": "whale",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 103.05,
+        "avgScoreB": 70.18,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "lion",
+      "petB": "mouse",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 68.15,
+        "avgScoreB": 150.64,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 10,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "lion",
+      "petB": "elephant",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 68,
+        "avgScoreB": 108,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "lion",
+      "petB": "cat",
+      "agg": {
+        "winsA": 60,
+        "winsB": 40,
+        "draws": 0,
+        "avgScoreA": 76.16,
+        "avgScoreB": 74.35,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "lion",
+      "petB": "rabbit",
+      "agg": {
+        "winsA": 0,
+        "winsB": 88,
+        "draws": 12,
+        "avgScoreA": 73.45,
+        "avgScoreB": 90.81,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "lion",
+      "petB": "turtle",
+      "agg": {
+        "winsA": 0,
+        "winsB": 94,
+        "draws": 6,
+        "avgScoreA": 71.95,
+        "avgScoreB": 84.05,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "lion",
+      "petB": "skunk",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 60.96,
+        "avgScoreB": 102.63,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "lion",
+      "petB": "lion",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 78,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "lion",
+      "petB": "spider",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 78,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "lion",
+      "petB": "eagle",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 77.4,
+        "avgScoreB": 60.9,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "lion",
+      "petB": "bear",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 108,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "lion",
+      "petB": "rhino",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 88,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "lion",
+      "petB": "dragon",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 88,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "lion",
+      "petB": "whale",
+      "agg": {
+        "winsA": 0,
+        "winsB": 0,
+        "draws": 100,
+        "avgScoreA": 78,
+        "avgScoreB": 78,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "spider",
+      "petB": "mouse",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 149.2,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 10,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "spider",
+      "petB": "elephant",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 128,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "spider",
+      "petB": "cat",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 106.59,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "spider",
+      "petB": "rabbit",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 108,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "spider",
+      "petB": "turtle",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 108,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "spider",
+      "petB": "skunk",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 108,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "spider",
+      "petB": "lion",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 78,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "spider",
+      "petB": "spider",
+      "agg": {
+        "winsA": 0,
+        "winsB": 0,
+        "draws": 100,
+        "avgScoreA": 48,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "spider",
+      "petB": "eagle",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 73,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "spider",
+      "petB": "bear",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 108,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "spider",
+      "petB": "rhino",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 88,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "spider",
+      "petB": "dragon",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 88,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "spider",
+      "petB": "whale",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 108,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "eagle",
+      "petB": "mouse",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 64.4,
+        "avgScoreB": 153.54,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 10,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "eagle",
+      "petB": "elephant",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 53.56,
+        "avgScoreB": 127.66,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "eagle",
+      "petB": "cat",
+      "agg": {
+        "winsA": 6,
+        "winsB": 94,
+        "draws": 0,
+        "avgScoreA": 76.25,
+        "avgScoreB": 101.49,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "eagle",
+      "petB": "rabbit",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 67.91,
+        "avgScoreB": 111.05,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "eagle",
+      "petB": "turtle",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 71.92,
+        "avgScoreB": 99.41,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "eagle",
+      "petB": "skunk",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 52.27,
+        "avgScoreB": 109.25,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "eagle",
+      "petB": "lion",
+      "agg": {
+        "winsA": 28,
+        "winsB": 69,
+        "draws": 3,
+        "avgScoreA": 70.9,
+        "avgScoreB": 76.06,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "eagle",
+      "petB": "spider",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 73,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "eagle",
+      "petB": "eagle",
+      "agg": {
+        "winsA": 0,
+        "winsB": 0,
+        "draws": 100,
+        "avgScoreA": 73,
+        "avgScoreB": 73,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "eagle",
+      "petB": "bear",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 51.16,
+        "avgScoreB": 107.9,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "eagle",
+      "petB": "rhino",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 53,
+        "avgScoreB": 88,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "eagle",
+      "petB": "dragon",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 57.26,
+        "avgScoreB": 86.84,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "eagle",
+      "petB": "whale",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 73.15,
+        "avgScoreB": 106.23,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "bear",
+      "petB": "mouse",
+      "agg": {
+        "winsA": 17,
+        "winsB": 79,
+        "draws": 4,
+        "avgScoreA": 101.05,
+        "avgScoreB": 114.99,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 10,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "bear",
+      "petB": "elephant",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 108,
+        "avgScoreB": 68,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "bear",
+      "petB": "cat",
+      "agg": {
+        "winsA": 99,
+        "winsB": 1,
+        "draws": 0,
+        "avgScoreA": 107.26,
+        "avgScoreB": 63.25,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "bear",
+      "petB": "rabbit",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 108,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "bear",
+      "petB": "turtle",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 103,
+        "avgScoreB": 53,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "bear",
+      "petB": "skunk",
+      "agg": {
+        "winsA": 56,
+        "winsB": 43,
+        "draws": 1,
+        "avgScoreA": 83.68,
+        "avgScoreB": 83.92,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "bear",
+      "petB": "lion",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 108,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "bear",
+      "petB": "spider",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 108,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "bear",
+      "petB": "eagle",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 108,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "bear",
+      "petB": "bear",
+      "agg": {
+        "winsA": 0,
+        "winsB": 0,
+        "draws": 100,
+        "avgScoreA": 78,
+        "avgScoreB": 78,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "bear",
+      "petB": "rhino",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 108,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "bear",
+      "petB": "dragon",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 108,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "bear",
+      "petB": "whale",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 84,
+        "avgScoreB": 72,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rhino",
+      "petB": "mouse",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 80.78,
+        "avgScoreB": 143.39,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 10,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rhino",
+      "petB": "elephant",
+      "agg": {
+        "winsA": 0,
+        "winsB": 0,
+        "draws": 100,
+        "avgScoreA": 88,
+        "avgScoreB": 88,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rhino",
+      "petB": "cat",
+      "agg": {
+        "winsA": 92,
+        "winsB": 8,
+        "draws": 0,
+        "avgScoreA": 87.97,
+        "avgScoreB": 61.05,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rhino",
+      "petB": "rabbit",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 88,
+        "avgScoreB": 69.3,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rhino",
+      "petB": "turtle",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 87,
+        "avgScoreB": 69,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rhino",
+      "petB": "skunk",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 106,
+        "avgScoreB": 70,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rhino",
+      "petB": "lion",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 88,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rhino",
+      "petB": "spider",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 88,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rhino",
+      "petB": "eagle",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 88,
+        "avgScoreB": 53,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rhino",
+      "petB": "bear",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 108,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rhino",
+      "petB": "rhino",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 88,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rhino",
+      "petB": "dragon",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 80,
+        "avgScoreB": 56,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "rhino",
+      "petB": "whale",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 84,
+        "avgScoreB": 56,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "dragon",
+      "petB": "mouse",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 64.84,
+        "avgScoreB": 152.12,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 10,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "dragon",
+      "petB": "elephant",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 64,
+        "avgScoreB": 112,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "dragon",
+      "petB": "cat",
+      "agg": {
+        "winsA": 56,
+        "winsB": 41,
+        "draws": 3,
+        "avgScoreA": 85.16,
+        "avgScoreB": 82.18,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "dragon",
+      "petB": "rabbit",
+      "agg": {
+        "winsA": 22,
+        "winsB": 73,
+        "draws": 5,
+        "avgScoreA": 81.36,
+        "avgScoreB": 95.04,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "dragon",
+      "petB": "turtle",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 80,
+        "avgScoreB": 76,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "dragon",
+      "petB": "skunk",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 64.87,
+        "avgScoreB": 105.85,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "dragon",
+      "petB": "lion",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 88,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "dragon",
+      "petB": "spider",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 88,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "dragon",
+      "petB": "eagle",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 86.46,
+        "avgScoreB": 57.42,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "dragon",
+      "petB": "bear",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 108,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "dragon",
+      "petB": "rhino",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 52,
+        "avgScoreB": 84,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "dragon",
+      "petB": "dragon",
+      "agg": {
+        "winsA": 0,
+        "winsB": 0,
+        "draws": 100,
+        "avgScoreA": 68,
+        "avgScoreB": 68,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "dragon",
+      "petB": "whale",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 68,
+        "avgScoreB": 78,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "whale",
+      "petB": "mouse",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 75.22,
+        "avgScoreB": 153.14,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 10,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "whale",
+      "petB": "elephant",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 72,
+        "avgScoreB": 104,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "whale",
+      "petB": "cat",
+      "agg": {
+        "winsA": 97,
+        "winsB": 1,
+        "draws": 2,
+        "avgScoreA": 106.54,
+        "avgScoreB": 76.6,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 4,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "whale",
+      "petB": "rabbit",
+      "agg": {
+        "winsA": 84,
+        "winsB": 13,
+        "draws": 3,
+        "avgScoreA": 104.52,
+        "avgScoreB": 89.77,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "whale",
+      "petB": "turtle",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 83.66,
+        "avgScoreB": 72.73,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "whale",
+      "petB": "skunk",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 68.89,
+        "avgScoreB": 98.32,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 6,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "whale",
+      "petB": "lion",
+      "agg": {
+        "winsA": 0,
+        "winsB": 0,
+        "draws": 100,
+        "avgScoreA": 78,
+        "avgScoreB": 78,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "whale",
+      "petB": "spider",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 108,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "whale",
+      "petB": "eagle",
+      "agg": {
+        "winsA": 100,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 106.19,
+        "avgScoreB": 73.41,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 5,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "whale",
+      "petB": "bear",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 66,
+        "avgScoreB": 90,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 3,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "whale",
+      "petB": "rhino",
+      "agg": {
+        "winsA": 0,
+        "winsB": 100,
+        "draws": 0,
+        "avgScoreA": 60,
+        "avgScoreB": 80,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "whale",
+      "petB": "dragon",
+      "agg": {
+        "winsA": 0,
+        "winsB": 0,
+        "draws": 100,
+        "avgScoreA": 72,
+        "avgScoreB": 72,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    },
+    {
+      "petA": "whale",
+      "petB": "whale",
+      "agg": {
+        "winsA": 0,
+        "winsB": 0,
+        "draws": 100,
+        "avgScoreA": 78,
+        "avgScoreB": 78,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 2,
+        "samples": 100
+      }
+    }
+  ],
+  "petScores": {
+    "mouse": {
+      "wr": 0.9084615384615384,
+      "samples": 1300,
+      "avgPetsDeployed": 10
+    },
+    "elephant": {
+      "wr": 0.7415384615384616,
+      "samples": 1300,
+      "avgPetsDeployed": 4
+    },
+    "cat": {
+      "wr": 0.3046153846153846,
+      "samples": 1300,
+      "avgPetsDeployed": 4
+    },
+    "rabbit": {
+      "wr": 0.44884615384615384,
+      "samples": 1300,
+      "avgPetsDeployed": 6
+    },
+    "turtle": {
+      "wr": 0.47423076923076923,
+      "samples": 1300,
+      "avgPetsDeployed": 5
+    },
+    "skunk": {
+      "wr": 0.7407692307692307,
+      "samples": 1300,
+      "avgPetsDeployed": 6
+    },
+    "lion": {
+      "wr": 0.3223076923076923,
+      "samples": 1300,
+      "avgPetsDeployed": 3
+    },
+    "spider": {
+      "wr": 0.038461538461538464,
+      "samples": 1300,
+      "avgPetsDeployed": 5
+    },
+    "eagle": {
+      "wr": 0.1426923076923077,
+      "samples": 1300,
+      "avgPetsDeployed": 5
+    },
+    "bear": {
+      "wr": 0.865,
+      "samples": 1300,
+      "avgPetsDeployed": 3
+    },
+    "rhino": {
+      "wr": 0.8015384615384615,
+      "samples": 1300,
+      "avgPetsDeployed": 2
+    },
+    "dragon": {
+      "wr": 0.40923076923076923,
+      "samples": 1300,
+      "avgPetsDeployed": 2
+    },
+    "whale": {
+      "wr": 0.48730769230769233,
+      "samples": 1300,
+      "avgPetsDeployed": 2
+    }
+  },
+  "pairs": [
+    {
+      "compA": [
+        "eagle",
+        "skunk"
+      ],
+      "compB": [
+        "rabbit",
+        "elephant"
+      ],
+      "agg": {
+        "winsA": 5,
+        "winsB": 24,
+        "draws": 1,
+        "avgScoreA": 90.06666666666666,
+        "avgScoreB": 104.5,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 5,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "mouse",
+        "elephant"
+      ],
+      "compB": [
+        "whale",
+        "eagle"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 134.2,
+        "avgScoreB": 66.8,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 2,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "whale",
+        "eagle"
+      ],
+      "compB": [
+        "spider",
+        "skunk"
+      ],
+      "agg": {
+        "winsA": 10,
+        "winsB": 18,
+        "draws": 2,
+        "avgScoreA": 75.96666666666667,
+        "avgScoreB": 77.03333333333333,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 5,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "cat",
+        "cat"
+      ],
+      "compB": [
+        "rabbit",
+        "bear"
+      ],
+      "agg": {
+        "winsA": 1,
+        "winsB": 29,
+        "draws": 0,
+        "avgScoreA": 74.6,
+        "avgScoreB": 107.8,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "skunk",
+        "rabbit"
+      ],
+      "compB": [
+        "lion",
+        "rhino"
+      ],
+      "agg": {
+        "winsA": 29,
+        "winsB": 1,
+        "draws": 0,
+        "avgScoreA": 102.16666666666667,
+        "avgScoreB": 75.6,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "mouse"
+      ],
+      "compB": [
+        "lion",
+        "rabbit"
+      ],
+      "agg": {
+        "winsA": 25,
+        "winsB": 5,
+        "draws": 0,
+        "avgScoreA": 107.1,
+        "avgScoreB": 82.5,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "bear",
+        "mouse"
+      ],
+      "compB": [
+        "bear",
+        "dragon"
+      ],
+      "agg": {
+        "winsA": 2,
+        "winsB": 28,
+        "draws": 0,
+        "avgScoreA": 71,
+        "avgScoreB": 87.56666666666666,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "spider",
+        "dragon"
+      ],
+      "compB": [
+        "cat",
+        "bear"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 50.4,
+        "avgScoreB": 87.9,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "dragon",
+        "lion"
+      ],
+      "compB": [
+        "skunk",
+        "rabbit"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 61.333333333333336,
+        "avgScoreB": 111.26666666666667,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 6,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "rhino",
+        "dragon"
+      ],
+      "compB": [
+        "lion",
+        "elephant"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 88,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "dragon",
+        "lion"
+      ],
+      "compB": [
+        "rabbit",
+        "eagle"
+      ],
+      "agg": {
+        "winsA": 13,
+        "winsB": 17,
+        "draws": 0,
+        "avgScoreA": 74.13333333333334,
+        "avgScoreB": 78.8,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 5,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "cat",
+        "cat"
+      ],
+      "compB": [
+        "lion",
+        "bear"
+      ],
+      "agg": {
+        "winsA": 2,
+        "winsB": 28,
+        "draws": 0,
+        "avgScoreA": 70.53333333333333,
+        "avgScoreB": 86.26666666666667,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "rabbit",
+        "elephant"
+      ],
+      "compB": [
+        "dragon",
+        "eagle"
+      ],
+      "agg": {
+        "winsA": 28,
+        "winsB": 1,
+        "draws": 1,
+        "avgScoreA": 91.3,
+        "avgScoreB": 76.26666666666667,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "mouse",
+        "spider"
+      ],
+      "compB": [
+        "turtle",
+        "eagle"
+      ],
+      "agg": {
+        "winsA": 29,
+        "winsB": 1,
+        "draws": 0,
+        "avgScoreA": 118.33333333333333,
+        "avgScoreB": 86.4,
+        "avgPetsDeployedA": 7,
+        "avgPetsDeployedB": 5,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "rhino",
+        "dragon"
+      ],
+      "compB": [
+        "whale",
+        "rabbit"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 87.86666666666666,
+        "avgScoreB": 57.43333333333333,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 2,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "cat",
+        "bear"
+      ],
+      "compB": [
+        "lion",
+        "rhino"
+      ],
+      "agg": {
+        "winsA": 21,
+        "winsB": 3,
+        "draws": 6,
+        "avgScoreA": 78.5,
+        "avgScoreB": 67.7,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "cat",
+        "cat"
+      ],
+      "compB": [
+        "spider",
+        "dragon"
+      ],
+      "agg": {
+        "winsA": 29,
+        "winsB": 1,
+        "draws": 0,
+        "avgScoreA": 94.9,
+        "avgScoreB": 65.13333333333334,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "cat"
+      ],
+      "compB": [
+        "whale",
+        "rabbit"
+      ],
+      "agg": {
+        "winsA": 2,
+        "winsB": 28,
+        "draws": 0,
+        "avgScoreA": 78.13333333333334,
+        "avgScoreB": 93.26666666666667,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 2,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "cat",
+        "turtle"
+      ],
+      "compB": [
+        "cat",
+        "bear"
+      ],
+      "agg": {
+        "winsA": 6,
+        "winsB": 22,
+        "draws": 2,
+        "avgScoreA": 82.53333333333333,
+        "avgScoreB": 93.63333333333334,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "rabbit",
+        "elephant"
+      ],
+      "compB": [
+        "lion",
+        "bear"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 99.66666666666667,
+        "avgScoreB": 77.16666666666667,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "mouse",
+        "mouse"
+      ],
+      "compB": [
+        "lion",
+        "rabbit"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 152.46666666666667,
+        "avgScoreB": 72.93333333333334,
+        "avgPetsDeployedA": 10,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "turtle",
+        "mouse"
+      ],
+      "compB": [
+        "spider",
+        "elephant"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 133.46666666666667,
+        "avgScoreB": 70.06666666666666,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "cat",
+        "elephant"
+      ],
+      "compB": [
+        "rabbit",
+        "eagle"
+      ],
+      "agg": {
+        "winsA": 29,
+        "winsB": 1,
+        "draws": 0,
+        "avgScoreA": 100.7,
+        "avgScoreB": 82.26666666666667,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 5,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "rhino",
+        "dragon"
+      ],
+      "compB": [
+        "skunk",
+        "cat"
+      ],
+      "agg": {
+        "winsA": 22,
+        "winsB": 8,
+        "draws": 0,
+        "avgScoreA": 92.36666666666666,
+        "avgScoreB": 81.56666666666666,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 5,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "whale",
+        "rabbit"
+      ],
+      "compB": [
+        "eagle",
+        "skunk"
+      ],
+      "agg": {
+        "winsA": 2,
+        "winsB": 27,
+        "draws": 1,
+        "avgScoreA": 79.66666666666667,
+        "avgScoreB": 90.73333333333333,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 5,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "rabbit",
+        "elephant"
+      ],
+      "compB": [
+        "bear",
+        "skunk"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 73.2,
+        "avgScoreB": 109.46666666666667,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "mouse",
+        "elephant"
+      ],
+      "compB": [
+        "dragon",
+        "whale"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 111.86666666666666,
+        "avgScoreB": 70.43333333333334,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 2,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "bear",
+        "mouse"
+      ],
+      "compB": [
+        "rabbit",
+        "cat"
+      ],
+      "agg": {
+        "winsA": 29,
+        "winsB": 1,
+        "draws": 0,
+        "avgScoreA": 100.9,
+        "avgScoreB": 73.66666666666667,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 5,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "dragon",
+        "whale"
+      ],
+      "compB": [
+        "dragon",
+        "spider"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 0,
+        "draws": 30,
+        "avgScoreA": 70,
+        "avgScoreB": 70,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "dragon",
+        "eagle"
+      ],
+      "compB": [
+        "bear",
+        "skunk"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 62,
+        "avgScoreB": 93,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "rabbit",
+        "bear"
+      ],
+      "compB": [
+        "bear",
+        "spider"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 78,
+        "avgScoreB": 68,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "lion"
+      ],
+      "compB": [
+        "cat",
+        "turtle"
+      ],
+      "agg": {
+        "winsA": 13,
+        "winsB": 16,
+        "draws": 1,
+        "avgScoreA": 76.3,
+        "avgScoreB": 77.5,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "bear",
+        "skunk"
+      ],
+      "compB": [
+        "elephant",
+        "eagle"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 102.03333333333333,
+        "avgScoreB": 66.33333333333333,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "rhino",
+        "dragon"
+      ],
+      "compB": [
+        "cat",
+        "cat"
+      ],
+      "agg": {
+        "winsA": 17,
+        "winsB": 13,
+        "draws": 0,
+        "avgScoreA": 86.16666666666667,
+        "avgScoreB": 79.33333333333333,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "spider"
+      ],
+      "compB": [
+        "eagle",
+        "lion"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 63,
+        "avgScoreB": 78,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "cat",
+        "cat"
+      ],
+      "compB": [
+        "rabbit",
+        "bear"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 74.9,
+        "avgScoreB": 106.63333333333334,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "bear"
+      ],
+      "compB": [
+        "cat",
+        "cat"
+      ],
+      "agg": {
+        "winsA": 26,
+        "winsB": 3,
+        "draws": 1,
+        "avgScoreA": 97.1,
+        "avgScoreB": 80.66666666666667,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "whale",
+        "eagle"
+      ],
+      "compB": [
+        "bear",
+        "spider"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 61,
+        "avgScoreB": 82,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "bear",
+        "mouse"
+      ],
+      "compB": [
+        "spider",
+        "rhino"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 119.66666666666667,
+        "avgScoreB": 53.166666666666664,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "bear",
+        "mouse"
+      ],
+      "compB": [
+        "rabbit",
+        "eagle"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 122.83333333333333,
+        "avgScoreB": 59.86666666666667,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 5,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "lion",
+        "elephant"
+      ],
+      "compB": [
+        "mouse",
+        "skunk"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 67.76666666666667,
+        "avgScoreB": 140.03333333333333,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 8,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "lion",
+        "elephant"
+      ],
+      "compB": [
+        "whale",
+        "lion"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 73,
+        "avgScoreB": 63,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 2,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "mouse"
+      ],
+      "compB": [
+        "mouse",
+        "mouse"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 81.76666666666667,
+        "avgScoreB": 153.83333333333334,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 10,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "rabbit",
+        "eagle"
+      ],
+      "compB": [
+        "eagle",
+        "lion"
+      ],
+      "agg": {
+        "winsA": 16,
+        "winsB": 13,
+        "draws": 1,
+        "avgScoreA": 82.56666666666666,
+        "avgScoreB": 80.46666666666667,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "whale",
+        "lion"
+      ],
+      "compB": [
+        "lion",
+        "elephant"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 59.7,
+        "avgScoreB": 76.3,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "whale",
+        "lion"
+      ],
+      "compB": [
+        "dragon",
+        "spider"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 60,
+        "avgScoreB": 80,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "mouse"
+      ],
+      "compB": [
+        "turtle",
+        "mouse"
+      ],
+      "agg": {
+        "winsA": 8,
+        "winsB": 21,
+        "draws": 1,
+        "avgScoreA": 107.03333333333333,
+        "avgScoreB": 119.16666666666667,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 6,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "spider",
+        "dragon"
+      ],
+      "compB": [
+        "eagle",
+        "mouse"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 65.93333333333334,
+        "avgScoreB": 118.53333333333333,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 6,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "whale",
+        "rabbit"
+      ],
+      "compB": [
+        "dragon",
+        "spider"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 60,
+        "avgScoreB": 80,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "bear",
+        "mouse"
+      ],
+      "compB": [
+        "elephant",
+        "eagle"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 119.1,
+        "avgScoreB": 66,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "skunk"
+      ],
+      "compB": [
+        "dragon",
+        "whale"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 92.83333333333333,
+        "avgScoreB": 68.93333333333334,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 2,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "dragon",
+        "eagle"
+      ],
+      "compB": [
+        "rabbit",
+        "cat"
+      ],
+      "agg": {
+        "winsA": 17,
+        "winsB": 12,
+        "draws": 1,
+        "avgScoreA": 89.5,
+        "avgScoreB": 84.86666666666666,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 5,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "bear"
+      ],
+      "compB": [
+        "lion",
+        "rhino"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 89.73333333333333,
+        "avgScoreB": 68.56666666666666,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "cat",
+        "bear"
+      ],
+      "compB": [
+        "eagle",
+        "eagle"
+      ],
+      "agg": {
+        "winsA": 29,
+        "winsB": 1,
+        "draws": 0,
+        "avgScoreA": 90.3,
+        "avgScoreB": 68.83333333333333,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 5,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "bear"
+      ],
+      "compB": [
+        "spider",
+        "rhino"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 103.2,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "dragon",
+        "spider"
+      ],
+      "compB": [
+        "turtle",
+        "spider"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 74,
+        "avgScoreB": 77,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 5,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "cat",
+        "cat"
+      ],
+      "compB": [
+        "dragon",
+        "mouse"
+      ],
+      "agg": {
+        "winsA": 6,
+        "winsB": 24,
+        "draws": 0,
+        "avgScoreA": 80.53333333333333,
+        "avgScoreB": 97.43333333333334,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "eagle"
+      ],
+      "compB": [
+        "bear",
+        "dragon"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 52.233333333333334,
+        "avgScoreB": 107.73333333333333,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "whale",
+        "lion"
+      ],
+      "compB": [
+        "lion",
+        "rhino"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 58,
+        "avgScoreB": 78,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "mouse",
+        "skunk"
+      ],
+      "compB": [
+        "cat",
+        "bear"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 116.13333333333334,
+        "avgScoreB": 82.6,
+        "avgPetsDeployedA": 8,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "eagle"
+      ],
+      "compB": [
+        "dragon",
+        "whale"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 65.66666666666667,
+        "avgScoreB": 95.43333333333334,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 2,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "spider"
+      ],
+      "compB": [
+        "rabbit",
+        "eagle"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 60,
+        "avgScoreB": 76,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 5,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "cat",
+        "cat"
+      ],
+      "compB": [
+        "rabbit",
+        "elephant"
+      ],
+      "agg": {
+        "winsA": 4,
+        "winsB": 26,
+        "draws": 0,
+        "avgScoreA": 85.03333333333333,
+        "avgScoreB": 111.96666666666667,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 5,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "turtle",
+        "mouse"
+      ],
+      "compB": [
+        "spider",
+        "elephant"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 138.5,
+        "avgScoreB": 68.06666666666666,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "cat",
+        "cat"
+      ],
+      "compB": [
+        "dragon",
+        "lion"
+      ],
+      "agg": {
+        "winsA": 23,
+        "winsB": 6,
+        "draws": 1,
+        "avgScoreA": 87.5,
+        "avgScoreB": 73.33333333333333,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 2,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "spider",
+        "skunk"
+      ],
+      "compB": [
+        "lion",
+        "elephant"
+      ],
+      "agg": {
+        "winsA": 21,
+        "winsB": 9,
+        "draws": 0,
+        "avgScoreA": 77.7,
+        "avgScoreB": 70.03333333333333,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "bear",
+        "skunk"
+      ],
+      "compB": [
+        "spider",
+        "skunk"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 111.83333333333333,
+        "avgScoreB": 60.266666666666666,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 5,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "eagle"
+      ],
+      "compB": [
+        "eagle",
+        "cat"
+      ],
+      "agg": {
+        "winsA": 10,
+        "winsB": 20,
+        "draws": 0,
+        "avgScoreA": 76.3,
+        "avgScoreB": 83.16666666666667,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "bear",
+        "dragon"
+      ],
+      "compB": [
+        "cat",
+        "elephant"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 107.6,
+        "avgScoreB": 54.8,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "spider"
+      ],
+      "compB": [
+        "rabbit",
+        "eagle"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 60,
+        "avgScoreB": 76,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 5,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "whale",
+        "rabbit"
+      ],
+      "compB": [
+        "lion",
+        "rhino"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 58.53333333333333,
+        "avgScoreB": 81.13333333333334,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "whale",
+        "eagle"
+      ],
+      "compB": [
+        "eagle",
+        "spider"
+      ],
+      "agg": {
+        "winsA": 29,
+        "winsB": 1,
+        "draws": 0,
+        "avgScoreA": 85.6,
+        "avgScoreB": 67.86666666666666,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 5,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "elephant",
+        "elephant"
+      ],
+      "compB": [
+        "dragon",
+        "lion"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 118,
+        "avgScoreB": 58,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 2,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "elephant",
+        "elephant"
+      ],
+      "compB": [
+        "bear",
+        "dragon"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 30,
+        "draws": 0,
+        "avgScoreA": 78,
+        "avgScoreB": 98,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "lion"
+      ],
+      "compB": [
+        "spider",
+        "dragon"
+      ],
+      "agg": {
+        "winsA": 5,
+        "winsB": 17,
+        "draws": 8,
+        "avgScoreA": 65.76666666666667,
+        "avgScoreB": 68,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "cat",
+        "cat"
+      ],
+      "compB": [
+        "whale",
+        "eagle"
+      ],
+      "agg": {
+        "winsA": 20,
+        "winsB": 10,
+        "draws": 0,
+        "avgScoreA": 88.33333333333333,
+        "avgScoreB": 83.4,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 2,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "skunk",
+        "rhino"
+      ],
+      "compB": [
+        "skunk",
+        "dragon"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 111.7,
+        "avgScoreB": 76.63333333333334,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "dragon",
+        "lion"
+      ],
+      "compB": [
+        "dragon",
+        "whale"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 76,
+        "avgScoreB": 64,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 2,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "mouse",
+        "mouse"
+      ],
+      "compB": [
+        "turtle",
+        "eagle"
+      ],
+      "agg": {
+        "winsA": 30,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 153.7,
+        "avgScoreB": 73.8,
+        "avgPetsDeployedA": 10,
+        "avgPetsDeployedB": 5,
+        "samples": 30
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "eagle"
+      ],
+      "compB": [
+        "elephant",
+        "eagle"
+      ],
+      "agg": {
+        "winsA": 1,
+        "winsB": 29,
+        "draws": 0,
+        "avgScoreA": 72.46666666666667,
+        "avgScoreB": 96.46666666666667,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 4,
+        "samples": 30
+      }
+    }
+  ],
+  "triplets": [
+    {
+      "compA": [
+        "cat",
+        "lion",
+        "lion"
+      ],
+      "compB": [
+        "cat",
+        "lion",
+        "lion"
+      ],
+      "agg": {
+        "winsA": 19,
+        "winsB": 1,
+        "draws": 0,
+        "avgScoreA": 78.4,
+        "avgScoreB": 60.9,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 3,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "rhino",
+        "cat",
+        "spider"
+      ],
+      "compB": [
+        "bear",
+        "bear",
+        "skunk"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 20,
+        "draws": 0,
+        "avgScoreA": 50.8,
+        "avgScoreB": 97.95,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 3,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "dragon",
+        "lion"
+      ],
+      "compB": [
+        "skunk",
+        "spider",
+        "skunk"
+      ],
+      "agg": {
+        "winsA": 3,
+        "winsB": 17,
+        "draws": 0,
+        "avgScoreA": 80.55,
+        "avgScoreB": 93.85,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 6,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "lion",
+        "rhino",
+        "mouse"
+      ],
+      "compB": [
+        "dragon",
+        "cat",
+        "elephant"
+      ],
+      "agg": {
+        "winsA": 17,
+        "winsB": 2,
+        "draws": 1,
+        "avgScoreA": 82.7,
+        "avgScoreB": 72.4,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 3,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "skunk",
+        "rabbit"
+      ],
+      "compB": [
+        "skunk",
+        "eagle",
+        "cat"
+      ],
+      "agg": {
+        "winsA": 9,
+        "winsB": 10,
+        "draws": 1,
+        "avgScoreA": 94.3,
+        "avgScoreB": 91.7,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 5,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "cat",
+        "lion",
+        "lion"
+      ],
+      "compB": [
+        "lion",
+        "skunk",
+        "rhino"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 20,
+        "draws": 0,
+        "avgScoreA": 56.2,
+        "avgScoreB": 90.2,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 3,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "rabbit",
+        "spider",
+        "whale"
+      ],
+      "compB": [
+        "cat",
+        "mouse",
+        "dragon"
+      ],
+      "agg": {
+        "winsA": 1,
+        "winsB": 19,
+        "draws": 0,
+        "avgScoreA": 74.25,
+        "avgScoreB": 105.75,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "lion",
+        "skunk",
+        "rhino"
+      ],
+      "compB": [
+        "elephant",
+        "mouse",
+        "turtle"
+      ],
+      "agg": {
+        "winsA": 1,
+        "winsB": 19,
+        "draws": 0,
+        "avgScoreA": 84.1,
+        "avgScoreB": 106.1,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 5,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "spider",
+        "lion",
+        "eagle"
+      ],
+      "compB": [
+        "skunk",
+        "eagle",
+        "cat"
+      ],
+      "agg": {
+        "winsA": 3,
+        "winsB": 17,
+        "draws": 0,
+        "avgScoreA": 66.3,
+        "avgScoreB": 87.75,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 5,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "rabbit",
+        "mouse",
+        "spider"
+      ],
+      "compB": [
+        "cat",
+        "lion",
+        "lion"
+      ],
+      "agg": {
+        "winsA": 19,
+        "winsB": 1,
+        "draws": 0,
+        "avgScoreA": 86.95,
+        "avgScoreB": 72.6,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 3,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "rhino",
+        "eagle",
+        "cat"
+      ],
+      "compB": [
+        "skunk",
+        "bear",
+        "dragon"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 20,
+        "draws": 0,
+        "avgScoreA": 62.05,
+        "avgScoreB": 103.25,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "cat",
+        "lion",
+        "lion"
+      ],
+      "compB": [
+        "dragon",
+        "turtle",
+        "turtle"
+      ],
+      "agg": {
+        "winsA": 1,
+        "winsB": 19,
+        "draws": 0,
+        "avgScoreA": 61.65,
+        "avgScoreB": 88.6,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 3,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "elephant",
+        "rabbit",
+        "dragon"
+      ],
+      "compB": [
+        "rabbit",
+        "spider",
+        "whale"
+      ],
+      "agg": {
+        "winsA": 9,
+        "winsB": 10,
+        "draws": 1,
+        "avgScoreA": 88.55,
+        "avgScoreB": 87.45,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "cat",
+        "mouse",
+        "dragon"
+      ],
+      "compB": [
+        "dragon",
+        "cat",
+        "elephant"
+      ],
+      "agg": {
+        "winsA": 7,
+        "winsB": 13,
+        "draws": 0,
+        "avgScoreA": 82.45,
+        "avgScoreB": 88.5,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "skunk",
+        "eagle",
+        "cat"
+      ],
+      "compB": [
+        "dragon",
+        "turtle",
+        "turtle"
+      ],
+      "agg": {
+        "winsA": 11,
+        "winsB": 9,
+        "draws": 0,
+        "avgScoreA": 87.15,
+        "avgScoreB": 83.6,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 3,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "lion",
+        "whale",
+        "turtle"
+      ],
+      "compB": [
+        "turtle",
+        "turtle",
+        "turtle"
+      ],
+      "agg": {
+        "winsA": 20,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 100.6,
+        "avgScoreB": 74.4,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 5,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "dragon",
+        "cat",
+        "elephant"
+      ],
+      "compB": [
+        "dragon",
+        "eagle",
+        "bear"
+      ],
+      "agg": {
+        "winsA": 8,
+        "winsB": 12,
+        "draws": 0,
+        "avgScoreA": 75.7,
+        "avgScoreB": 77.25,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 3,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "spider",
+        "spider",
+        "rabbit"
+      ],
+      "compB": [
+        "skunk",
+        "dragon",
+        "elephant"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 20,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 108,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "bear",
+        "mouse",
+        "mouse"
+      ],
+      "compB": [
+        "dragon",
+        "eagle",
+        "mouse"
+      ],
+      "agg": {
+        "winsA": 20,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 144.6,
+        "avgScoreB": 71.7,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 3,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "turtle",
+        "lion",
+        "mouse"
+      ],
+      "compB": [
+        "rabbit",
+        "eagle",
+        "dragon"
+      ],
+      "agg": {
+        "winsA": 19,
+        "winsB": 1,
+        "draws": 0,
+        "avgScoreA": 110.35,
+        "avgScoreB": 78.3,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "rabbit",
+        "elephant",
+        "eagle"
+      ],
+      "compB": [
+        "rabbit",
+        "mouse",
+        "spider"
+      ],
+      "agg": {
+        "winsA": 7,
+        "winsB": 13,
+        "draws": 0,
+        "avgScoreA": 100.85,
+        "avgScoreB": 104.3,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 6,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "skunk",
+        "rabbit"
+      ],
+      "compB": [
+        "rabbit",
+        "lion",
+        "rabbit"
+      ],
+      "agg": {
+        "winsA": 16,
+        "winsB": 4,
+        "draws": 0,
+        "avgScoreA": 98.05,
+        "avgScoreB": 81.4,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "rhino",
+        "whale",
+        "rhino"
+      ],
+      "compB": [
+        "skunk",
+        "cat",
+        "dragon"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 12,
+        "draws": 8,
+        "avgScoreA": 71.55,
+        "avgScoreB": 83.2,
+        "avgPetsDeployedA": 2,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "spider",
+        "spider",
+        "rabbit"
+      ],
+      "compB": [
+        "rabbit",
+        "eagle",
+        "dragon"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 20,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 102.75,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "rabbit",
+        "eagle",
+        "dragon"
+      ],
+      "compB": [
+        "dragon",
+        "eagle",
+        "mouse"
+      ],
+      "agg": {
+        "winsA": 17,
+        "winsB": 2,
+        "draws": 1,
+        "avgScoreA": 90.4,
+        "avgScoreB": 82.85,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "skunk",
+        "dragon",
+        "elephant"
+      ],
+      "compB": [
+        "cat",
+        "mouse",
+        "dragon"
+      ],
+      "agg": {
+        "winsA": 12,
+        "winsB": 8,
+        "draws": 0,
+        "avgScoreA": 93.25,
+        "avgScoreB": 84.6,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "spider",
+        "spider",
+        "rabbit"
+      ],
+      "compB": [
+        "spider",
+        "dragon",
+        "rabbit"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 20,
+        "draws": 0,
+        "avgScoreA": 48,
+        "avgScoreB": 84.5,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "skunk",
+        "eagle",
+        "cat"
+      ],
+      "compB": [
+        "mouse",
+        "cat",
+        "rhino"
+      ],
+      "agg": {
+        "winsA": 5,
+        "winsB": 15,
+        "draws": 0,
+        "avgScoreA": 79.4,
+        "avgScoreB": 95.55,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "rabbit",
+        "mouse",
+        "spider"
+      ],
+      "compB": [
+        "dragon",
+        "cat",
+        "elephant"
+      ],
+      "agg": {
+        "winsA": 1,
+        "winsB": 18,
+        "draws": 1,
+        "avgScoreA": 70.3,
+        "avgScoreB": 97.55,
+        "avgPetsDeployedA": 6,
+        "avgPetsDeployedB": 3,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "rhino",
+        "eagle",
+        "cat"
+      ],
+      "compB": [
+        "rabbit",
+        "mouse",
+        "spider"
+      ],
+      "agg": {
+        "winsA": 16,
+        "winsB": 4,
+        "draws": 0,
+        "avgScoreA": 84.8,
+        "avgScoreB": 74.15,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 6,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "cat",
+        "mouse",
+        "dragon"
+      ],
+      "compB": [
+        "cat",
+        "eagle",
+        "eagle"
+      ],
+      "agg": {
+        "winsA": 18,
+        "winsB": 1,
+        "draws": 1,
+        "avgScoreA": 97.5,
+        "avgScoreB": 75.65,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "bear",
+        "bear",
+        "skunk"
+      ],
+      "compB": [
+        "bear",
+        "mouse",
+        "mouse"
+      ],
+      "agg": {
+        "winsA": 9,
+        "winsB": 10,
+        "draws": 1,
+        "avgScoreA": 93.45,
+        "avgScoreB": 96.95,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 6,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "rabbit",
+        "eagle",
+        "dragon"
+      ],
+      "compB": [
+        "skunk",
+        "rhino",
+        "bear"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 20,
+        "draws": 0,
+        "avgScoreA": 53.3,
+        "avgScoreB": 102.7,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "bear",
+        "cat"
+      ],
+      "compB": [
+        "lion",
+        "skunk",
+        "rhino"
+      ],
+      "agg": {
+        "winsA": 4,
+        "winsB": 16,
+        "draws": 0,
+        "avgScoreA": 66.05,
+        "avgScoreB": 83.05,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "spider",
+        "dragon",
+        "rabbit"
+      ],
+      "compB": [
+        "turtle",
+        "lion",
+        "mouse"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 20,
+        "draws": 0,
+        "avgScoreA": 65.6,
+        "avgScoreB": 99.55,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "turtle",
+        "turtle",
+        "turtle"
+      ],
+      "compB": [
+        "turtle",
+        "turtle",
+        "turtle"
+      ],
+      "agg": {
+        "winsA": 20,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 90,
+        "avgScoreB": 85,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 5,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "skunk",
+        "eagle",
+        "cat"
+      ],
+      "compB": [
+        "skunk",
+        "rhino",
+        "bear"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 20,
+        "draws": 0,
+        "avgScoreA": 69.55,
+        "avgScoreB": 121.9,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "spider",
+        "lion",
+        "eagle"
+      ],
+      "compB": [
+        "lion",
+        "skunk",
+        "rhino"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 20,
+        "draws": 0,
+        "avgScoreA": 54.55,
+        "avgScoreB": 90.05,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "skunk",
+        "dragon",
+        "elephant"
+      ],
+      "compB": [
+        "bear",
+        "bear",
+        "skunk"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 20,
+        "draws": 0,
+        "avgScoreA": 72.65,
+        "avgScoreB": 99.7,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 3,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "dragon",
+        "eagle",
+        "bear"
+      ],
+      "compB": [
+        "rabbit",
+        "lion",
+        "rabbit"
+      ],
+      "agg": {
+        "winsA": 20,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 94.25,
+        "avgScoreB": 65.45,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "skunk",
+        "eagle",
+        "cat"
+      ],
+      "compB": [
+        "eagle",
+        "skunk",
+        "rabbit"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 20,
+        "draws": 0,
+        "avgScoreA": 80.1,
+        "avgScoreB": 105.4,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 6,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "dragon",
+        "lion"
+      ],
+      "compB": [
+        "dragon",
+        "eagle",
+        "mouse"
+      ],
+      "agg": {
+        "winsA": 7,
+        "winsB": 13,
+        "draws": 0,
+        "avgScoreA": 69.55,
+        "avgScoreB": 73.2,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 3,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "lion",
+        "skunk",
+        "rhino"
+      ],
+      "compB": [
+        "rabbit",
+        "mouse",
+        "spider"
+      ],
+      "agg": {
+        "winsA": 3,
+        "winsB": 13,
+        "draws": 4,
+        "avgScoreA": 74.3,
+        "avgScoreB": 85.3,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 6,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "dragon",
+        "turtle",
+        "turtle"
+      ],
+      "compB": [
+        "elephant",
+        "mouse",
+        "turtle"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 20,
+        "draws": 0,
+        "avgScoreA": 69.05,
+        "avgScoreB": 120.35,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 5,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "rabbit",
+        "lion",
+        "rabbit"
+      ],
+      "compB": [
+        "rabbit",
+        "spider",
+        "whale"
+      ],
+      "agg": {
+        "winsA": 6,
+        "winsB": 14,
+        "draws": 0,
+        "avgScoreA": 83.65,
+        "avgScoreB": 93.1,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "eagle",
+        "dragon",
+        "lion"
+      ],
+      "compB": [
+        "spider",
+        "lion",
+        "eagle"
+      ],
+      "agg": {
+        "winsA": 20,
+        "winsB": 0,
+        "draws": 0,
+        "avgScoreA": 85.3,
+        "avgScoreB": 48,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "rabbit",
+        "eagle",
+        "dragon"
+      ],
+      "compB": [
+        "spider",
+        "turtle",
+        "elephant"
+      ],
+      "agg": {
+        "winsA": 16,
+        "winsB": 4,
+        "draws": 0,
+        "avgScoreA": 82.85,
+        "avgScoreB": 74.05,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 4,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "rabbit",
+        "elephant",
+        "eagle"
+      ],
+      "compB": [
+        "dragon",
+        "cat",
+        "elephant"
+      ],
+      "agg": {
+        "winsA": 16,
+        "winsB": 4,
+        "draws": 0,
+        "avgScoreA": 94.05,
+        "avgScoreB": 85.4,
+        "avgPetsDeployedA": 5,
+        "avgPetsDeployedB": 3,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "rhino",
+        "cat",
+        "spider"
+      ],
+      "compB": [
+        "dragon",
+        "cat",
+        "elephant"
+      ],
+      "agg": {
+        "winsA": 7,
+        "winsB": 10,
+        "draws": 3,
+        "avgScoreA": 73.3,
+        "avgScoreB": 80.2,
+        "avgPetsDeployedA": 3,
+        "avgPetsDeployedB": 3,
+        "samples": 20
+      }
+    },
+    {
+      "compA": [
+        "rabbit",
+        "eagle",
+        "dragon"
+      ],
+      "compB": [
+        "rabbit",
+        "elephant",
+        "eagle"
+      ],
+      "agg": {
+        "winsA": 0,
+        "winsB": 19,
+        "draws": 1,
+        "avgScoreA": 77.05,
+        "avgScoreB": 95.85,
+        "avgPetsDeployedA": 4,
+        "avgPetsDeployedB": 5,
+        "samples": 20
+      }
+    }
+  ]
+}

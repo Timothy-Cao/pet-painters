@@ -7,10 +7,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "balance": "tsx scripts/balance/runner.ts"
   },
   "devDependencies": {
     "@types/node": "^25.9.1",
+    "tsx": "^4.22.3",
     "typescript": "^6.0.3",
     "vite": "^8.0.13",
     "vitest": "^4.1.7"

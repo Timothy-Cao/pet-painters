@@ -8,12 +8,18 @@ import { ALL_PETS } from './pets';
 export { ALL_PETS } from './pets';
 export { MOUSE, ELEPHANT, CAT, RABBIT, TURTLE, SKUNK } from './pets';
 
-const REGISTRY: Record<string, PetDefinition> = Object.fromEntries(
-  ALL_PETS.map((def) => [def.id, def]),
-);
+// Lazy registry — built on first call to avoid circular-import initialization
+// issues in Node/tsx environments (pets → behaviors → pet-defs → pets).
+let _registry: Record<string, PetDefinition> | null = null;
+function getRegistry(): Record<string, PetDefinition> {
+  if (!_registry) {
+    _registry = Object.fromEntries(ALL_PETS.map((def) => [def.id, def]));
+  }
+  return _registry;
+}
 
 export function getPetDef(id: string): PetDefinition {
-  const def = REGISTRY[id];
+  const def = getRegistry()[id];
   if (!def) throw new Error(`Unknown pet def: ${id}`);
   return def;
 }
