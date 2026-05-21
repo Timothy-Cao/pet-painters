@@ -12,7 +12,8 @@ type Effect =
   | { kind: 'roar'; x: number; y: number; owner: PlayerId; born: number }
   | { kind: 'web'; x: number; y: number; owner: PlayerId; born: number }
   | { kind: 'flutter'; x: number; y: number; owner: PlayerId; born: number; dx: number; dy: number }
-  | { kind: 'dust'; x: number; y: number; owner: PlayerId; born: number; dx: number; dy: number; intensity: number };
+  | { kind: 'dust'; x: number; y: number; owner: PlayerId; born: number; dx: number; dy: number; intensity: number }
+  | { kind: 'flame'; x: number; y: number; owner: PlayerId; born: number; seed: number };
 
 const DURATION_MS = 360;
 const SPLAT_MS = 480;
@@ -22,6 +23,7 @@ const ROAR_MS = 520;
 const WEB_MS = 600;
 const FLUTTER_MS = 400;
 const DUST_MS = 520;
+const FLAME_MS = 520;
 const effects: Effect[] = [];
 
 import { side } from './palette';
@@ -70,6 +72,9 @@ export function pushFlutter(x: number, y: number, owner: PlayerId, dx: number, d
 export function pushDust(x: number, y: number, owner: PlayerId, dx: number, dy: number, intensity: number): void {
   effects.push({ kind: 'dust', x, y, owner, born: now(), dx, dy, intensity });
 }
+export function pushFlame(x: number, y: number, owner: PlayerId): void {
+  effects.push({ kind: 'flame', x, y, owner, born: now(), seed: Math.random() });
+}
 
 export function clearEffects(): void {
   effects.length = 0;
@@ -87,6 +92,7 @@ export function renderEffects(rc: RenderContext): void {
                    : e.kind === 'web' ? WEB_MS
                    : e.kind === 'flutter' ? FLUTTER_MS
                    : e.kind === 'dust' ? DUST_MS
+                   : e.kind === 'flame' ? FLAME_MS
                    : DURATION_MS;
     if (age >= lifetime) { effects.splice(i, 1); continue; }
     const t = age / lifetime;       // 0..1
@@ -161,6 +167,31 @@ export function renderEffects(rc: RenderContext): void {
       rc.ctx.beginPath();
       rc.ctx.arc(0, 0, r, 0, Math.PI * 2);
       rc.ctx.stroke();
+    } else if (e.kind === 'flame') {
+      // Flickering orange-red radial gradient fills the tile. Three short
+      // tongues of flame rise out of the center, jittered per-seed.
+      const grow = 0.4 + 0.6 * Math.sin(t * Math.PI);   // peak around mid-life
+      const baseR = size * 0.45 * grow;
+      const grad = rc.ctx.createRadialGradient(0, 0, 0, 0, 0, baseR);
+      grad.addColorStop(0, `rgba(255, 240, 180, ${(1 - t) * 0.8})`);
+      grad.addColorStop(0.45, `rgba(255, 140, 60, ${(1 - t) * 0.55})`);
+      grad.addColorStop(1, `rgba(180, 50, 30, 0)`);
+      rc.ctx.fillStyle = grad;
+      rc.ctx.beginPath();
+      rc.ctx.arc(0, 0, baseR, 0, Math.PI * 2);
+      rc.ctx.fill();
+      // Tongue licks rising upward (negative y on canvas = up).
+      rc.ctx.globalAlpha = 1 - t;
+      rc.ctx.fillStyle = '#ffc066';
+      for (let k = 0; k < 3; k++) {
+        const ang = -Math.PI / 2 + (e.seed + k * 0.4) % 1 * 1.2 - 0.6;
+        const lr = size * (0.25 + 0.30 * grow);
+        const lx = Math.cos(ang) * lr;
+        const ly = Math.sin(ang) * lr;
+        rc.ctx.beginPath();
+        rc.ctx.arc(lx, ly, size * 0.06 * (1 - t * 0.5), 0, Math.PI * 2);
+        rc.ctx.fill();
+      }
     } else if (e.kind === 'dust') {
       // Tan/brown dust puffs scattering behind a charging unit. The number
       // and size of puffs scale with momentum intensity (1..5).
