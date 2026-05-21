@@ -1,6 +1,7 @@
 import type { MatchState } from '../types/game';
 import { getPetDef } from './pet-defs';
 import { TICKS_PER_SEC } from '../config/constants';
+import { resolveMovements } from './movement';
 
 export function advanceTick(state: MatchState): void {
   if (state.phase !== 'execution') return;
@@ -24,6 +25,8 @@ export function advanceTick(state: MatchState): void {
     }
   }
 
-  // Death cleanup (Task 7 will add resolveMovements call after this line)
+  // Death cleanup — remove dead pets before resolving movement
   state.pets = state.pets.filter((p) => p.hp > 0);
+
+  resolveMovements(state);
 }
