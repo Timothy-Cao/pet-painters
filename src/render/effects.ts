@@ -11,7 +11,8 @@ type Effect =
   | { kind: 'damage'; x: number; y: number; owner: PlayerId; born: number; amount: number; jitterX: number }
   | { kind: 'roar'; x: number; y: number; owner: PlayerId; born: number }
   | { kind: 'web'; x: number; y: number; owner: PlayerId; born: number }
-  | { kind: 'flutter'; x: number; y: number; owner: PlayerId; born: number; dx: number; dy: number };
+  | { kind: 'flutter'; x: number; y: number; owner: PlayerId; born: number; dx: number; dy: number }
+  | { kind: 'dust'; x: number; y: number; owner: PlayerId; born: number; dx: number; dy: number; intensity: number };
 
 const DURATION_MS = 360;
 const SPLAT_MS = 480;
@@ -20,6 +21,7 @@ const DAMAGE_MS = 700;
 const ROAR_MS = 520;
 const WEB_MS = 600;
 const FLUTTER_MS = 400;
+const DUST_MS = 520;
 const effects: Effect[] = [];
 
 import { side } from './palette';
@@ -65,6 +67,9 @@ export function pushWeb(x: number, y: number, owner: PlayerId): void {
 export function pushFlutter(x: number, y: number, owner: PlayerId, dx: number, dy: number): void {
   effects.push({ kind: 'flutter', x, y, owner, born: now(), dx, dy });
 }
+export function pushDust(x: number, y: number, owner: PlayerId, dx: number, dy: number, intensity: number): void {
+  effects.push({ kind: 'dust', x, y, owner, born: now(), dx, dy, intensity });
+}
 
 export function clearEffects(): void {
   effects.length = 0;
@@ -81,6 +86,7 @@ export function renderEffects(rc: RenderContext): void {
                    : e.kind === 'roar' ? ROAR_MS
                    : e.kind === 'web' ? WEB_MS
                    : e.kind === 'flutter' ? FLUTTER_MS
+                   : e.kind === 'dust' ? DUST_MS
                    : DURATION_MS;
     if (age >= lifetime) { effects.splice(i, 1); continue; }
     const t = age / lifetime;       // 0..1
@@ -155,6 +161,21 @@ export function renderEffects(rc: RenderContext): void {
       rc.ctx.beginPath();
       rc.ctx.arc(0, 0, r, 0, Math.PI * 2);
       rc.ctx.stroke();
+    } else if (e.kind === 'dust') {
+      // Tan/brown dust puffs scattering behind a charging unit. The number
+      // and size of puffs scale with momentum intensity (1..5).
+      const dots = 3 + Math.floor(e.intensity);
+      const trailAng = Math.atan2(-e.dy, -e.dx);
+      rc.ctx.fillStyle = '#9c8262';
+      for (let k = 0; k < dots; k++) {
+        const spread = trailAng + (k - dots / 2) * 0.35;
+        const r = size * (0.20 + 0.55 * t);
+        const dotR = size * (0.04 + 0.02 * e.intensity) * (1 - t * 0.5);
+        rc.ctx.globalAlpha = (1 - t) * (0.4 + 0.10 * e.intensity);
+        rc.ctx.beginPath();
+        rc.ctx.arc(Math.cos(spread) * r, Math.sin(spread) * r, dotR, 0, Math.PI * 2);
+        rc.ctx.fill();
+      }
     } else if (e.kind === 'flutter') {
       // Three small dashes that trail in the eagle's flight direction, like
       // feathers shed at takeoff. They drift outward and shrink as they fade.
