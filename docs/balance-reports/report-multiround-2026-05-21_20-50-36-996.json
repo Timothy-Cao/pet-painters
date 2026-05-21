@@ -1,0 +1,703 @@
+{
+  "config": {
+    "maxRounds": 8,
+    "execSeconds": 5,
+    "startEnergy": 3,
+    "winThreshold": 153,
+    "winPct": 60,
+    "teamOpponents": 25,
+    "teamSamples": 10
+  },
+  "matchStats": {
+    "avgRoundsPlayed": 7.94683956043956,
+    "avgTicksPerMatch": 791.3801142857143,
+    "pctPaint": 7.4909890109890105,
+    "pctRoundCap": 92.35956043956044,
+    "pctStall": 0.14945054945054945,
+    "totalSamples": 113750
+  },
+  "teamWrs": {
+    "mouse": {
+      "petId": "mouse",
+      "teamWr": 0.7259120879120879,
+      "samples": 22750,
+      "compCount": 91
+    },
+    "elephant": {
+      "petId": "elephant",
+      "teamWr": 0.4664175824175824,
+      "samples": 22750,
+      "compCount": 91
+    },
+    "cat": {
+      "petId": "cat",
+      "teamWr": 0.632087912087912,
+      "samples": 22750,
+      "compCount": 91
+    },
+    "rabbit": {
+      "petId": "rabbit",
+      "teamWr": 0.5408131868131868,
+      "samples": 22750,
+      "compCount": 91
+    },
+    "turtle": {
+      "petId": "turtle",
+      "teamWr": 0.6071428571428571,
+      "samples": 22750,
+      "compCount": 91
+    },
+    "skunk": {
+      "petId": "skunk",
+      "teamWr": 0.5156263736263736,
+      "samples": 22750,
+      "compCount": 91
+    },
+    "lion": {
+      "petId": "lion",
+      "teamWr": 0.49835164835164836,
+      "samples": 22750,
+      "compCount": 91
+    },
+    "spider": {
+      "petId": "spider",
+      "teamWr": 0.24336263736263736,
+      "samples": 22750,
+      "compCount": 91
+    },
+    "eagle": {
+      "petId": "eagle",
+      "teamWr": 0.49626373626373627,
+      "samples": 22750,
+      "compCount": 91
+    },
+    "bear": {
+      "petId": "bear",
+      "teamWr": 0.45815384615384613,
+      "samples": 22750,
+      "compCount": 91
+    },
+    "rhino": {
+      "petId": "rhino",
+      "teamWr": 0.4573846153846154,
+      "samples": 22750,
+      "compCount": 91
+    },
+    "dragon": {
+      "petId": "dragon",
+      "teamWr": 0.437956043956044,
+      "samples": 22750,
+      "compCount": 91
+    },
+    "whale": {
+      "petId": "whale",
+      "teamWr": 0.4857802197802198,
+      "samples": 22750,
+      "compCount": 91
+    }
+  },
+  "topComps": [
+    {
+      "comp": [
+        "bear",
+        "cat",
+        "mouse"
+      ],
+      "wr": 0.882,
+      "samples": 250,
+      "avgRoundsPlayed": 7.94
+    },
+    {
+      "comp": [
+        "cat",
+        "mouse",
+        "whale"
+      ],
+      "wr": 0.88,
+      "samples": 250,
+      "avgRoundsPlayed": 7.908
+    },
+    {
+      "comp": [
+        "mouse",
+        "mouse",
+        "mouse"
+      ],
+      "wr": 0.878,
+      "samples": 250,
+      "avgRoundsPlayed": 7.268
+    },
+    {
+      "comp": [
+        "cat",
+        "mouse",
+        "turtle"
+      ],
+      "wr": 0.874,
+      "samples": 250,
+      "avgRoundsPlayed": 7.888
+    },
+    {
+      "comp": [
+        "mouse",
+        "mouse",
+        "cat"
+      ],
+      "wr": 0.868,
+      "samples": 250,
+      "avgRoundsPlayed": 7.608
+    },
+    {
+      "comp": [
+        "turtle",
+        "turtle",
+        "mouse"
+      ],
+      "wr": 0.864,
+      "samples": 250,
+      "avgRoundsPlayed": 7.864
+    },
+    {
+      "comp": [
+        "elephant",
+        "mouse",
+        "turtle"
+      ],
+      "wr": 0.846,
+      "samples": 250,
+      "avgRoundsPlayed": 7.816
+    },
+    {
+      "comp": [
+        "cat",
+        "mouse",
+        "skunk"
+      ],
+      "wr": 0.846,
+      "samples": 250,
+      "avgRoundsPlayed": 7.948
+    },
+    {
+      "comp": [
+        "lion",
+        "mouse",
+        "skunk"
+      ],
+      "wr": 0.836,
+      "samples": 250,
+      "avgRoundsPlayed": 7.928
+    },
+    {
+      "comp": [
+        "cat",
+        "elephant",
+        "mouse"
+      ],
+      "wr": 0.834,
+      "samples": 250,
+      "avgRoundsPlayed": 7.952
+    },
+    {
+      "comp": [
+        "cat",
+        "lion",
+        "mouse"
+      ],
+      "wr": 0.832,
+      "samples": 250,
+      "avgRoundsPlayed": 7.952
+    },
+    {
+      "comp": [
+        "cat",
+        "cat",
+        "turtle"
+      ],
+      "wr": 0.822,
+      "samples": 250,
+      "avgRoundsPlayed": 7.988
+    },
+    {
+      "comp": [
+        "mouse",
+        "turtle",
+        "whale"
+      ],
+      "wr": 0.816,
+      "samples": 250,
+      "avgRoundsPlayed": 7.888
+    },
+    {
+      "comp": [
+        "mouse",
+        "mouse",
+        "lion"
+      ],
+      "wr": 0.81,
+      "samples": 250,
+      "avgRoundsPlayed": 7.796
+    },
+    {
+      "comp": [
+        "cat",
+        "eagle",
+        "mouse"
+      ],
+      "wr": 0.808,
+      "samples": 250,
+      "avgRoundsPlayed": 7.94
+    },
+    {
+      "comp": [
+        "bear",
+        "elephant",
+        "mouse"
+      ],
+      "wr": 0.8,
+      "samples": 250,
+      "avgRoundsPlayed": 7.9
+    },
+    {
+      "comp": [
+        "mouse",
+        "mouse",
+        "dragon"
+      ],
+      "wr": 0.798,
+      "samples": 250,
+      "avgRoundsPlayed": 7.644
+    },
+    {
+      "comp": [
+        "bear",
+        "mouse",
+        "whale"
+      ],
+      "wr": 0.796,
+      "samples": 250,
+      "avgRoundsPlayed": 7.908
+    },
+    {
+      "comp": [
+        "mouse",
+        "mouse",
+        "turtle"
+      ],
+      "wr": 0.794,
+      "samples": 250,
+      "avgRoundsPlayed": 7.716
+    },
+    {
+      "comp": [
+        "turtle",
+        "turtle",
+        "cat"
+      ],
+      "wr": 0.794,
+      "samples": 250,
+      "avgRoundsPlayed": 7.984
+    },
+    {
+      "comp": [
+        "cat",
+        "dragon",
+        "mouse"
+      ],
+      "wr": 0.794,
+      "samples": 250,
+      "avgRoundsPlayed": 7.924
+    },
+    {
+      "comp": [
+        "mouse",
+        "mouse",
+        "whale"
+      ],
+      "wr": 0.792,
+      "samples": 250,
+      "avgRoundsPlayed": 7.612
+    },
+    {
+      "comp": [
+        "mouse",
+        "mouse",
+        "skunk"
+      ],
+      "wr": 0.79,
+      "samples": 250,
+      "avgRoundsPlayed": 7.748
+    },
+    {
+      "comp": [
+        "mouse",
+        "mouse",
+        "bear"
+      ],
+      "wr": 0.79,
+      "samples": 250,
+      "avgRoundsPlayed": 7.668
+    },
+    {
+      "comp": [
+        "cat",
+        "cat",
+        "mouse"
+      ],
+      "wr": 0.79,
+      "samples": 250,
+      "avgRoundsPlayed": 7.92
+    },
+    {
+      "comp": [
+        "cat",
+        "cat",
+        "rabbit"
+      ],
+      "wr": 0.79,
+      "samples": 250,
+      "avgRoundsPlayed": 7.988
+    },
+    {
+      "comp": [
+        "mouse",
+        "mouse",
+        "rabbit"
+      ],
+      "wr": 0.788,
+      "samples": 250,
+      "avgRoundsPlayed": 7.64
+    },
+    {
+      "comp": [
+        "mouse",
+        "rhino",
+        "skunk"
+      ],
+      "wr": 0.786,
+      "samples": 250,
+      "avgRoundsPlayed": 7.924
+    },
+    {
+      "comp": [
+        "rhino",
+        "rhino",
+        "mouse"
+      ],
+      "wr": 0.784,
+      "samples": 250,
+      "avgRoundsPlayed": 7.868
+    },
+    {
+      "comp": [
+        "rabbit",
+        "rabbit",
+        "mouse"
+      ],
+      "wr": 0.782,
+      "samples": 250,
+      "avgRoundsPlayed": 7.844
+    }
+  ],
+  "bottomComps": [
+    {
+      "comp": [
+        "rabbit",
+        "spider",
+        "whale"
+      ],
+      "wr": 0.126,
+      "samples": 250,
+      "avgRoundsPlayed": 7.848
+    },
+    {
+      "comp": [
+        "bear",
+        "lion",
+        "spider"
+      ],
+      "wr": 0.118,
+      "samples": 250,
+      "avgRoundsPlayed": 7.88
+    },
+    {
+      "comp": [
+        "dragon",
+        "dragon",
+        "dragon"
+      ],
+      "wr": 0.114,
+      "samples": 250,
+      "avgRoundsPlayed": 7.988
+    },
+    {
+      "comp": [
+        "lion",
+        "lion",
+        "spider"
+      ],
+      "wr": 0.114,
+      "samples": 250,
+      "avgRoundsPlayed": 7.92
+    },
+    {
+      "comp": [
+        "elephant",
+        "elephant",
+        "spider"
+      ],
+      "wr": 0.11,
+      "samples": 250,
+      "avgRoundsPlayed": 7.928
+    },
+    {
+      "comp": [
+        "elephant",
+        "rhino",
+        "spider"
+      ],
+      "wr": 0.108,
+      "samples": 250,
+      "avgRoundsPlayed": 7.892
+    },
+    {
+      "comp": [
+        "dragon",
+        "lion",
+        "spider"
+      ],
+      "wr": 0.106,
+      "samples": 250,
+      "avgRoundsPlayed": 7.916
+    },
+    {
+      "comp": [
+        "rhino",
+        "rhino",
+        "spider"
+      ],
+      "wr": 0.102,
+      "samples": 250,
+      "avgRoundsPlayed": 7.776
+    },
+    {
+      "comp": [
+        "bear",
+        "bear",
+        "spider"
+      ],
+      "wr": 0.1,
+      "samples": 250,
+      "avgRoundsPlayed": 7.832
+    },
+    {
+      "comp": [
+        "bear",
+        "spider",
+        "whale"
+      ],
+      "wr": 0.1,
+      "samples": 250,
+      "avgRoundsPlayed": 7.756
+    },
+    {
+      "comp": [
+        "bear",
+        "bear",
+        "dragon"
+      ],
+      "wr": 0.098,
+      "samples": 250,
+      "avgRoundsPlayed": 7.936
+    },
+    {
+      "comp": [
+        "bear",
+        "rhino",
+        "spider"
+      ],
+      "wr": 0.094,
+      "samples": 250,
+      "avgRoundsPlayed": 7.868
+    },
+    {
+      "comp": [
+        "lion",
+        "rhino",
+        "spider"
+      ],
+      "wr": 0.092,
+      "samples": 250,
+      "avgRoundsPlayed": 7.82
+    },
+    {
+      "comp": [
+        "dragon",
+        "eagle",
+        "spider"
+      ],
+      "wr": 0.078,
+      "samples": 250,
+      "avgRoundsPlayed": 7.976
+    },
+    {
+      "comp": [
+        "dragon",
+        "spider",
+        "whale"
+      ],
+      "wr": 0.076,
+      "samples": 250,
+      "avgRoundsPlayed": 7.844
+    },
+    {
+      "comp": [
+        "spider",
+        "spider",
+        "rabbit"
+      ],
+      "wr": 0.072,
+      "samples": 250,
+      "avgRoundsPlayed": 7.796
+    },
+    {
+      "comp": [
+        "spider",
+        "spider",
+        "lion"
+      ],
+      "wr": 0.06,
+      "samples": 250,
+      "avgRoundsPlayed": 7.92
+    },
+    {
+      "comp": [
+        "bear",
+        "dragon",
+        "spider"
+      ],
+      "wr": 0.05,
+      "samples": 250,
+      "avgRoundsPlayed": 7.948
+    },
+    {
+      "comp": [
+        "spider",
+        "spider",
+        "eagle"
+      ],
+      "wr": 0.048,
+      "samples": 250,
+      "avgRoundsPlayed": 7.828
+    },
+    {
+      "comp": [
+        "spider",
+        "spider",
+        "skunk"
+      ],
+      "wr": 0.044,
+      "samples": 250,
+      "avgRoundsPlayed": 7.912
+    },
+    {
+      "comp": [
+        "dragon",
+        "dragon",
+        "spider"
+      ],
+      "wr": 0.042,
+      "samples": 250,
+      "avgRoundsPlayed": 7.864
+    },
+    {
+      "comp": [
+        "spider",
+        "spider",
+        "elephant"
+      ],
+      "wr": 0.04,
+      "samples": 250,
+      "avgRoundsPlayed": 7.832
+    },
+    {
+      "comp": [
+        "bear",
+        "elephant",
+        "spider"
+      ],
+      "wr": 0.04,
+      "samples": 250,
+      "avgRoundsPlayed": 7.856
+    },
+    {
+      "comp": [
+        "dragon",
+        "elephant",
+        "spider"
+      ],
+      "wr": 0.036,
+      "samples": 250,
+      "avgRoundsPlayed": 7.912
+    },
+    {
+      "comp": [
+        "dragon",
+        "rhino",
+        "spider"
+      ],
+      "wr": 0.036,
+      "samples": 250,
+      "avgRoundsPlayed": 7.924
+    },
+    {
+      "comp": [
+        "spider",
+        "spider",
+        "rhino"
+      ],
+      "wr": 0.03,
+      "samples": 250,
+      "avgRoundsPlayed": 7.76
+    },
+    {
+      "comp": [
+        "spider",
+        "spider",
+        "dragon"
+      ],
+      "wr": 0.03,
+      "samples": 250,
+      "avgRoundsPlayed": 7.724
+    },
+    {
+      "comp": [
+        "spider",
+        "spider",
+        "bear"
+      ],
+      "wr": 0.012,
+      "samples": 250,
+      "avgRoundsPlayed": 7.868
+    },
+    {
+      "comp": [
+        "spider",
+        "spider",
+        "spider"
+      ],
+      "wr": 0.004,
+      "samples": 250,
+      "avgRoundsPlayed": 7.804
+    },
+    {
+      "comp": [
+        "spider",
+        "spider",
+        "whale"
+      ],
+      "wr": 0.002,
+      "samples": 250,
+      "avgRoundsPlayed": 7.872
+    }
+  ]
+}
