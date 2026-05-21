@@ -159,48 +159,20 @@ export function renderDeployPreview(
   rc.ctx.strokeRect(px + 1, py + 1, w - 2, h - 2);
   rc.ctx.setLineDash([]);
 
+  const FACING_RAD: Record<Direction, number> = {
+    N: 0,
+    E: Math.PI / 2,
+    S: Math.PI,
+    W: -Math.PI / 2,
+  };
+  rc.ctx.save();
   rc.ctx.globalAlpha = 0.85;
+  rc.ctx.translate(px + w / 2, py + h / 2);
+  rc.ctx.rotate(FACING_RAD[ui.facing]);
   rc.ctx.font = `${Math.floor(rc.tileSize * 0.65)}px sans-serif`;
   rc.ctx.textAlign = 'center';
   rc.ctx.textBaseline = 'middle';
   rc.ctx.fillStyle = '#fff';
-  rc.ctx.fillText(def.emoji, px + w / 2, py + h / 2);
-  rc.ctx.globalAlpha = 1;
-
-  drawFacingArrow(rc, px, py, w, h, ui.facing, valid ? PREVIEW.stroke : PREVIEW.invalidStroke);
-}
-
-function drawFacingArrow(
-  rc: RenderContext,
-  px: number, py: number, w: number, h: number,
-  facing: Direction,
-  color: string,
-): void {
-  const { ctx } = rc;
-  const cx = px + w / 2;
-  const cy = py + h / 2;
-  const r = Math.min(w, h) * 0.4;
-  let tx = cx, ty = cy;
-  switch (facing) {
-    case 'N': tx = cx; ty = cy - r; break;
-    case 'S': tx = cx; ty = cy + r; break;
-    case 'E': tx = cx + r; ty = cy; break;
-    case 'W': tx = cx - r; ty = cy; break;
-  }
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.lineTo(tx, ty);
-  ctx.stroke();
-  // Arrowhead
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  const ah = 5;
-  if (facing === 'N') { ctx.moveTo(tx, ty - ah); ctx.lineTo(tx - ah, ty + ah); ctx.lineTo(tx + ah, ty + ah); }
-  else if (facing === 'S') { ctx.moveTo(tx, ty + ah); ctx.lineTo(tx - ah, ty - ah); ctx.lineTo(tx + ah, ty - ah); }
-  else if (facing === 'E') { ctx.moveTo(tx + ah, ty); ctx.lineTo(tx - ah, ty - ah); ctx.lineTo(tx - ah, ty + ah); }
-  else { ctx.moveTo(tx - ah, ty); ctx.lineTo(tx + ah, ty - ah); ctx.lineTo(tx + ah, ty + ah); }
-  ctx.closePath();
-  ctx.fill();
+  rc.ctx.fillText(def.emoji, 0, 2);
+  rc.ctx.restore();
 }

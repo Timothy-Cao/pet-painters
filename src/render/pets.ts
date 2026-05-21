@@ -1,10 +1,18 @@
 import { RenderContext, tileToPixel } from './canvas';
 import type { Pet } from '../types/pet';
+import type { Direction } from '../types/game';
 import { getPetDef } from '../sim/pet-defs';
 
 const RING = {
   A: { color: '#5b8def', glow: 'rgba(91, 141, 239, 0.55)' },
   B: { color: '#f25f5c', glow: 'rgba(242, 95, 92, 0.55)' },
+};
+
+const FACING_RAD: Record<Direction, number> = {
+  N: 0,
+  E: Math.PI / 2,
+  S: Math.PI,
+  W: -Math.PI / 2,
 };
 
 export function renderPets(rc: RenderContext, pets: Pet[]): void {
@@ -24,28 +32,24 @@ export function renderPets(rc: RenderContext, pets: Pet[]): void {
     ctx.fillRect(px + 4, py + 4, w - 8, h - 8);
     ctx.restore();
 
-    // Owner ring (rounded)
+    // Owner ring (rounded, axis-aligned — does not rotate)
     ctx.strokeStyle = ring.color;
     ctx.lineWidth = 2;
     roundRect(ctx, px + 3, py + 3, w - 6, h - 6, 6);
     ctx.stroke();
 
-    // Emoji
+    // Emoji rotates with facing direction
+    ctx.save();
+    ctx.translate(px + w / 2, py + h / 2);
+    ctx.rotate(FACING_RAD[pet.facing]);
     ctx.font = `${Math.floor(h * 0.65)}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#fff';
-    ctx.fillText(def.emoji, px + w / 2, py + h / 2 + 2);
+    ctx.fillText(def.emoji, 0, 2);
+    ctx.restore();
 
-    // Facing arrow at edge
-    ctx.fillStyle = ring.color;
-    ctx.font = `${Math.floor(h * 0.22)}px sans-serif`;
-    const arrowChar = { N: '▲', S: '▼', E: '▶', W: '◀' }[pet.facing];
-    const ax = pet.facing === 'W' ? px + 10 : pet.facing === 'E' ? px + w - 10 : px + w / 2;
-    const ay = pet.facing === 'N' ? py + 10 : pet.facing === 'S' ? py + h - 10 : py + h / 2;
-    ctx.fillText(arrowChar, ax, ay);
-
-    // HP bar (only if damaged)
+    // HP bar (only if damaged) — stays axis-aligned for readability
     if (pet.hp < def.maxHp) {
       const hpFrac = Math.max(0, pet.hp / def.maxHp);
       const barX = px + 5;
