@@ -22,12 +22,12 @@ const ROSTER: PetRosterEntry[] = [
   {
     defId: MOUSE.id,
     hotkey: '1',
-    ability: 'Quick scout. Paints territory rapidly but is fragile — easily pushed aside or worn down by heavier units.',
+    ability: 'Scurry — sprints in a straight line, but turns randomly the moment anything blocks its path. Painter, not a fighter.',
   },
   {
     defId: ELEPHANT.id,
     hotkey: '2',
-    ability: 'Heavy bruiser. Moves slowly but shoves lighter pets out of its path and soaks up a lot of damage while painting.',
+    ability: 'Unshakable — cannot be pushed by anything. Trudges in straight lines and only about-faces when it hits a wall, ramming through lighter pets along the way.',
   },
 ];
 

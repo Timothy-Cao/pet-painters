@@ -72,9 +72,10 @@ function evaluatePush(pusher: Pet, state: MatchState): PushResult {
   // No blockers → clear path
   if (directBlockers.size === 0) return { kind: 'clear' };
 
-  // Check each direct blocker: must be 1x1 and weight < pusher/2
+  // Check each direct blocker: must be 1x1, not flagged immovable, and weight < pusher/2
   for (const b of directBlockers) {
     const bdef = getPetDef(b.defId);
+    if (bdef.immovable) return { kind: 'blocked' };
     if (bdef.size.w !== 1 || bdef.size.h !== 1) return { kind: 'blocked' };
     if (bdef.weight * 2 >= pusherWeight) return { kind: 'blocked' };
   }
@@ -98,6 +99,7 @@ function evaluatePush(pusher: Pet, state: MatchState): PushResult {
       if (!np) break; // empty tile found — chain can be pushed
       if (np === pusher) break;
       const ndef = getPetDef(np.defId);
+      if (ndef.immovable) return { kind: 'blocked' };
       if (ndef.size.w !== 1 || ndef.size.h !== 1) return { kind: 'blocked' };
       if (ndef.weight * 2 >= pusherWeight) return { kind: 'blocked' };
       if (!chainSet.has(np.petId)) {

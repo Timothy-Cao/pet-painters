@@ -7,7 +7,7 @@ export interface PetTuple {
 }
 
 export interface PetDefinition {
-  id: string;              // 'mouse' | 'elephant'
+  id: string;
   displayName: string;
   emoji: string;
   cost: number;
@@ -17,6 +17,8 @@ export interface PetDefinition {
   atk: number;
   order: number;
   tuples: PetTuple[];
+  // Optional traits
+  immovable?: boolean;     // Cannot be pushed by any pet, regardless of weight ratio.
 }
 
 export interface Pet {

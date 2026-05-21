@@ -14,9 +14,9 @@ export const WIN_PAINT_THRESHOLD = Math.floor(BOARD_SIZE * BOARD_SIZE * 0.75); /
 // Pet stats — keep in lockstep with src/sim/pet-defs.ts
 export const MOUSE_STATS = {
   cost: 2,
-  speedTilesPerSec: 2,
+  speedTilesPerSec: 4,
   weight: 1,
-  maxHp: 2,
+  maxHp: 3,
   atk: 1,
   atkSpeedPerSec: 1.0,
   order: 2,
@@ -26,7 +26,7 @@ export const ELEPHANT_STATS = {
   cost: 5,
   speedTilesPerSec: 0.5,
   weight: 10,
-  maxHp: 8,
+  maxHp: 25,
   atk: 2,
   atkSpeedPerSec: 0.5,
   order: 1,
