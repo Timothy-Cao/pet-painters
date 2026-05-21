@@ -190,6 +190,7 @@ export const WIN_PAINT_THRESHOLD = Math.floor(BOARD_SIZE * BOARD_SIZE * 0.75); /
 export const MOUSE_STATS = {
   cost: 2,
   speedTilesPerSec: 2,
+  weight: 1,
   maxHp: 2,
   atk: 1,
   atkSpeedPerSec: 1.0,
@@ -199,6 +200,7 @@ export const MOUSE_STATS = {
 export const ELEPHANT_STATS = {
   cost: 5,
   speedTilesPerSec: 0.5,
+  weight: 10,
   maxHp: 8,
   atk: 2,
   atkSpeedPerSec: 0.5,
@@ -265,6 +267,7 @@ export interface PetDefinition {
   emoji: string;
   cost: number;
   size: { w: number; h: number };
+  weight: number;
   maxHp: number;
   atk: number;
   order: number;
@@ -614,6 +617,7 @@ export const MOUSE: PetDefinition = {
   emoji: '🐭',
   cost: MOUSE_STATS.cost,
   size: { w: 1, h: 1 },
+  weight: MOUSE_STATS.weight,
   maxHp: MOUSE_STATS.maxHp,
   atk: MOUSE_STATS.atk,
   order: MOUSE_STATS.order,
@@ -629,6 +633,7 @@ export const ELEPHANT: PetDefinition = {
   emoji: '🐘',
   cost: ELEPHANT_STATS.cost,
   size: { w: 2, h: 2 },
+  weight: ELEPHANT_STATS.weight,
   maxHp: ELEPHANT_STATS.maxHp,
   atk: ELEPHANT_STATS.atk,
   order: ELEPHANT_STATS.order,
@@ -948,16 +953,23 @@ git commit -m "task 6: tick loop with per-tuple timer accounting"
 
 ---
 
-## Task 7: Movement tuple — trigger + action with entry-conflict resolution
+## Task 7: Movement tuple — trigger + action with weight-based entry conflicts and push-through
 
 **Files:**
 - Modify: `src/sim/pet-defs.ts` (replace stub move tuple)
 - Create: `src/sim/movement.ts`
 - Create: `tests/sim/movement.test.ts`
 
-Per spec § 6 and § 8: a pet's move tuple fires every `1/speed` seconds. If the front tile(s) are unoccupied and on-board, the pet advances and paints. Two pets attempting to enter the same tile in the same tick → higher hp wins, then atk, then random.
+Per spec § 6 and § 8:
 
-The pure-functional approach: when the move tuple's `action` runs, it doesn't directly move the pet — it records a *move intent* on the match state. After all tuples fire in a tick, `resolveMovements` processes intents and applies them. This makes entry-conflict resolution centralized.
+- A pet's move tuple fires every `1/speed` seconds.
+- The move trigger fires whenever the front tile(s) are on the board (occupancy is *not* part of the trigger — the resolver decides).
+- The move action records a *move intent*. Actual movement happens in `resolveMovements`, called after all tuples fire and after combat damage has been applied and dead pets removed.
+- **Same-empty-tile conflict** (two pets want the same empty tile): higher `weight` wins; tie = random; loser doesn't move.
+- **Occupied front tile**: the move may still succeed via **push**. Heavy pet `H` can push a chain of lighter pets in its path if `2 × sum(chain.weight) < H.weight` AND there is an empty tile beyond the chain. The chain stops at the first pet whose own weight `≥ H.weight / 2`, at the board edge, or at the first empty tile (good case).
+- Pushed pets shift one tile in `H`'s facing direction. They keep their own facing.
+
+The pure-functional approach: the trigger is liberal, the resolver is smart. This centralizes all conflict and push logic in one function.
 
 - [ ] **Step 1: Extend MatchState type with `moveIntents`**
 
@@ -1036,24 +1048,102 @@ describe('entry conflicts', () => {
     state.phase = 'execution';
   });
 
-  it('two enemy mice racing to the same tile: higher hp wins, but they have equal hp so it is random — verify exactly one moves', () => {
-    tryDeploy(state, 'A', MOUSE.id, { x: 5, y: 1 }, 'N'); // will target (5,2)
+  it('two mice racing to the same empty tile: equal weight → exactly one wins (random)', () => {
+    tryDeploy(state, 'A', MOUSE.id, { x: 5, y: 1 }, 'N'); // target (5,2)
     state.energy.B = 10;
-    tryDeploy(state, 'B', MOUSE.id, { x: 5, y: 3 }, 'S'); // will target (5,2)
+    tryDeploy(state, 'B', MOUSE.id, { x: 5, y: 3 }, 'S'); // target (5,2)
     runTicks(state, 10);
-    // Both wanted (5,2). Exactly one should be there; the other stops one tile short.
     const occupants = state.pets.filter(p => p.anchor.x === 5 && p.anchor.y === 2);
-    expect(occupants.length).toBe(1);
+    expect(occupants.length).toBe(1); // exactly one entered; the other stayed
+  });
+});
+
+describe('push-through movement', () => {
+  let state: MatchState;
+  beforeEach(() => {
+    state = createInitialMatch();
+    state.phase = 'execution';
+    state.energy = { A: 50, B: 50 };
   });
 
-  it('higher hp wins conflict deterministically', () => {
-    tryDeploy(state, 'A', ELEPHANT.id, { x: 5, y: 0 }, 'N'); // 8 hp, will target (5,2) after 40 ticks
-    state.energy.B = 10;
-    tryDeploy(state, 'B', MOUSE.id, { x: 5, y: 3 }, 'S');    // 2 hp, will target (5,2) after 10 ticks
-    // To force them to collide on the same tick, we'd need timer alignment. Easier: damage Elephant so hp differs and put both on same move tick.
-    // Instead, just assert head-on conflict resolution via direct test of the resolver in next test.
-    // (skip integration; covered in resolver-level test below)
-    expect(state.pets.length).toBe(2);
+  it('Elephant pushes a single Mouse forward', () => {
+    // Place Elephant at (5,5) facing N, Mouse at (5,7) (one tile north of elephant's front (5,7)).
+    tryDeploy(state, 'A', ELEPHANT.id, { x: 5, y: 0 }, 'N');
+    state.pets[0].anchor = { x: 5, y: 5 }; // occupies (5,5)(6,5)(5,6)(6,6); fronts (5,7)(6,7)
+    tryDeploy(state, 'A', MOUSE.id, { x: 5, y: 1 }, 'N');
+    state.pets[1].anchor = { x: 5, y: 7 };
+    // Elephant move interval = 2s = 40 ticks. Trigger fires every 40 ticks.
+    // Mouse move interval = 0.5s = 10 ticks.
+    // After enough ticks for Elephant to make one move (40 ticks), Mouse has moved on its own,
+    // so set Mouse facing W to keep it stationary against the (off-row) edge:
+    state.pets[1].facing = 'W';
+    state.pets[1].anchor = { x: 0, y: 7 }; // Mouse pinned at west edge
+    // Reset: put Elephant directly behind Mouse in the same row
+    state.pets[0].anchor = { x: 1, y: 6 }; // Elephant footprint (1,6)(2,6)(1,7)(2,7); facing N → fronts (1,8)(2,8)
+    state.pets[0].facing = 'N';
+    state.pets[1].anchor = { x: 1, y: 8 }; // Mouse in front of Elephant's left front tile
+    // Now run 40 ticks → Elephant attempts move N. Front contains Mouse → push attempt.
+    // Mouse weight 1, 2*1=2 < 10 → push succeeds. Mouse moves to (1,9). Elephant moves to anchor (1,7).
+    runTicks(state, 40);
+    expect(state.pets[1].anchor).toEqual({ x: 1, y: 9 });
+    expect(state.pets[0].anchor).toEqual({ x: 1, y: 7 });
+  });
+
+  it('Elephant pushes a chain of 4 Mice (sum 4 < 5)', () => {
+    tryDeploy(state, 'A', ELEPHANT.id, { x: 1, y: 0 }, 'N');
+    state.pets[0].anchor = { x: 1, y: 4 }; // footprint (1,4)(2,4)(1,5)(2,5); fronts (1,6)(2,6)
+    // Place 4 Mice in column x=1, rows y=6,7,8,9 — but only the column-1 ones are in the chain
+    for (let i = 0; i < 4; i++) {
+      tryDeploy(state, 'A', MOUSE.id, { x: 1, y: 1 }, 'N');
+      state.pets[1 + i].anchor = { x: 1, y: 6 + i };
+      state.pets[1 + i].facing = 'W'; // pin them so they don't drift
+    }
+    // Also column x=2 row 6 occupant so elephant's 2nd front tile isn't empty (otherwise push doesn't apply there).
+    // For simplicity, make sure (2,6) is empty — push only on x=1 chain. But elephant's front includes (2,6).
+    // To avoid that complication, use only Mice in the x=1 column and an empty x=2 col → no push needed for x=2.
+    // Push rule for 2x2: BOTH perpendicular tiles in the new footprint must be valid.
+    //   Elephant moving N from (1,4): new footprint (1,5)(2,5)(1,6)(2,6). (1,6) needs to be cleared by push;
+    //   (2,6) must be empty already. We set up: x=1 column has Mice; x=2 column empty. ✓
+    runTicks(state, 40);
+    // Each x=1 Mouse should have shifted north by 1 → at y=7,8,9,10
+    for (let i = 0; i < 4; i++) {
+      expect(state.pets[1 + i].anchor).toEqual({ x: 1, y: 7 + i });
+    }
+    // Elephant anchor should be (1,5)
+    expect(state.pets[0].anchor).toEqual({ x: 1, y: 5 });
+  });
+
+  it('Elephant blocked by 5 Mice (sum 5, NOT strictly less than 5)', () => {
+    tryDeploy(state, 'A', ELEPHANT.id, { x: 1, y: 0 }, 'N');
+    state.pets[0].anchor = { x: 1, y: 4 };
+    for (let i = 0; i < 5; i++) {
+      tryDeploy(state, 'A', MOUSE.id, { x: 1, y: 1 }, 'N');
+      state.pets[1 + i].anchor = { x: 1, y: 6 + i };
+      state.pets[1 + i].facing = 'W';
+    }
+    runTicks(state, 40);
+    expect(state.pets[0].anchor).toEqual({ x: 1, y: 4 }); // didn't move
+  });
+
+  it('Elephant blocked when chain hits board edge with no empty tile', () => {
+    tryDeploy(state, 'A', ELEPHANT.id, { x: 1, y: 0 }, 'N');
+    state.pets[0].anchor = { x: 1, y: 9 }; // footprint (1,9)(2,9)(1,10)(2,10); fronts (1,11)(2,11)
+    // Single Mouse at (1,11) — north edge, no empty tile beyond.
+    tryDeploy(state, 'A', MOUSE.id, { x: 1, y: 1 }, 'N');
+    state.pets[1].anchor = { x: 1, y: 11 };
+    state.pets[1].facing = 'W';
+    runTicks(state, 40);
+    expect(state.pets[0].anchor).toEqual({ x: 1, y: 9 }); // push fails — Mouse has nowhere to go
+  });
+
+  it('Mouse cannot push an Elephant (weight 1 vs 10)', () => {
+    tryDeploy(state, 'A', MOUSE.id, { x: 5, y: 1 }, 'N');
+    state.pets[0].anchor = { x: 5, y: 5 };
+    tryDeploy(state, 'B', ELEPHANT.id, { x: 5, y: 11 }, 'S');
+    state.pets[1].anchor = { x: 5, y: 6 }; // Elephant footprint (5,6)(6,6)(5,7)(6,7); Mouse facing N → front (5,6) = Elephant.
+    state.pets[1].facing = 'W'; // pin so it doesn't march
+    runTicks(state, 10);
+    expect(state.pets[0].anchor).toEqual({ x: 5, y: 5 }); // Mouse stays put
   });
 });
 ```
@@ -1074,33 +1164,18 @@ import { frontTiles } from './pets';
 import type { Pet } from '../types/pet';
 import type { MatchState } from '../types/game';
 
-function frontTilesClearAndOnBoard(pet: Pet, state: MatchState): boolean {
+function frontTilesOnBoard(pet: Pet, state: MatchState): boolean {
   const def = getPetDef(pet.defId);
   const fronts = frontTiles(pet.anchor, def.size, pet.facing);
   for (const t of fronts) {
     if (t.x < 0 || t.x >= state.board.size || t.y < 0 || t.y >= state.board.size) return false;
   }
-  // Occupancy check
-  for (const other of state.pets) {
-    if (other.petId === pet.petId) continue;
-    const odef = getPetDef(other.defId);
-    for (let dy = 0; dy < odef.size.h; dy++) {
-      for (let dx = 0; dx < odef.size.w; dx++) {
-        const ox = other.anchor.x + dx;
-        const oy = other.anchor.y + dy;
-        for (const ft of fronts) if (ft.x === ox && ft.y === oy) return false;
-      }
-    }
-  }
   return true;
 }
 
 function declareMove(pet: Pet, state: MatchState): void {
-  // Record an intent. Actual move + paint happens in resolveMovements, called after all tuples fire.
-  const def = getPetDef(pet.defId);
-  const fronts = frontTiles(pet.anchor, def.size, pet.facing);
-  // For a 2x2, the "destination anchor" advances by 1 in the facing direction
-  // (the front-edge tiles become part of the new footprint).
+  // Always record intent if trigger fired. resolveMovements decides whether the move actually happens
+  // (it may be blocked by occupancy + insufficient weight for push, or by entry-conflicts with other movers).
   let to = { x: pet.anchor.x, y: pet.anchor.y };
   switch (pet.facing) {
     case 'N': to.y += 1; break;
@@ -1117,21 +1192,21 @@ Replace the move tuple in the MOUSE and ELEPHANT definitions:
 // In MOUSE.tuples[0]:
 {
   intervalSec: 1 / MOUSE_STATS.speedTilesPerSec,
-  trigger: frontTilesClearAndOnBoard,
+  trigger: frontTilesOnBoard,
   action: declareMove,
 }
 // Same for ELEPHANT.tuples[0]:
 {
   intervalSec: 1 / ELEPHANT_STATS.speedTilesPerSec,
-  trigger: frontTilesClearAndOnBoard,
+  trigger: frontTilesOnBoard,
   action: declareMove,
 }
 ```
 
-- [ ] **Step 5: Implement src/sim/movement.ts (intent resolver)**
+- [ ] **Step 5: Implement src/sim/movement.ts (intent resolver with weight tiebreak + push)**
 
 ```typescript
-import type { MatchState, Vec2 } from '../types/game';
+import type { MatchState, Vec2, Direction } from '../types/game';
 import type { Pet } from '../types/pet';
 import { getPetDef } from './pet-defs';
 import { footprintTiles } from './pets';
@@ -1139,44 +1214,170 @@ import { paintTile } from './board';
 
 function tileKey(v: Vec2): string { return `${v.x},${v.y}`; }
 
+function delta(facing: Direction): Vec2 {
+  switch (facing) {
+    case 'N': return { x: 0, y: 1 };
+    case 'S': return { x: 0, y: -1 };
+    case 'E': return { x: 1, y: 0 };
+    case 'W': return { x: -1, y: 0 };
+  }
+}
+
+function inBounds(state: MatchState, p: Vec2): boolean {
+  return p.x >= 0 && p.x < state.board.size && p.y >= 0 && p.y < state.board.size;
+}
+
+function petAt(state: MatchState, p: Vec2): Pet | null {
+  for (const other of state.pets) {
+    const odef = getPetDef(other.defId);
+    for (const ft of footprintTiles(other.anchor, odef.size)) {
+      if (ft.x === p.x && ft.y === p.y) return other;
+    }
+  }
+  return null;
+}
+
+/**
+ * Compute the chain of pets that would need to be pushed if `pusher` advances one tile in its facing
+ * direction. Returns:
+ *   - { kind: 'clear' } if the front is already empty
+ *   - { kind: 'pushable', chain } if push is geometrically and weight-wise viable
+ *   - { kind: 'blocked' } otherwise
+ *
+ * The chain stops at the first pet whose own weight ≥ pusher.weight / 2 (an "immovable anchor"),
+ * at the board edge with no empty tile (push fails), or at the first empty tile (good).
+ *
+ * For 2×2 pushers, all perpendicular tiles in the new footprint must be valid (either part of the
+ * push chain or empty).
+ */
+function evaluatePush(
+  pusher: Pet,
+  state: MatchState,
+): { kind: 'clear' } | { kind: 'pushable'; chain: Pet[] } | { kind: 'blocked' } {
+  const def = getPetDef(pusher.defId);
+  const d = delta(pusher.facing);
+  const pusherWeight = def.weight;
+
+  // Compute the set of "lead" tiles — the tiles just in front of pusher's front edge.
+  const newFront: Vec2[] = [];
+  if (pusher.facing === 'N' || pusher.facing === 'S') {
+    const newRow = pusher.facing === 'N' ? pusher.anchor.y + def.size.h : pusher.anchor.y - 1;
+    for (let dx = 0; dx < def.size.w; dx++) newFront.push({ x: pusher.anchor.x + dx, y: newRow });
+  } else {
+    const newCol = pusher.facing === 'E' ? pusher.anchor.x + def.size.w : pusher.anchor.x - 1;
+    for (let dy = 0; dy < def.size.h; dy++) newFront.push({ x: newCol, y: pusher.anchor.y + dy });
+  }
+  for (const t of newFront) if (!inBounds(state, t)) return { kind: 'blocked' };
+
+  // Find unique pets occupying any newFront tile.
+  const directBlockers = new Set<Pet>();
+  for (const t of newFront) {
+    const p = petAt(state, t);
+    if (p && p !== pusher) directBlockers.add(p);
+  }
+
+  if (directBlockers.size === 0) return { kind: 'clear' };
+
+  // Walk the chain. Starting from each direct blocker, advance in the push direction collecting pets.
+  // To keep it simple in v1.1: only support pushing 1×1 pets in a single column/row. If any direct
+  // blocker is larger than 1×1 we treat as blocked (defer multi-size push to a later version).
+  for (const b of directBlockers) {
+    const bdef = getPetDef(b.defId);
+    if (bdef.size.w !== 1 || bdef.size.h !== 1) return { kind: 'blocked' };
+    if (bdef.weight * 2 >= pusherWeight) return { kind: 'blocked' }; // immovable individually
+  }
+
+  // Build per-blocker chains (one chain per newFront tile's column/row).
+  const chain: Pet[] = [];
+  for (const start of newFront) {
+    let cursor: Vec2 = { x: start.x, y: start.y };
+    // The first cell IS a blocker; if not, skip
+    let first = petAt(state, cursor);
+    if (!first || first === pusher) continue;
+    chain.push(first);
+    // Walk forward
+    while (true) {
+      const next: Vec2 = { x: cursor.x + d.x, y: cursor.y + d.y };
+      if (!inBounds(state, next)) return { kind: 'blocked' }; // chain hits edge, nowhere to push to
+      const np = petAt(state, next);
+      if (!np) break; // empty tile found — chain ends, push viable for this lane
+      const ndef = getPetDef(np.defId);
+      if (ndef.size.w !== 1 || ndef.size.h !== 1) return { kind: 'blocked' };
+      if (ndef.weight * 2 >= pusherWeight) return { kind: 'blocked' };
+      chain.push(np);
+      cursor = next;
+    }
+  }
+
+  // Weight check on the full chain
+  const sum = chain.reduce((s, p) => s + getPetDef(p.defId).weight, 0);
+  if (2 * sum >= pusherWeight) return { kind: 'blocked' };
+
+  return { kind: 'pushable', chain };
+}
+
 export function resolveMovements(state: MatchState): void {
-  // Group intents by destination anchor (since 2x2 still uses anchor as identity).
-  const byDest = new Map<string, { pet: Pet; intent: typeof state.moveIntents[number] }[]>();
-  for (const intent of state.moveIntents) {
-    const pet = state.pets.find((p) => p.petId === intent.petId);
-    if (!pet) continue;
+  // 1. Skip intents from pets that died this tick (already removed from state.pets).
+  const aliveIntents = state.moveIntents.filter((i) => state.pets.some((p) => p.petId === i.petId));
+
+  // 2. Group intents by destination anchor for empty-tile conflict resolution.
+  //    (Pets going into occupied tiles will be handled in the push phase; same-empty-tile conflict
+  //    is decided by weight here.)
+  const byDest = new Map<string, { pet: Pet; intentIdx: number }[]>();
+  aliveIntents.forEach((intent, i) => {
+    const pet = state.pets.find((p) => p.petId === intent.petId)!;
     const key = tileKey(intent.to);
     if (!byDest.has(key)) byDest.set(key, []);
-    byDest.get(key)!.push({ pet, intent });
-  }
+    byDest.get(key)!.push({ pet, intentIdx: i });
+  });
 
-  // For each contested destination, sort by (hp desc, atk desc, then random tie-break) and pick winner.
-  const blockedPetIds = new Set<number>();
+  const blocked = new Set<number>();
   for (const group of byDest.values()) {
     if (group.length === 1) continue;
+    // Only "same empty tile" conflicts get resolved here. If the destination is already occupied,
+    // each pet's push attempt is independent (one might succeed, others fail).
+    const destOccupied = petAt(state, aliveIntents[group[0].intentIdx].to) !== null;
+    if (destOccupied) continue;
+    // Higher weight wins. Tie = random.
     group.sort((a, b) => {
-      if (b.pet.hp !== a.pet.hp) return b.pet.hp - a.pet.hp;
-      const adef = getPetDef(a.pet.defId);
-      const bdef = getPetDef(b.pet.defId);
-      if (bdef.atk !== adef.atk) return bdef.atk - adef.atk;
+      const aw = getPetDef(a.pet.defId).weight;
+      const bw = getPetDef(b.pet.defId).weight;
+      if (bw !== aw) return bw - aw;
       return Math.random() - 0.5;
     });
-    // Winner = group[0]; the rest are blocked
-    for (let i = 1; i < group.length; i++) blockedPetIds.add(group[i].pet.petId);
+    for (let i = 1; i < group.length; i++) blocked.add(group[i].pet.petId);
   }
 
-  // Apply moves for non-blocked pets and paint newly-entered tiles
-  for (const intent of state.moveIntents) {
-    if (blockedPetIds.has(intent.petId)) continue;
-    const pet = state.pets.find((p) => p.petId === intent.petId);
-    if (!pet) continue;
-    const def = getPetDef(pet.defId);
+  // 3. Process intents in deterministic order (by pet weight desc, then petId asc).
+  //    Higher-weight pets push first, so chained pushes resolve correctly when multiple heavies move.
+  const ordered = aliveIntents
+    .filter((i) => !blocked.has(i.petId))
+    .map((i) => ({ intent: i, pet: state.pets.find((p) => p.petId === i.petId)! }))
+    .sort((a, b) => {
+      const aw = getPetDef(a.pet.defId).weight;
+      const bw = getPetDef(b.pet.defId).weight;
+      if (bw !== aw) return bw - aw;
+      return a.pet.petId - b.pet.petId;
+    });
 
+  for (const { intent, pet } of ordered) {
+    const result = evaluatePush(pet, state);
+    if (result.kind === 'blocked') continue;
+
+    const def = getPetDef(pet.defId);
     const oldFootprint = footprintTiles(pet.anchor, def.size);
+
+    if (result.kind === 'pushable') {
+      // Shift each chain pet by one tile in pusher's facing.
+      const d = delta(pet.facing);
+      for (const c of result.chain) {
+        c.anchor = { x: c.anchor.x + d.x, y: c.anchor.y + d.y };
+      }
+    }
+
+    // Now advance the pusher.
     pet.anchor = intent.to;
     const newFootprint = footprintTiles(pet.anchor, def.size);
-
-    // Newly entered tiles = newFootprint \ oldFootprint
     const oldKeys = new Set(oldFootprint.map(tileKey));
     for (const t of newFootprint) {
       if (!oldKeys.has(tileKey(t))) {
@@ -1189,15 +1390,47 @@ export function resolveMovements(state: MatchState): void {
 }
 ```
 
+**v1.1 simplifications captured in this code:**
+- Multi-size push (e.g., Elephant pushing another Elephant or a future 2×2 pet) is treated as blocked. v1.2+ can extend `evaluatePush` to handle non-1×1 chain members.
+- Push priority is by pet weight (heaviest pushes first). This avoids race conditions when two heavies move toward each other on the same tick.
+- A pet that died earlier this tick (combat) is already absent from `state.pets` because death cleanup runs in `advanceTick` before `resolveMovements`. So the chain naturally shortens around freshly-dead pets.
+
 - [ ] **Step 6: Wire `resolveMovements` into the tick**
 
-Modify `src/sim/tick.ts` — after the pet/tuple loop, call `resolveMovements`:
+Modify `src/sim/tick.ts`. The new order of operations within a tick is:
+
+1. Process all pets' tuples (combat damage applied immediately).
+2. **Death cleanup** — remove pets at hp ≤ 0.
+3. **`resolveMovements`** — uses post-cleanup state so dead pets don't appear in push chains.
 
 ```typescript
 import { resolveMovements } from './movement';
 // ...
-// inside advanceTick, after the per-tuple loop and before death cleanup:
-resolveMovements(state);
+export function advanceTick(state: MatchState): void {
+  if (state.phase !== 'execution') return;
+  state.tick += 1;
+
+  for (const pet of state.pets) {
+    if (pet.hp <= 0) continue;
+    const def = getPetDef(pet.defId);
+    for (let i = 0; i < def.tuples.length; i++) {
+      if (pet.hp <= 0) break;
+      const tuple = def.tuples[i];
+      const intervalTicks = Math.round(tuple.intervalSec * TICKS_PER_SEC);
+      const lastFire = pet.tupleLastFireTick[i];
+      const referenceTick = lastFire >= 0 ? lastFire : pet.deployTick;
+      if (state.tick - referenceTick >= intervalTicks) {
+        if (tuple.trigger(pet, state)) tuple.action(pet, state);
+        pet.tupleLastFireTick[i] = state.tick;
+      }
+    }
+  }
+
+  // Death cleanup BEFORE movement resolution (so push chains see a clean board)
+  state.pets = state.pets.filter((p) => p.hp > 0);
+
+  resolveMovements(state);
+}
 ```
 
 - [ ] **Step 7: Run tests, verify they pass**

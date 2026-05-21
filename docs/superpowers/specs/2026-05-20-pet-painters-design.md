@@ -82,9 +82,22 @@ During a planning phase:
 
 ## 6. Pet behavior: trigger / action / timer
 
-A pet is not a state machine with goals or targets. **It is a bundle of `(trigger, action, timer)` tuples.** Each tuple says: "every `T` seconds, check this condition; if it's true, do this action." Pets don't pick targets — they react to whatever happens to be in the right relative position when their timer fires.
+A pet is not a state machine with goals or targets. **It is a bundle of `(trigger, action)` tuples.** Each tuple pairs a condition that fires the action with the action that runs. Pets don't pick targets — they react to whatever happens to be in the right relative position when their trigger fires.
 
-This model is the extension point for the entire future roster. AoE = "any enemy in radius 1"; ranged = "any enemy in line within N"; heal = "any ally below max hp"; etc. v1.1 implements only the two tuples below, but the engine should be built to accept arbitrary tuples.
+Triggers come in two flavors:
+
+- **Timer-based** — fires at a regular interval (`every T seconds`). Optionally narrowed by a predicate evaluated on each fire. Examples: *"every 0.5s, if front tile is clear, move forward"*; *"every 1.0s, if an enemy is in front, attack."*
+- **Event-based** — subscribes to specific game events. Examples:
+  - `on-spawn` — fires once, when the pet is placed (Hearthstone-style "battlecry").
+  - `on-damaged` — fires when the pet takes damage.
+  - `on-death` — fires when the pet dies (Hearthstone-style "deathrattle").
+  - `on-step` — fires when the pet enters a new tile; may be filtered by tile color (e.g., *"if I step on an enemy-painted tile, gain +1 attack"*).
+  - `on-kill` — fires when this pet kills another.
+  - `on-adjacent-change` — fires when the set of adjacent pets changes.
+
+**v1.1 implements only timer-based triggers.** The architecture must leave room for event-based triggers without rule rewrites — they are how future pets get their flavor (deathrattles, on-paint effects, on-damaged shields, energy generators, etc.).
+
+This model is the extension point for the entire future roster. AoE = timer trigger + "any enemy in radius 1" predicate; ranged = timer trigger + "any enemy in line within N"; heal = timer trigger + "any ally below max hp"; deathrattle = `on-death` event trigger + an action. v1.1 implements only the two tuples below, but the engine should be built to accept arbitrary tuples.
 
 **Every pet's timers start counting from the tick the pet was deployed.** A timer with interval `T` fires at deploy-tick + `20T`, deploy-tick + `40T`, ... — not at the deploy tick itself. The first action of any timer happens one full interval after deployment. (This avoids "free instant attack on deploy" and makes combat outcomes predictable from the numbers alone.)
 
@@ -119,24 +132,52 @@ Two pets meet face-to-face → both attack tuples fire on their own clocks → d
 
 A pet at 0 hp dies immediately. Its tiles free up. Any other pet whose trigger was firing on it stops firing on it the next time its own timer fires.
 
-## 8. Tile painting & tiebreaks
+## 8. Tile painting, weight, and movement conflicts
 
 When a pet enters a new tile during its movement step, the tile is painted the pet's owner's color.
 
-**Tile-entry conflict (two pets attempt to enter the same tile in the same tick):**
-1. The pet with higher current `hp` (not max) wins; the other stops one tile short of its destination along its move path.
-2. If tied on hp: higher `atk` wins.
-3. Still tied: random.
+### Weight
+
+Every pet has a **`weight(N)`** stat representing its physical mass. Weight separates the *physical presence* concern from HP (which is about combat resilience): a wounded Elephant still shoves a Mouse aside. Mouse = 1, Elephant = 10. (See §10 for full stats.)
+
+### Tile-entry conflict — two pets want the same empty tile in the same tick
+
+The pet with **higher `weight`** wins and enters the tile. The other stays in its current tile (its move action becomes a no-op for this tick). On weight tie, the winner is random.
 
 This applies regardless of whether the conflicting pets are enemies or both belong to the same player.
 
-**Same-tick paint conflict (two pets paint the same tile in the same tick — e.g., future AoE-paint pets, or two marchers brushing past each other after entry conflicts are resolved):**
-- The pet with the **higher `order` number** wins the paint. `order` is a per-pet stat shown on inspection.
-- v1.1 has no AoE pets, so this rule is rarely triggered, but it is defined so the engine doesn't need patching when AoE arrives.
+### Push-through — a pet wants to enter a tile that's already occupied
 
-**Painting an already-your-color tile:** no effect on score; effectively a no-op.
-**Painting an enemy-color tile:** the tile becomes yours. Net score swing of +2 (you gain 1; opponent loses 1).
-**Painting a neutral tile:** the tile becomes yours. Net score swing of +1.
+Movement is **not always blocked by an occupied front tile.** A heavy pet can push through a chain of lighter pets in its path.
+
+When a pet `H` attempts to enter a tile already occupied by another pet `P`:
+
+1. Walk along `H`'s facing direction starting from the contested tile. Collect every pet `H` would have to push, in order, until you reach either:
+   - **an empty tile** at the end of the chain (good — push is geometrically possible), or
+   - **the board edge** (push fails — there's nowhere for the last pet to go), or
+   - **a pet whose own weight ≥ `H.weight / 2`** which itself anchors the chain (treat as a wall; push fails).
+2. Sum the weights of all pets in the chain → `S`.
+3. **If `2 × S < H.weight`** (i.e., the chain weighs less than half of `H`), the push succeeds:
+   - Every pet in the chain shifts one tile in `H`'s facing direction.
+   - `H` advances into the now-vacated tile.
+   - For 2×2 pushers or pushees, all perpendicular tiles in the new footprint must also be valid (on-board and either empty or part of the push); otherwise push fails.
+4. **Otherwise** the push fails. `H` does not move this tick.
+
+Pushed pets keep their facing direction (they slide, they don't turn). A push that succeeds counts as `H`'s movement for the tick; `H` does not also get to paint the chain — it only paints its own new tile(s) per the usual movement rule.
+
+**Worked example.** Elephant (weight 10) faces a row of Mice (weight 1 each) with an empty tile beyond:
+- 4 Mice: chain sum 4. `2 × 4 = 8 < 10` → push succeeds. Mice shift forward.
+- 5 Mice: chain sum 5. `2 × 5 = 10`, not strictly less than 10 → push fails. Elephant stuck.
+
+### Same-tick paint conflict
+
+When two pets paint the same tile in the same tick (e.g., future AoE-paint overlaps, or two marchers brushing past each other after entry conflicts are resolved), the pet with the **higher `order` number** wins the paint. `order` is a per-pet stat shown on inspection. v1.1 has no AoE pets, so this rule is rarely triggered, but it is defined so the engine doesn't need patching when AoE arrives.
+
+### Score swings from painting
+
+- **Painting an already-your-color tile:** no effect on score; effectively a no-op.
+- **Painting an enemy-color tile:** the tile becomes yours. Net score swing of +2 (you gain 1; opponent loses 1).
+- **Painting a neutral tile:** the tile becomes yours. Net score swing of +1.
 
 ## 9. Keyword vocabulary (v1.1)
 
@@ -145,6 +186,7 @@ Only what the two v1.1 pets need. Each pet card shows these inline.
 - `cost(N)` — energy required to deploy.
 - `size(W×H)` — footprint in tiles. 1×1 is a normal pet; 2×2 occupies a 2-tile-wide square.
 - `speed(N)` — tiles per second of movement.
+- `weight(N)` — physical mass. Decides who wins entry conflicts (higher wins) and who can push whom (see §8).
 - `hp(N)` — health. At 0, the pet dies and its tiles free up.
 - `atk(N)` — damage per attack instance.
 - `atk-speed(N)` — attacks per second.
@@ -160,13 +202,14 @@ Only what the two v1.1 pets need. Each pet card shows these inline.
 | `cost` | 2 |
 | `size` | 1×1 |
 | `speed` | 2 tiles/sec |
+| `weight` | 1 |
 | `hp` | 2 |
 | `atk` | 1 |
 | `atk-speed` | 1.0/sec |
 | `order` | 2 |
 | `brain` | march-forward |
 
-**Role:** Fast, fragile painter. Sprints across open territory painting a 1-tile-wide trail. Loses any head-on fight that lasts more than a second or two. The cheapest deploy — used to race, harass, and force the opponent to commit defenders.
+**Role:** Fast, fragile, light painter. Sprints across open territory painting a 1-tile-wide trail. Loses any head-on fight that lasts more than a second or two, and is trivially shoved by anything heavier than itself. The cheapest deploy — used to race, harass, and force the opponent to commit defenders.
 
 **Reference numbers** (one 8-sec execution phase, unobstructed):
 - Tiles crossed: 16
@@ -180,13 +223,14 @@ Only what the two v1.1 pets need. Each pet card shows these inline.
 | `cost` | 5 |
 | `size` | 2×2 |
 | `speed` | 0.5 tiles/sec |
+| `weight` | 10 |
 | `hp` | 8 |
 | `atk` | 2 |
 | `atk-speed` | 0.5/sec |
 | `order` | 1 |
 | `brain` | march-forward |
 
-**Role:** Slow, tough, wide painter. Each forward step paints the 2 new tiles along its front edge. Can absorb sustained combat. The expensive deploy — used to anchor a column of territory and break through enemy defense.
+**Role:** Slow, tough, wide, heavy painter. Each forward step paints the 2 new tiles along its front edge. Can absorb sustained combat AND shove Mice out of its way — a chain of up to 4 Mice (combined weight 4 < 5 = Elephant.weight / 2) gets pushed; 5 Mice (combined weight 5, not strictly less than 5) blocks. The expensive deploy — used to anchor a column of territory or batter through enemy defense.
 
 **Reference numbers** (one 8-sec execution phase, unobstructed):
 - Steps advanced: 4
@@ -195,9 +239,9 @@ Only what the two v1.1 pets need. Each pet card shows these inline.
 
 ### Why these two
 
-- **Speed vs. mass trade-off:** Mouse outpaces, Elephant outlasts. Mouse dies in one Elephant hit; Elephant dies to roughly 4 Mouse hits — but Elephant advances slowly, so Mouse has time to paint before contact.
+- **Speed vs. mass trade-off:** Mice outpace, Elephants outlast and shove. A Mouse dies in one Elephant hit; an Elephant dies to roughly 4 Mouse hits — but advances slowly, and Mice have time to paint before contact unless a heavier Elephant ploughs through.
 - **Energy curve:** Mouse (cost 2) is playable from the first planning phase (starting energy 3). Elephant (cost 5) needs ~2 seconds of execution-time regen first, so it shows up in the second or third planning phase.
-- **Real decision space despite only two units:** swarm with Mouses? Save for a Elephant? Mix? Which direction? Defend or attack?
+- **Real decision space despite only two units:** swarm with Mice? Save for an Elephant? Wall up to block an Elephant push (5+ Mice in a column)? Flank? Defend or attack?
 
 ## 11. Energy
 
@@ -230,7 +274,7 @@ These are *known* limitations of the v1.1 spec. The user has explicitly deferred
 
 ### Spec-clarity (rules the implementer needs)
 1. **Pet stacking:** at most one pet's footprint occupies any tile. A 2×2 pet claims all four of its tiles exclusively. Friendly or enemy — no overlap.
-2. **Tile-entry conflict, both pets are allies:** same rules as enemy conflict (higher hp, then higher atk, then random; loser stops one tile short).
+2. **Tile-entry conflict, both pets are allies:** same rules as enemy conflict (higher `weight` wins, ties random; loser doesn't move). Push mechanics work identically on allied pets — you can shove your own Mice forward with an Elephant.
 3. **Pets walking off the board:** spec says they stop at the edge and their move trigger keeps failing. Confirmed intent.
 4. **Pet sandwiched between an ally in front and an enemy behind:** spec is consistent — front blocked, attack trigger fails, rear enemy hits without retaliation, pet dies. No special rule needed.
 5. **Same-tick paint conflict edge case:** if pet A and pet B both attempt to enter tile X in the same tick, the §8 entry-conflict rules decide who enters (and therefore who paints). `order` only matters when two pets *both* successfully paint the same tile in the same tick (e.g., future AoE overlapping a marcher's path). Not used in v1.1.
