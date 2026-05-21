@@ -50,10 +50,6 @@ export function attachDeployUI(
       submitReady(state, 'A');
       submitReady(state, 'B');
     }
-    else if (k === 'tab') {
-      e.preventDefault();
-      state.activePlanningPlayer = state.activePlanningPlayer === 'A' ? 'B' : 'A';
-    }
     refreshAll(state, ui);
   });
 
@@ -77,7 +73,13 @@ export function attachDeployUI(
   canvas.addEventListener('click', () => {
     if (state.phase !== 'planning') return;
     if (!ui.selectedDefId || !ui.hoverTile) return;
-    const result = tryDeploy(state, state.activePlanningPlayer, ui.selectedDefId, ui.hoverTile, ui.facing);
+    const def = getPetDef(ui.selectedDefId);
+    const player = inferPlayerFromAnchor(ui.hoverTile.x, ui.hoverTile.y, def.size.w, def.size.h);
+    if (!player) {
+      showBanner('Click inside a home zone to deploy');
+      return;
+    }
+    const result = tryDeploy(state, player, ui.selectedDefId, ui.hoverTile, ui.facing);
     if (!result.ok) {
       showBanner(`Cannot deploy: ${result.reason}`);
     }
@@ -85,13 +87,14 @@ export function attachDeployUI(
   });
 }
 
-const PLAYER_COLOR = {
-  A: { fill: 'rgba(91, 141, 239, 0.30)', stroke: '#5b8def', invalid: 'rgba(242, 95, 92, 0.35)' },
-  B: { fill: 'rgba(242, 95, 92, 0.30)', stroke: '#f25f5c', invalid: 'rgba(242, 95, 92, 0.35)' },
+const PREVIEW = {
+  fill: 'rgba(160, 168, 184, 0.22)',
+  stroke: '#a0a8b8',
+  invalidFill: 'rgba(242, 95, 92, 0.20)',
+  invalidStroke: '#f25f5c',
 };
 
 function inHomeZone(player: 'A' | 'B', x: number, y: number, w: number, h: number): boolean {
-  // anchor is (x, y) bottom-left in board coords; footprint covers y..y+h-1
   if (x < 0 || x + w > BOARD_SIZE) return false;
   for (let dy = 0; dy < h; dy++) {
     const ty = y + dy;
@@ -99,6 +102,13 @@ function inHomeZone(player: 'A' | 'B', x: number, y: number, w: number, h: numbe
     if (player === 'B' && (ty < BOARD_SIZE - HOME_ROWS || ty >= BOARD_SIZE)) return false;
   }
   return true;
+}
+
+// Returns the player whose home zone fully contains the given footprint, or null.
+export function inferPlayerFromAnchor(x: number, y: number, w: number, h: number): 'A' | 'B' | null {
+  if (inHomeZone('A', x, y, w, h)) return 'A';
+  if (inHomeZone('B', x, y, w, h)) return 'B';
+  return null;
 }
 
 export function renderDeployPreview(
@@ -111,27 +121,25 @@ export function renderDeployPreview(
   // Hover highlight (even without selection)
   if (ui.hoverTile) {
     const { px, py } = tileToPixel(rc, ui.hoverTile.x, ui.hoverTile.y);
-    rc.ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    rc.ctx.strokeStyle = 'rgba(255,255,255,0.18)';
     rc.ctx.lineWidth = 1.5;
     rc.ctx.strokeRect(px + 1, py + 1, rc.tileSize - 2, rc.tileSize - 2);
   }
 
   if (!ui.selectedDefId || !ui.hoverTile) return;
   const def = getPetDef(ui.selectedDefId);
-  const player = state.activePlanningPlayer;
-  const colors = PLAYER_COLOR[player];
 
-  const valid = inHomeZone(player, ui.hoverTile.x, ui.hoverTile.y, def.size.w, def.size.h);
+  const player = inferPlayerFromAnchor(ui.hoverTile.x, ui.hoverTile.y, def.size.w, def.size.h);
+  const valid = player !== null;
 
-  // Pet footprint top-left in screen coords
   const { px, py } = tileToPixel(rc, ui.hoverTile.x, ui.hoverTile.y + def.size.h - 1);
   const w = def.size.w * rc.tileSize;
   const h = def.size.h * rc.tileSize;
 
-  rc.ctx.fillStyle = valid ? colors.fill : colors.invalid;
+  rc.ctx.fillStyle = valid ? PREVIEW.fill : PREVIEW.invalidFill;
   rc.ctx.fillRect(px, py, w, h);
 
-  rc.ctx.strokeStyle = valid ? colors.stroke : '#f25f5c';
+  rc.ctx.strokeStyle = valid ? PREVIEW.stroke : PREVIEW.invalidStroke;
   rc.ctx.lineWidth = 2;
   rc.ctx.setLineDash(valid ? [] : [4, 3]);
   rc.ctx.strokeRect(px + 1, py + 1, w - 2, h - 2);
@@ -145,8 +153,7 @@ export function renderDeployPreview(
   rc.ctx.fillText(def.emoji, px + w / 2, py + h / 2);
   rc.ctx.globalAlpha = 1;
 
-  // Facing arrow
-  drawFacingArrow(rc, px, py, w, h, ui.facing, valid ? colors.stroke : '#f25f5c');
+  drawFacingArrow(rc, px, py, w, h, ui.facing, valid ? PREVIEW.stroke : PREVIEW.invalidStroke);
 }
 
 function drawFacingArrow(

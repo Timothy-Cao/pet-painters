@@ -3,15 +3,15 @@ import type { Board } from '../types/game';
 import { BOARD_SIZE, HOME_ROWS } from '../config/constants';
 
 const COLORS = {
-  neutral: '#222633',
-  A: '#5b8def',
-  B: '#f25f5c',
+  neutral: '#1a1e29',
+  A: '#3a567f',
+  B: '#7f3a3a',
 };
-const HOME_A_TINT = 'rgba(91, 141, 239, 0.10)';
-const HOME_B_TINT = 'rgba(242, 95, 92, 0.10)';
-const GRID_LINE = 'rgba(255, 255, 255, 0.04)';
-const HOME_BORDER_A = 'rgba(91, 141, 239, 0.55)';
-const HOME_BORDER_B = 'rgba(242, 95, 92, 0.55)';
+const HOME_A_TINT = 'rgba(91, 141, 239, 0.06)';
+const HOME_B_TINT = 'rgba(242, 95, 92, 0.06)';
+const GRID_LINE = 'rgba(255, 255, 255, 0.07)';
+const HOME_BORDER_A = 'rgba(91, 141, 239, 0.4)';
+const HOME_BORDER_B = 'rgba(242, 95, 92, 0.4)';
 
 function isHomeRow(y: number, who: 'A' | 'B'): boolean {
   if (who === 'A') return y < HOME_ROWS;

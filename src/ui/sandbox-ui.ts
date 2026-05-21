@@ -1,4 +1,4 @@
-import type { MatchState, PlayerId, Direction } from '../types/game';
+import type { MatchState, Direction } from '../types/game';
 import { MOUSE, ELEPHANT, getPetDef } from '../sim/pet-defs';
 import { submitReady } from '../sim/match';
 import { MOUSE_STATS, ELEPHANT_STATS, WIN_PAINT_THRESHOLD } from '../config/balance';
@@ -41,7 +41,6 @@ export function mountSandboxUI(
   bindings: SandboxUIBindings,
 ): void {
   buildPetRoster(state, ui);
-  bindPlayerToggle(state);
   bindFacing(ui);
   bindActions(state, bindings);
   refreshAll(state, ui);
@@ -78,16 +77,6 @@ function buildPetRoster(_state: MatchState, ui: SandboxUIState): void {
   }
 }
 
-function bindPlayerToggle(state: MatchState): void {
-  document.querySelectorAll<HTMLButtonElement>('.btn-player').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const p = btn.dataset.player as PlayerId;
-      state.activePlanningPlayer = p;
-      refreshPlayerToggle(state);
-    });
-  });
-}
-
 function bindFacing(ui: SandboxUIState): void {
   document.querySelectorAll<HTMLButtonElement>('.btn-facing').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -110,7 +99,6 @@ function bindActions(state: MatchState, bindings: SandboxUIBindings): void {
 
 export function refreshAll(state: MatchState, ui: SandboxUIState): void {
   refreshRoster(ui);
-  refreshPlayerToggle(state);
   refreshFacing(ui);
   refreshScores(state);
   refreshEnergy(state);
@@ -121,12 +109,6 @@ export function refreshAll(state: MatchState, ui: SandboxUIState): void {
 function refreshRoster(ui: SandboxUIState): void {
   document.querySelectorAll<HTMLElement>('.pet-card').forEach((el) => {
     el.classList.toggle('active', el.dataset.defId === ui.selectedDefId);
-  });
-}
-
-function refreshPlayerToggle(state: MatchState): void {
-  document.querySelectorAll<HTMLElement>('.btn-player').forEach((el) => {
-    el.classList.toggle('active', el.dataset.player === state.activePlanningPlayer);
   });
 }
 
