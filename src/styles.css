@@ -96,39 +96,79 @@ html, body {
   box-shadow: 0 0 8px currentColor;
 }
 
-.score-strip {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-.score {
+.territory {
   display: grid;
-  grid-template-columns: 70px 160px 80px;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
+  gap: 12px;
+  min-width: 460px;
 }
-.score-label {
+.territory-side {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.territory-side-a { color: var(--player-a); }
+.territory-side-b { color: var(--player-b); }
+.territory-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  background: currentColor;
+  color: var(--bg);
+  padding: 1px 7px;
+  border-radius: 4px;
+}
+.territory-side-a .territory-tag { background: var(--player-a); color: #0a0d12; }
+.territory-side-b .territory-tag { background: var(--player-b); color: #0a0d12; }
+.territory-pct {
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.4px;
+  min-width: 44px;
+  text-align: center;
 }
-.score-a .score-label { color: var(--player-a); }
-.score-b .score-label { color: var(--player-b); }
-.score-bar {
-  height: 8px;
-  background: var(--bg-elev-2);
+.territory-bar {
+  position: relative;
+  display: flex;
+  height: 18px;
   border-radius: 999px;
   overflow: hidden;
   border: 1px solid var(--border-soft);
+  background: var(--bg-elev-2);
 }
-.score-fill {
+.territory-fill {
   height: 100%;
   width: 0%;
   transition: width 0.25s ease;
 }
-.score-a .score-fill { background: linear-gradient(90deg, var(--player-a), #8db4ff); }
-.score-b .score-fill { background: linear-gradient(90deg, var(--player-b), #ff8b89); }
-.score-val { color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.territory-fill-a { background: linear-gradient(180deg, #6c9aff, var(--player-a)); }
+.territory-fill-n { background: linear-gradient(180deg, #383f51, #2a3142); }
+.territory-fill-b { background: linear-gradient(180deg, #ff8b89, var(--player-b)); }
+
+/* Subtle win-threshold ticks. A wins at 75% from left; B wins at 75% of the
+   bar painted with red, which is 25% from the left. */
+.threshold-marker {
+  position: absolute;
+  top: -2px; bottom: -2px;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+}
+.threshold-marker::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: 8px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.35);
+}
+.threshold-a { left: 75%; }
+.threshold-b { left: 25%; }
+.threshold-a::after { background: var(--player-a); }
+.threshold-b::after { background: var(--player-b); }
 
 /* ---------- Layout ---------- */
 .layout {

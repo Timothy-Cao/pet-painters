@@ -18,16 +18,21 @@
         <span class="phase-dot"></span>
         <span id="phase-text">Planning</span>
       </div>
-      <div class="score-strip">
-        <div class="score score-a">
-          <div class="score-label">Player A</div>
-          <div class="score-bar"><div class="score-fill" id="score-fill-a"></div></div>
-          <div class="score-val"><span id="score-a">0</span> / 144</div>
+      <div class="territory">
+        <div class="territory-side territory-side-a">
+          <div class="territory-tag">A</div>
+          <div class="territory-pct" id="pct-a">0%</div>
         </div>
-        <div class="score score-b">
-          <div class="score-label">Player B</div>
-          <div class="score-bar"><div class="score-fill" id="score-fill-b"></div></div>
-          <div class="score-val"><span id="score-b">0</span> / 144</div>
+        <div class="territory-bar">
+          <div class="territory-fill territory-fill-a" id="fill-a"></div>
+          <div class="territory-fill territory-fill-n" id="fill-n"></div>
+          <div class="territory-fill territory-fill-b" id="fill-b"></div>
+          <div class="threshold-marker threshold-a" title="Player A wins at this share"></div>
+          <div class="threshold-marker threshold-b" title="Player B wins at this share"></div>
+        </div>
+        <div class="territory-side territory-side-b">
+          <div class="territory-pct" id="pct-b">0%</div>
+          <div class="territory-tag">B</div>
         </div>
       </div>
     </header>

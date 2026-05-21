@@ -169,13 +169,16 @@ function refreshScores(state: MatchState): void {
   const total = BOARD_SIZE * BOARD_SIZE;
   const a = scoreFor(state.board, 'A');
   const b = scoreFor(state.board, 'B');
-  document.getElementById('score-a')!.textContent = String(a);
-  document.getElementById('score-b')!.textContent = String(b);
-  (document.getElementById('score-fill-a') as HTMLElement).style.width = `${(a / total) * 100}%`;
-  (document.getElementById('score-fill-b') as HTMLElement).style.width = `${(b / total) * 100}%`;
-  // Highlight near-win
-  const winPct = (WIN_PAINT_THRESHOLD / total) * 100;
-  void winPct;
+  const n = total - a - b;
+  const aPct = (a / total) * 100;
+  const bPct = (b / total) * 100;
+  const nPct = (n / total) * 100;
+  document.getElementById('pct-a')!.textContent = `${aPct.toFixed(0)}%`;
+  document.getElementById('pct-b')!.textContent = `${bPct.toFixed(0)}%`;
+  (document.getElementById('fill-a') as HTMLElement).style.width = `${aPct}%`;
+  (document.getElementById('fill-n') as HTMLElement).style.width = `${nPct}%`;
+  (document.getElementById('fill-b') as HTMLElement).style.width = `${bPct}%`;
+  void WIN_PAINT_THRESHOLD;
 }
 
 function refreshEnergy(state: MatchState): void {
