@@ -4,7 +4,7 @@ import { walkOrTurnAtWall } from '../behaviors';
 
 const STATS = {
   cost: 6,                          // corner-zones r1: 8→6 — dead on 20×20; needs affordability to justify slow crossing
-  speedTilesPerSec: 0.8,
+  speedTilesPerSec: 1.0,            // corner-zones r2: 0.8→1.0 — 20×20 diagonal is ~14 tiles; needs reach
   rageSpeedTilesPerSec: 1.6,      // double when wounded
   weight: 8,                      // lighter than elephant (10) — Elephant CAN push Bear
   maxHp: 18,                        // corner-zones r2: 14→18 — longer board crossing means bear needs durability to stay relevant

@@ -3,7 +3,7 @@ import { enemiesInFront, applyAttack } from '../combat';
 import { walkOrScurry } from '../behaviors';
 
 const STATS = {
-  cost: 3,
+  cost: 4,                          // corner-zones r4: 3→4 — inherited throne at 80% after Cat nerf
   speedTilesPerSec: 4,
   weight: 1,
   maxHp: 3,
