@@ -5,6 +5,7 @@ import { submitReady } from '../sim/match';
 import { WIN_PAINT_THRESHOLD, EXECUTION_PHASE_SECONDS } from '../config/balance';
 import { BOARD_SIZE, TICKS_PER_SEC } from '../config/constants';
 import { scoreFor } from '../sim/board';
+import { getRecentEvents } from './event-log';
 
 export interface SandboxUIState {
   selectedDefId: string | null;
@@ -161,6 +162,7 @@ export function refreshAll(state: MatchState, ui: SandboxUIState): void {
   refreshEnergy(state);
   refreshPhase(state);
   refreshExecBar(state);
+  refreshTactical(state);
   refreshRoundSummary(state);
 }
 
@@ -218,6 +220,52 @@ function refreshPhase(state: MatchState): void {
 
   const startBtn = document.getElementById('btn-start') as HTMLButtonElement;
   startBtn.disabled = state.phase !== 'planning';
+}
+
+function refreshTactical(state: MatchState): void {
+  // Tick counter (only meaningful during execution).
+  const tickRow = document.getElementById('tac-tick-row');
+  const tickEl = document.getElementById('tac-tick');
+  const tickTotalEl = document.getElementById('tac-tick-total');
+  if (tickRow && tickEl && tickTotalEl) {
+    if (state.phase === 'execution') {
+      tickRow.classList.add('active');
+      const elapsed = state.tick - state.execPhaseStartTick;
+      tickEl.textContent = String(elapsed);
+      tickTotalEl.textContent = String(TICKS_PER_SEC * EXECUTION_PHASE_SECONDS);
+    } else {
+      tickRow.classList.remove('active');
+      tickEl.textContent = '—';
+    }
+  }
+
+  // Deployment counts per side.
+  let aCount = 0, bCount = 0;
+  for (const p of state.pets) {
+    if (p.owner === 'A') aCount++;
+    else bCount++;
+  }
+  setText('tac-deploy-a', String(aCount));
+  setText('tac-deploy-b', String(bCount));
+
+  // Recent events.
+  const list = document.getElementById('tac-events');
+  if (!list) return;
+  const events = getRecentEvents();
+  if (events.length === 0) {
+    list.innerHTML = '<li class="tac-events-empty">No events yet</li>';
+    return;
+  }
+  // Diff-friendly render: rebuild only if the set of event timestamps differs.
+  const wantedKey = events.map((e) => e.at.toFixed(0)).join('|');
+  if (list.dataset.key === wantedKey) return;
+  list.dataset.key = wantedKey;
+  list.innerHTML = '';
+  for (const e of events) {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="tac-event-emoji">${e.emoji}</span><span>${e.text}</span>`;
+    list.appendChild(li);
+  }
 }
 
 function refreshRoundSummary(state: MatchState): void {

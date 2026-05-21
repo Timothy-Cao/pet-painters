@@ -722,6 +722,104 @@ html, body {
 .rotate-label { font-size: 11px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-dim); }
 .btn-rotate:hover .rotate-label { color: var(--accent); }
 
+/* ---------- Tactical section ---------- */
+.tactical {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.tac-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+.tac-label {
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-faint);
+  font-size: 10px;
+  font-weight: 600;
+}
+.tac-value {
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  font-weight: 600;
+}
+.tac-of { color: var(--text-faint); font-weight: 400; font-size: 11px; }
+.tac-row-tick { opacity: 0.55; transition: opacity 0.2s ease; }
+.tac-row-tick.active { opacity: 1; }
+.tac-deploy { display: inline-flex; gap: 6px; }
+.tac-deploy-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--bg);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--text);
+}
+.tac-deploy-a { border: 1px solid var(--player-a-glow); }
+.tac-deploy-b { border: 1px solid var(--player-b-glow); }
+.tac-deploy-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.tac-events-head {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 600;
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
+.tac-events {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 24px;
+}
+.tac-events li {
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: tac-event-in 0.2s ease;
+}
+.tac-events li .tac-event-emoji {
+  font-size: 14px;
+  line-height: 1;
+}
+.tac-events-empty {
+  background: transparent !important;
+  border: 1px dashed var(--border) !important;
+  color: var(--text-faint) !important;
+  font-style: italic;
+  justify-content: center;
+}
+@keyframes tac-event-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ---------- Energy ---------- */
 .energy-row {
   display: grid;
