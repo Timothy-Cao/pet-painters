@@ -11,7 +11,7 @@ const STATS = {
   atk: 3,                         // damage per affected tile in the cone
   atkSpeedPerSec: 0.5,            // breathes every 2s
   order: 1,
-  breathRange: 2,                 // tiles ahead of the front edge to scorch
+  breathRange: 3,                 // tiles ahead of the front edge to scorch
 } as const;
 
 /** All tiles in the dragon's forward "cone": its 2-wide front edge, extended
@@ -70,7 +70,7 @@ export const DRAGON: PetDefinition = {
     hotkey: 'w',
     short: 'Breathes fire ahead',
     ability:
-      '2×2 caster. Walks slowly forward, but every 2 seconds exhales a 2×2 cone of fire that hits every enemy in the four tiles directly ahead for 3 damage each.',
+      '2×2 caster. Walks slowly forward, but every 2 seconds exhales a 2×3 cone of fire that hits every enemy in the six tiles directly ahead for 3 damage each.',
   },
   tuples: [
     // Slow patrol.

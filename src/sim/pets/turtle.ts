@@ -12,7 +12,7 @@ const STATS = {
   atkSpeedPerSec: 0,
   order: 2,
   // bespoke
-  splashPerSec: 1,
+  splashPerSec: 1.5,              // was 1 — more frequent splash to compensate slow movement
 } as const;
 
 function turtleSplash(pet: Pet, state: MatchState): void {
