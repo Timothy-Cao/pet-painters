@@ -2,11 +2,12 @@ import type { MatchState, Direction, Vec2 } from '../types/game';
 import { tryDeploy, petAtTile, undeploy } from '../sim/deploy';
 import { submitReady } from '../sim/match';
 import { MOUSE, ELEPHANT, CAT, RABBIT, TURTLE, SKUNK, getPetDef } from '../sim/pet-defs';
-import { BOARD_SIZE, HOME_ROWS } from '../config/constants';
+import { BOARD_SIZE } from '../config/constants';
 import type { RenderContext } from '../render/canvas';
 import { tileToPixel } from '../render/canvas';
 import type { SandboxUIState } from '../ui/sandbox-ui';
 import { refreshAll, showBanner } from '../ui/sandbox-ui';
+import { getTile } from '../sim/board';
 
 const CW_NEXT: Record<Direction, Direction> = { N: 'E', E: 'S', S: 'W', W: 'N' };
 
@@ -92,9 +93,9 @@ export function attachDeployUI(
 
     if (!ui.selectedDefId) return;
     const def = getPetDef(ui.selectedDefId);
-    const player = inferPlayerFromAnchor(ui.hoverTile.x, ui.hoverTile.y, def.size.w, def.size.h);
+    const player = inferPlayerFromAnchor(state, ui.hoverTile.x, ui.hoverTile.y, def.size.w, def.size.h);
     if (!player) {
-      showBanner('Click inside a home zone to deploy');
+      showBanner('Deploy onto a tile in your own territory');
       return;
     }
     const result = tryDeploy(state, player, ui.selectedDefId, ui.hoverTile, ui.facing);
@@ -112,20 +113,25 @@ const PREVIEW = {
   invalidStroke: '#f25f5c',
 };
 
-function inHomeZone(player: 'A' | 'B', x: number, y: number, w: number, h: number): boolean {
+function footprintAllOwned(state: MatchState, player: 'A' | 'B', x: number, y: number, w: number, h: number): boolean {
   if (x < 0 || x + w > BOARD_SIZE) return false;
+  if (y < 0 || y + h > BOARD_SIZE) return false;
   for (let dy = 0; dy < h; dy++) {
-    const ty = y + dy;
-    if (player === 'A' && (ty < 0 || ty >= HOME_ROWS)) return false;
-    if (player === 'B' && (ty < BOARD_SIZE - HOME_ROWS || ty >= BOARD_SIZE)) return false;
+    for (let dx = 0; dx < w; dx++) {
+      if (getTile(state.board, { x: x + dx, y: y + dy }) !== player) return false;
+    }
   }
   return true;
 }
 
-// Returns the player whose home zone fully contains the given footprint, or null.
-export function inferPlayerFromAnchor(x: number, y: number, w: number, h: number): 'A' | 'B' | null {
-  if (inHomeZone('A', x, y, w, h)) return 'A';
-  if (inHomeZone('B', x, y, w, h)) return 'B';
+// Returns the player whose territory fully contains the given footprint, or null.
+// (Each tile can only be one color, so at most one player can ever satisfy this.)
+export function inferPlayerFromAnchor(
+  state: MatchState,
+  x: number, y: number, w: number, h: number,
+): 'A' | 'B' | null {
+  if (footprintAllOwned(state, 'A', x, y, w, h)) return 'A';
+  if (footprintAllOwned(state, 'B', x, y, w, h)) return 'B';
   return null;
 }
 
@@ -147,7 +153,7 @@ export function renderDeployPreview(
   if (!ui.selectedDefId || !ui.hoverTile) return;
   const def = getPetDef(ui.selectedDefId);
 
-  const player = inferPlayerFromAnchor(ui.hoverTile.x, ui.hoverTile.y, def.size.w, def.size.h);
+  const player = inferPlayerFromAnchor(state, ui.hoverTile.x, ui.hoverTile.y, def.size.w, def.size.h);
   const valid = player !== null;
 
   const { px, py } = tileToPixel(rc, ui.hoverTile.x, ui.hoverTile.y + def.size.h - 1);

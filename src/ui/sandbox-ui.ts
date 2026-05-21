@@ -112,6 +112,7 @@ function buildPetRoster(_state: MatchState, ui: SandboxUIState): void {
         <div class="pet-tooltip-row"><span class="pet-tooltip-key">Attack speed</span><span class="pet-tooltip-val">${stats.atkSpeedPerSec}/s</span></div>
         <div class="pet-tooltip-row"><span class="pet-tooltip-key">Weight</span><span class="pet-tooltip-val">${stats.weight}</span></div>
         <div class="pet-tooltip-row"><span class="pet-tooltip-key">Footprint</span><span class="pet-tooltip-val">${def.size.w}×${def.size.h}</span></div>
+        <div class="pet-tooltip-row"><span class="pet-tooltip-key" title="Lower goes first each tick — earlier acts before later acts, so earlier wins movement conflicts and later wins paint conflicts on contested tiles.">Initiative</span><span class="pet-tooltip-val">${stats.order}</span></div>
         <div class="pet-tooltip-ability">${entry.ability}</div>
       </div>
     `;

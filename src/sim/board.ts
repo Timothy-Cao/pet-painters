@@ -22,8 +22,17 @@ export function getTile(board: Board, p: Vec2): TileColor {
   return board.tiles[p.y * board.size + p.x];
 }
 
+export function isHomeRow(p: Vec2): 'A' | 'B' | null {
+  if (p.y < HOME_ROWS) return 'A';
+  if (p.y >= BOARD_SIZE - HOME_ROWS) return 'B';
+  return null;
+}
+
 export function paintTile(board: Board, p: Vec2, color: TileColor): void {
   if (!inBounds(board, p)) return;
+  // Home rows are permanent — they always belong to the owning player and
+  // cannot be repainted by enemy pets, ally pets, or splash effects.
+  if (isHomeRow(p) !== null) return;
   board.tiles[p.y * board.size + p.x] = color;
 }
 

@@ -2,16 +2,18 @@ import type { MatchState, PlayerId, Vec2, Direction } from '../types/game';
 import type { Pet } from '../types/pet';
 import { getPetDef } from './pet-defs';
 import { footprintTiles } from './pets';
-import { BOARD_SIZE, HOME_ROWS } from '../config/constants';
+import { BOARD_SIZE } from '../config/constants';
+import { getTile } from './board';
 
 export type DeployResult =
   | { ok: true; pet: Pet }
   | { ok: false; reason: string };
 
-function homeZoneContains(owner: PlayerId, p: Vec2): boolean {
-  if (p.x < 0 || p.x >= BOARD_SIZE) return false;
-  if (owner === 'A') return p.y >= 0 && p.y < HOME_ROWS;
-  return p.y >= BOARD_SIZE - HOME_ROWS && p.y < BOARD_SIZE;
+// A pet may be deployed onto any tile the player currently owns (painted with
+// their color), so long as every tile of its footprint is in-bounds and owned.
+function tileOwnedByPlayer(state: MatchState, owner: PlayerId, p: Vec2): boolean {
+  if (p.x < 0 || p.x >= BOARD_SIZE || p.y < 0 || p.y >= BOARD_SIZE) return false;
+  return getTile(state.board, p) === owner;
 }
 
 export function tryDeploy(
@@ -29,7 +31,7 @@ export function tryDeploy(
 
   const tiles = footprintTiles(anchor, def.size);
   for (const t of tiles) {
-    if (!homeZoneContains(owner, t)) return { ok: false, reason: 'out of home zone' };
+    if (!tileOwnedByPlayer(state, owner, t)) return { ok: false, reason: 'tile not owned' };
   }
 
   // Check tile occupancy

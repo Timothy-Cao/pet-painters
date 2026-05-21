@@ -26,31 +26,39 @@ export function renderBoard(rc: RenderContext, board: Board): void {
     for (let x = 0; x < BOARD_SIZE; x++) {
       const color = board.tiles[y * BOARD_SIZE + x];
       const { px, py } = tileToPixel(rc, x, y);
+      const homeOwner = isHomeRow(y, 'A') ? 'A' : isHomeRow(y, 'B') ? 'B' : null;
 
-      // Base tile color
       ctx.fillStyle = COLORS[color];
       ctx.fillRect(px, py, tileSize, tileSize);
 
-      // Home zone tint overlay on neutral tiles only (don't dim painted tiles)
-      if (color === 'neutral') {
-        if (isHomeRow(y, 'A')) {
-          ctx.fillStyle = HOME_A_TINT;
-          ctx.fillRect(px, py, tileSize, tileSize);
-        } else if (isHomeRow(y, 'B')) {
-          ctx.fillStyle = HOME_B_TINT;
-          ctx.fillRect(px, py, tileSize, tileSize);
-        }
+      if (color === 'neutral' && homeOwner) {
+        ctx.fillStyle = homeOwner === 'A' ? HOME_A_TINT : HOME_B_TINT;
+        ctx.fillRect(px, py, tileSize, tileSize);
       }
 
-      // Soft gridline
       ctx.strokeStyle = GRID_LINE;
       ctx.lineWidth = 1;
       ctx.strokeRect(px + 0.5, py + 0.5, tileSize - 1, tileSize - 1);
 
-      // Subtle inner highlight on painted tiles for depth
       if (color !== 'neutral') {
         ctx.fillStyle = 'rgba(255,255,255,0.04)';
         ctx.fillRect(px + inset, py + inset, tileSize - inset * 2, 2);
+      }
+
+      // Home-row "permanent" hatch in the bottom-right corner — a small
+      // double-tick mark so players can tell painted home from painted ground.
+      if (homeOwner) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+        ctx.lineWidth = 1;
+        const m = tileSize - 5;
+        ctx.beginPath();
+        ctx.moveTo(px + m, py + tileSize - 3);
+        ctx.lineTo(px + tileSize - 3, py + m);
+        ctx.moveTo(px + m - 3, py + tileSize - 3);
+        ctx.lineTo(px + tileSize - 3, py + m - 3);
+        ctx.stroke();
+        ctx.restore();
       }
     }
   }

@@ -40,7 +40,7 @@
     <main class="layout">
       <aside class="sidebar sidebar-left">
         <div class="panel-title">Pet Roster</div>
-        <div class="panel-hint">Choose a pet, then click the board to deploy</div>
+        <div class="panel-hint">Choose a pet, then click any tile you own to deploy.</div>
         <div id="pet-roster" class="pet-roster"></div>
 
         <div class="panel-title panel-title-sm">Legend</div>
@@ -48,8 +48,8 @@
           <div class="legend-item"><span class="swatch swatch-a"></span> Player A territory</div>
           <div class="legend-item"><span class="swatch swatch-b"></span> Player B territory</div>
           <div class="legend-item"><span class="swatch swatch-n"></span> Neutral tile</div>
-          <div class="legend-item"><span class="swatch swatch-home-a"></span> A home zone</div>
-          <div class="legend-item"><span class="swatch swatch-home-b"></span> B home zone</div>
+          <div class="legend-item"><span class="swatch swatch-home swatch-home-a">⫽</span> A home (locked)</div>
+          <div class="legend-item"><span class="swatch swatch-home swatch-home-b">⫽</span> B home (locked)</div>
         </div>
       </aside>
 
@@ -107,7 +107,7 @@
     <footer class="footer">
       <span><kbd>1</kbd>–<kbd>6</kbd> select pet</span>
       <span><kbd>R</kbd> or <kbd>right-click</kbd> rotate</span>
-      <span><kbd>Left-click</kbd> deploy in home zone</span>
+      <span><kbd>Left-click</kbd> deploy on own tile</span>
       <span><kbd>Left-click</kbd> on pet to undeploy</span>
       <span><kbd>Space</kbd> start round</span>
     </footer>

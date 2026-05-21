@@ -323,6 +323,14 @@ html, body {
 .swatch-a { background: var(--player-a); }
 .swatch-b { background: var(--player-b); }
 .swatch-n { background: var(--neutral); }
+.swatch-home {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1;
+}
 .swatch-home-a { background: var(--player-a-soft); border-color: var(--player-a-glow); }
 .swatch-home-b { background: var(--player-b-soft); border-color: var(--player-b-glow); }
 
