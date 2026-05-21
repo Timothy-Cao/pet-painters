@@ -73,21 +73,46 @@ interface SoloResult {
 }
 
 function runSoloSweep(): { matchups: SoloResult[]; petScores: Map<string, { wr: number; samples: number; avgPetsDeployed: number; }> } {
-  console.log(`[solo] running ${ALL_PETS.length}x${ALL_PETS.length} = ${ALL_PETS.length * ALL_PETS.length} matchups, ${SOLO_SAMPLES} samples each...`);
+  console.log(`[solo] running ${ALL_PETS.length}x${ALL_PETS.length} = ${ALL_PETS.length * ALL_PETS.length} matchups, ${SOLO_SAMPLES} samples each (half on each side to cancel first-player bias)...`);
   const matchups: SoloResult[] = [];
   let matchCount = 0;
   for (const defA of ALL_PETS) {
     for (const defB of ALL_PETS) {
+      // We want defA's win rate vs defB, averaging over both sides.
+      // Run SOLO_SAMPLES/2 with defA as side A, then SOLO_SAMPLES/2 with defA as side B.
+      // When defA plays as side B, a "B wins" outcome counts toward defA's wins.
       const compA: Comp = { petIds: [defA.id] };
       const compB: Comp = { petIds: [defB.id] };
       const agg = emptyAgg();
-      for (let i = 0; i < SOLO_SAMPLES; i++) {
+      const halfA = Math.floor(SOLO_SAMPLES / 2);
+      const halfB = SOLO_SAMPLES - halfA;
+      // Side-A samples: defA = side A, defB = side B
+      for (let i = 0; i < halfA; i++) {
         const r = runHeadlessMatch(compA, compB, {
           energyBudget: ENERGY_BUDGET,
           maxSeconds: MAX_SECONDS,
           seed: matchCount * 10000 + i,
         });
         add(agg, r);
+        matchCount++;
+      }
+      // Side-B samples: defA = side B, defB = side A. We re-interpret the result
+      // so the aggregate is "defA's perspective" — winner flips, scores swap.
+      for (let i = 0; i < halfB; i++) {
+        const raw = runHeadlessMatch(compB, compA, {
+          energyBudget: ENERGY_BUDGET,
+          maxSeconds: MAX_SECONDS,
+          seed: matchCount * 10000 + i,
+        });
+        const reframed = {
+          ...raw,
+          winner: raw.winner === 'A' ? 'B' as const : raw.winner === 'B' ? 'A' as const : 'draw' as const,
+          scoreA: raw.scoreB,
+          scoreB: raw.scoreA,
+          petsDeployedA: raw.petsDeployedB,
+          petsDeployedB: raw.petsDeployedA,
+        };
+        add(agg, reframed);
         matchCount++;
       }
       matchups.push({ petA: defA.id, petB: defB.id, agg: finalize(agg) });
@@ -131,7 +156,7 @@ function randomComp(size: number): string[] {
 }
 
 function runMultiSweep(size: number, numComps: number, numMatchups: number, samples: number, label: string): MultiResult[] {
-  console.log(`[${label}] running ${numMatchups} matchups of ${samples} samples...`);
+  console.log(`[${label}] running ${numMatchups} matchups of ${samples} samples (half on each side to cancel first-player bias)...`);
   const comps: string[][] = [];
   for (let i = 0; i < numComps; i++) comps.push(randomComp(size));
   const results: MultiResult[] = [];
@@ -139,13 +164,33 @@ function runMultiSweep(size: number, numComps: number, numMatchups: number, samp
     const a = pick(comps);
     const b = pick(comps);
     const agg = emptyAgg();
-    for (let s = 0; s < samples; s++) {
+    const halfA = Math.floor(samples / 2);
+    const halfB = samples - halfA;
+    // Side-A samples: a = side A, b = side B
+    for (let s = 0; s < halfA; s++) {
       const r = runHeadlessMatch({ petIds: a }, { petIds: b }, {
         energyBudget: ENERGY_BUDGET,
         maxSeconds: MAX_SECONDS,
         seed: i * 100000 + s,
       });
       add(agg, r);
+    }
+    // Side-B samples: a = side B, b = side A. Reframe so outcome is from comp a's perspective.
+    for (let s = 0; s < halfB; s++) {
+      const raw = runHeadlessMatch({ petIds: b }, { petIds: a }, {
+        energyBudget: ENERGY_BUDGET,
+        maxSeconds: MAX_SECONDS,
+        seed: i * 100000 + halfA + s,
+      });
+      const reframed = {
+        ...raw,
+        winner: raw.winner === 'A' ? 'B' as const : raw.winner === 'B' ? 'A' as const : 'draw' as const,
+        scoreA: raw.scoreB,
+        scoreB: raw.scoreA,
+        petsDeployedA: raw.petsDeployedB,
+        petsDeployedB: raw.petsDeployedA,
+      };
+      add(agg, reframed);
     }
     results.push({ compA: a, compB: b, agg: finalize(agg) });
   }
