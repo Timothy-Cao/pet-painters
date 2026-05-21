@@ -8,7 +8,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "balance": "tsx scripts/balance/runner.ts"
+    "balance": "tsx scripts/balance/runner.ts",
+    "balance:multi": "tsx scripts/balance/multi-round-runner.ts"
   },
   "devDependencies": {
     "@types/node": "^25.9.1",
