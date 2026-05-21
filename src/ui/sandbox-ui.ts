@@ -35,6 +35,22 @@ export interface SandboxUIBindings {
   onReset: () => void;
 }
 
+// ---------- Scoped root element ----------
+// All DOM queries within sandbox-ui operate relative to this element.
+// Call setSandboxRoot(container) before mounting to scope everything to a parent container.
+let _root: HTMLElement = document.documentElement;
+
+export function setSandboxRoot(el: HTMLElement): void {
+  _root = el;
+}
+
+/** Query by ID within the current sandbox root. */
+function q(id: string): HTMLElement | null {
+  return _root.querySelector<HTMLElement>(`#${id}`);
+}
+
+// ----------
+
 export function mountSandboxUI(
   state: MatchState,
   ui: SandboxUIState,
@@ -48,11 +64,11 @@ export function mountSandboxUI(
 }
 
 function bindInspector(state: MatchState, ui: SandboxUIState): void {
-  document.getElementById('inspect-close')?.addEventListener('click', () => {
+  q('inspect-close')?.addEventListener('click', () => {
     ui.inspectedPetId = null;
     refreshAll(state, ui);
   });
-  document.getElementById('inspect-undeploy')?.addEventListener('click', () => {
+  q('inspect-undeploy')?.addEventListener('click', () => {
     if (ui.inspectedPetId == null) return;
     undeploy(state, ui.inspectedPetId);
     ui.inspectedPetId = null;
@@ -61,7 +77,7 @@ function bindInspector(state: MatchState, ui: SandboxUIState): void {
 }
 
 function buildPetRoster(ui: SandboxUIState): void {
-  const root = document.getElementById('pet-roster')!;
+  const root = q('pet-roster')!;
   root.innerHTML = '';
   ensurePopup();
   for (const def of ALL_PETS) {
@@ -155,7 +171,7 @@ function hidePopup(): void {
 }
 
 function bindFacing(ui: SandboxUIState): void {
-  const rotateBtn = document.getElementById('btn-rotate');
+  const rotateBtn = q('btn-rotate');
   if (!rotateBtn) return;
   rotateBtn.addEventListener('click', () => {
     ui.facing = CW_NEXT[ui.facing];
@@ -164,15 +180,15 @@ function bindFacing(ui: SandboxUIState): void {
 }
 
 function bindActions(state: MatchState, bindings: SandboxUIBindings): void {
-  document.getElementById('btn-start')!.addEventListener('click', () => {
+  q('btn-start')!.addEventListener('click', () => {
     if (state.phase !== 'planning') return;
     submitReady(state, 'A');
     submitReady(state, 'B');
   });
-  document.getElementById('btn-reset')!.addEventListener('click', () => {
+  q('btn-reset')!.addEventListener('click', () => {
     bindings.onReset();
   });
-  document.getElementById('rs-close')?.addEventListener('click', () => {
+  q('rs-close')?.addEventListener('click', () => {
     state.lastRoundSummary = null;
   });
 }
@@ -190,14 +206,14 @@ export function refreshAll(state: MatchState, ui: SandboxUIState): void {
 }
 
 function refreshRoster(ui: SandboxUIState): void {
-  document.querySelectorAll<HTMLElement>('.pet-card').forEach((el) => {
+  _root.querySelectorAll<HTMLElement>('.pet-card').forEach((el) => {
     el.classList.toggle('active', el.dataset.defId === ui.selectedDefId);
   });
 }
 
 function refreshFacing(ui: SandboxUIState): void {
-  const arrow = document.getElementById('facing-arrow');
-  const name = document.getElementById('facing-name');
+  const arrow = q('facing-arrow');
+  const name = q('facing-name');
   if (arrow) arrow.textContent = FACING_ARROW[ui.facing];
   if (name) name.textContent = FACING_NAME[ui.facing];
 }
@@ -210,17 +226,17 @@ function refreshScores(state: MatchState): void {
   const aPct = (a / total) * 100;
   const bPct = (b / total) * 100;
   const nPct = (n / total) * 100;
-  document.getElementById('pct-a')!.textContent = `${aPct.toFixed(0)}%`;
-  document.getElementById('pct-b')!.textContent = `${bPct.toFixed(0)}%`;
-  (document.getElementById('fill-a') as HTMLElement).style.width = `${aPct}%`;
-  (document.getElementById('fill-n') as HTMLElement).style.width = `${nPct}%`;
-  (document.getElementById('fill-b') as HTMLElement).style.width = `${bPct}%`;
+  q('pct-a')!.textContent = `${aPct.toFixed(0)}%`;
+  q('pct-b')!.textContent = `${bPct.toFixed(0)}%`;
+  (q('fill-a') as HTMLElement).style.width = `${aPct}%`;
+  (q('fill-n') as HTMLElement).style.width = `${nPct}%`;
+  (q('fill-b') as HTMLElement).style.width = `${bPct}%`;
   void WIN_PAINT_THRESHOLD;
 }
 
 function refreshEnergy(state: MatchState): void {
-  const aEl = document.getElementById('energy-a')!;
-  const bEl = document.getElementById('energy-b')!;
+  const aEl = q('energy-a')!;
+  const bEl = q('energy-b')!;
   if (state.sandbox) {
     aEl.textContent = '∞';
     bEl.textContent = '∞';
@@ -231,25 +247,25 @@ function refreshEnergy(state: MatchState): void {
 }
 
 function refreshPhase(state: MatchState): void {
-  const pill = document.getElementById('phase-pill')!;
-  const text = document.getElementById('phase-text')!;
+  const pill = q('phase-pill')!;
+  const text = q('phase-text')!;
   pill.classList.remove('phase-planning', 'phase-execution', 'phase-ended');
   pill.classList.add(`phase-${state.phase}`);
   if (state.phase === 'planning') text.textContent = 'Planning';
   else if (state.phase === 'execution') text.textContent = 'Executing';
   else text.textContent = state.winner ? `Player ${state.winner} wins!` : 'Ended';
 
-  document.querySelector('.layout')!.classList.toggle('exec', state.phase === 'execution');
+  _root.querySelector('.layout')!.classList.toggle('exec', state.phase === 'execution');
 
-  const startBtn = document.getElementById('btn-start') as HTMLButtonElement;
+  const startBtn = q('btn-start') as HTMLButtonElement;
   startBtn.disabled = state.phase !== 'planning';
 }
 
 function refreshTactical(state: MatchState): void {
   // Tick counter (only meaningful during execution).
-  const tickRow = document.getElementById('tac-tick-row');
-  const tickEl = document.getElementById('tac-tick');
-  const tickTotalEl = document.getElementById('tac-tick-total');
+  const tickRow = q('tac-tick-row');
+  const tickEl = q('tac-tick');
+  const tickTotalEl = q('tac-tick-total');
   if (tickRow && tickEl && tickTotalEl) {
     if (state.phase === 'execution') {
       tickRow.classList.add('active');
@@ -272,7 +288,7 @@ function refreshTactical(state: MatchState): void {
   setText('tac-deploy-b', String(bCount));
 
   // Recent events.
-  const list = document.getElementById('tac-events');
+  const list = q('tac-events');
   if (!list) return;
   const events = getRecentEvents();
   if (events.length === 0) {
@@ -292,7 +308,7 @@ function refreshTactical(state: MatchState): void {
 }
 
 function refreshInspector(state: MatchState, ui: SandboxUIState): void {
-  const card = document.getElementById('pet-inspect') as HTMLElement | null;
+  const card = q('pet-inspect') as HTMLElement | null;
   if (!card) return;
   const id = ui.inspectedPetId;
   const pet = id == null ? null : state.pets.find((p) => p.petId === id) ?? null;
@@ -306,14 +322,14 @@ function refreshInspector(state: MatchState, ui: SandboxUIState): void {
   card.hidden = false;
   setText('inspect-emoji', def.emoji);
   setText('inspect-name', def.displayName);
-  const ownerPill = document.getElementById('inspect-owner');
+  const ownerPill = q('inspect-owner');
   if (ownerPill) {
     ownerPill.textContent = pet.owner;
     ownerPill.classList.toggle('owner-a', pet.owner === 'A');
     ownerPill.classList.toggle('owner-b', pet.owner === 'B');
   }
   setText('inspect-hp', `${Math.max(0, pet.hp)} / ${def.maxHp}`);
-  const hpFill = document.getElementById('inspect-hp-fill') as HTMLElement | null;
+  const hpFill = q('inspect-hp-fill') as HTMLElement | null;
   if (hpFill) {
     const frac = Math.max(0, pet.hp / def.maxHp);
     hpFill.style.width = `${frac * 100}%`;
@@ -325,7 +341,7 @@ function refreshInspector(state: MatchState, ui: SandboxUIState): void {
 }
 
 function refreshRoundSummary(state: MatchState): void {
-  const card = document.getElementById('round-summary') as HTMLElement | null;
+  const card = q('round-summary') as HTMLElement | null;
   if (!card) return;
   const summary = state.lastRoundSummary;
   const shouldShow = !!summary && state.phase === 'planning';
@@ -343,8 +359,8 @@ function refreshRoundSummary(state: MatchState): void {
   setText('rs-a-lost', String(summary.aLost));
   setText('rs-b-lost', String(summary.bLost));
 
-  const arrow = document.getElementById('rs-momentum-arrow') as HTMLElement | null;
-  const label = document.getElementById('rs-momentum-label');
+  const arrow = q('rs-momentum-arrow') as HTMLElement | null;
+  const label = q('rs-momentum-label');
   if (arrow && label) {
     arrow.classList.remove('to-a', 'to-b', 'even');
     const swing = summary.aTilesDelta - summary.bTilesDelta;
@@ -355,12 +371,12 @@ function refreshRoundSummary(state: MatchState): void {
 }
 
 function setText(id: string, value: string): void {
-  const el = document.getElementById(id);
+  const el = q(id);
   if (el) el.textContent = value;
 }
 
 function setDelta(id: string, value: number): void {
-  const el = document.getElementById(id);
+  const el = q(id);
   if (!el) return;
   el.textContent = value > 0 ? `+${value}` : `${value}`;
   el.classList.toggle('positive', value > 0);
@@ -368,9 +384,9 @@ function setDelta(id: string, value: number): void {
 }
 
 function refreshExecBar(state: MatchState): void {
-  const bar = document.getElementById('exec-bar')!;
-  const fill = document.getElementById('exec-fill')!;
-  const label = document.getElementById('exec-label')!;
+  const bar = q('exec-bar')!;
+  const fill = q('exec-fill')!;
+  const label = q('exec-label')!;
   if (state.phase === 'execution') {
     bar.classList.add('active');
     const elapsedTicks = state.tick - state.execPhaseStartTick;
@@ -387,11 +403,11 @@ function refreshExecBar(state: MatchState): void {
 
 let bannerTimeout: number | null = null;
 export function showBanner(msg: string): void {
-  let el = document.querySelector<HTMLElement>('.banner');
+  let el = _root.querySelector<HTMLElement>('.banner');
   if (!el) {
     el = document.createElement('div');
     el.className = 'banner';
-    document.body.appendChild(el);
+    _root.appendChild(el);
   }
   el.textContent = msg;
   el.classList.add('show');

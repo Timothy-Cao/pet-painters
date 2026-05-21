@@ -4,24 +4,33 @@ import { BOARD_SIZE } from '../config/constants';
 
 let onRematch: (() => void) | null = null;
 let confettiSpawned = false;
+let _root: HTMLElement = document.documentElement;
+
+export function setWinOverlayRoot(el: HTMLElement): void {
+  _root = el;
+}
+
+function q(id: string): HTMLElement | null {
+  return _root.querySelector<HTMLElement>(`#${id}`);
+}
 
 export function bindWinOverlay(rematch: () => void): void {
   onRematch = rematch;
-  document.getElementById('win-rematch')?.addEventListener('click', () => {
+  q('win-rematch')?.addEventListener('click', () => {
     onRematch?.();
   });
 }
 
 /** Re-renderable each frame; only mutates DOM when the phase actually flips. */
 export function refreshWinOverlay(state: MatchState): void {
-  const overlay = document.getElementById('win-overlay');
+  const overlay = q('win-overlay');
   if (!overlay) return;
 
   if (state.phase !== 'ended' || !state.winner) {
     if (!overlay.hidden) {
       overlay.hidden = true;
       overlay.classList.remove('win-a', 'win-b');
-      const confetti = document.getElementById('win-confetti');
+      const confetti = q('win-confetti');
       if (confetti) confetti.innerHTML = '';
       confettiSpawned = false;
     }
@@ -32,7 +41,7 @@ export function refreshWinOverlay(state: MatchState): void {
   overlay.hidden = false;
   overlay.classList.add(state.winner === 'A' ? 'win-a' : 'win-b');
 
-  const winnerEl = document.getElementById('win-winner');
+  const winnerEl = q('win-winner');
   if (winnerEl) winnerEl.textContent = state.winner;
 
   const total = BOARD_SIZE * BOARD_SIZE;
@@ -48,12 +57,12 @@ export function refreshWinOverlay(state: MatchState): void {
 }
 
 function setText(id: string, value: string): void {
-  const el = document.getElementById(id);
+  const el = q(id);
   if (el) el.textContent = value;
 }
 
 function spawnConfetti(winner: PlayerId): void {
-  const root = document.getElementById('win-confetti');
+  const root = q('win-confetti');
   if (!root) return;
   root.innerHTML = '';
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
