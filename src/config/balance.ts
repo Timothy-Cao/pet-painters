@@ -65,13 +65,13 @@ export const TURTLE_STATS = {
 };
 
 export const CAT_STATS = {
-  cost: 4,
-  speedTilesPerSec: 1,        // wander speed
-  huntSpeedTilesPerSec: 3,    // when enemy spotted ahead
+  cost: 5,
+  speedTilesPerSec: 2,
+  wanderTurnChance: 0.25,     // chance to capriciously turn even when path is clear
+  pouncePerSec: 2,            // pounce check cadence (catches nearby mice)
   weight: 2,
-  maxHp: 5,
-  atk: 3,
-  atkSpeedPerSec: 1.5,
+  maxHp: 4,
+  atk: 0,                     // does not attack non-mouse pets
+  atkSpeedPerSec: 0,
   order: 2,
-  sightRange: 5,
 };

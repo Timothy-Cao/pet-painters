@@ -32,7 +32,7 @@ const ROSTER: PetRosterEntry[] = [
   {
     defId: CAT.id,
     hotkey: '3',
-    ability: 'Stalker — wanders calmly until an enemy enters its line of sight. Then it triples its pace to close the gap and pounces.',
+    ability: 'Curious — drifts in unpredictable arcs, randomly changing direction even when nothing blocks the path. Ignores most pets, but pounces on any enemy mouse within one tile (orthogonal or diagonal) for an instant kill.',
   },
   {
     defId: RABBIT.id,
