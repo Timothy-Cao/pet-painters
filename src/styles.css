@@ -1501,3 +1501,30 @@ kbd {
 
 /* The Ready button label in online mode says "Ready" not "Start Round".
    No selector change needed — HTML already says ▶ Ready. */
+
+/* ── Settings screen ────────────────────────────────────────────────────── */
+.settings-screen {
+  max-width: 420px;
+  margin: 80px auto;
+  color: var(--text, #eee);
+  padding: 20px;
+}
+.settings-screen label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 16px 0;
+}
+.settings-screen select {
+  padding: 8px;
+  background: #1a1a1a;
+  color: #eee;
+  border: 1px solid #444;
+  border-radius: 4px;
+  font-family: inherit;
+}
+#auth-section {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid #333;
+}

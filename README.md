@@ -57,3 +57,20 @@ Deeper docs:
 Phase 1 (Feel) is complete: smooth interpolation, paint splats, damage numbers, death poofs, round summary, tactical sidebar, dot-grid texture, accessibility v1. Phase 2 (Content + readability) is next — see the [roadmap](./ROADMAP.md).
 
 Current branch: `sandbox-ui-overhaul`. The history is small, focused commits in single-letter "Part" chunks — easy to follow what each step delivered.
+
+## Online play
+
+Online play requires a Supabase project. After cloning, the Sandbox mode works immediately. To enable online play, follow the setup steps in `docs/superpowers/handoff/supabase-setup.md` (Task 14 of the multiplayer plan, generated separately).
+
+### Manual test checklist (run after Supabase setup)
+
+1. Open `/` → Home menu shows. Press 1 → Sandbox loads. Esc → back to home.
+2. Click Online Play → if not signed in, sign-in screen → Google → returns signed in → lobby.
+3. Lobby: Create Room (no password) → room-waiting shows 6-char code.
+4. In a second browser (or incognito), sign in as a different Google account, paste the code → both navigate to online-match.
+5. Each player queues a Mouse and presses Ready. When both ready, both screens execute simultaneously with both pets visible.
+6. Play to a win. Win overlay shows on both. Click Leave room → back to lobby.
+7. As admin (`tctctc888@gmail.com`), see Admin Panel in lobby. Delete any room.
+8. Password test: Create room with password "test123". Other client tries wrong password → error. Right password → joins.
+9. Cap test: try to create more than 3 rooms in <60s as one user → 4th hits rate limit.
+10. Deep link: copy invite link → open without auth → sign-in → lobby with code pre-filled.

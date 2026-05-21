@@ -5,6 +5,7 @@ import { SignInScreen } from './app/screens/sign-in';
 import { LobbyScreen } from './app/screens/lobby';
 import { RoomWaitingScreen } from './app/screens/room-waiting';
 import { OnlineMatchScreen } from './app/screens/online-match';
+import { SettingsScreen } from './app/screens/settings';
 
 registerScreen(HomeScreen);
 registerScreen(SandboxScreen);
@@ -12,6 +13,7 @@ registerScreen(SignInScreen);
 registerScreen(LobbyScreen);
 registerScreen(RoomWaitingScreen);
 registerScreen(OnlineMatchScreen);
+registerScreen(SettingsScreen);
 
 const root = document.getElementById('screen-root') as HTMLElement;
 startRouter(root, screenFromUrl());
