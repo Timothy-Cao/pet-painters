@@ -1,7 +1,7 @@
 import type { MatchState, Direction } from '../types/game';
-import { MOUSE, ELEPHANT, CAT, getPetDef } from '../sim/pet-defs';
+import { MOUSE, ELEPHANT, CAT, RABBIT, getPetDef } from '../sim/pet-defs';
 import { submitReady } from '../sim/match';
-import { MOUSE_STATS, ELEPHANT_STATS, CAT_STATS, WIN_PAINT_THRESHOLD } from '../config/balance';
+import { MOUSE_STATS, ELEPHANT_STATS, CAT_STATS, RABBIT_STATS, WIN_PAINT_THRESHOLD } from '../config/balance';
 import { BOARD_SIZE } from '../config/constants';
 import { scoreFor } from '../sim/board';
 import { EXECUTION_PHASE_SECONDS } from '../config/balance';
@@ -34,12 +34,18 @@ const ROSTER: PetRosterEntry[] = [
     hotkey: '3',
     ability: 'Stalker — wanders calmly until an enemy enters its line of sight. Then it triples its pace to close the gap and pounces.',
   },
+  {
+    defId: RABBIT.id,
+    hotkey: '4',
+    ability: 'Vault — when a pet blocks its path, leaps over it onto the tile beyond. Refuses to fight, just paints and hops.',
+  },
 ];
 
 const STAT_LABELS = {
   [MOUSE.id]: MOUSE_STATS,
   [ELEPHANT.id]: ELEPHANT_STATS,
   [CAT.id]: CAT_STATS,
+  [RABBIT.id]: RABBIT_STATS,
 } as const;
 
 const FACING_NAME: Record<Direction, string> = { N: 'North', E: 'East', S: 'South', W: 'West' };

@@ -32,6 +32,16 @@ export const ELEPHANT_STATS = {
   order: 1,
 };
 
+export const RABBIT_STATS = {
+  cost: 3,
+  speedTilesPerSec: 2,
+  weight: 1,
+  maxHp: 3,
+  atk: 0,
+  atkSpeedPerSec: 0,
+  order: 3,
+};
+
 export const CAT_STATS = {
   cost: 4,
   speedTilesPerSec: 1,        // wander speed

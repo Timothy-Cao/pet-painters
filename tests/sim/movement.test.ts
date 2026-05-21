@@ -43,13 +43,15 @@ describe('mouse movement', () => {
     expect(getTile(state.board, { x: 3, y: 2 })).toBe('A');
   });
 
-  it('scurries (changes facing) when it reaches the board edge', () => {
+  it('scurries (changes facing) the first time it hits the board edge', () => {
+    // Mouse moves N at 4 tiles/sec = every 5 ticks. From y=0 to y=11 is 11 steps
+    // = 55 ticks. On tick 60 it tries to step beyond the edge, hits the wall, and
+    // its scurry tuple fires — which always turns to W/E/S, never N. Run exactly
+    // that long so we observe the deterministic first turn without later random
+    // walks possibly drifting back to N.
     tryDeploy(state, 'A', MOUSE.id, { x: 3, y: 0 }, 'N');
-    runTicks(state, TICKS_PER_SEC * 10);
-    // Mouse should no longer be facing north after slamming into the wall and scurrying.
-    // It should also not have walked off the board.
-    expect(state.pets[0].anchor.y).toBeLessThanOrEqual(11);
-    expect(state.pets[0].anchor.y).toBeGreaterThanOrEqual(0);
+    runTicks(state, 60);
+    expect(state.pets[0].anchor.y).toBe(11);
     expect(state.pets[0].facing).not.toBe('N');
   });
 

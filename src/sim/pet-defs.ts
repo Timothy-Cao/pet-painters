@@ -1,8 +1,9 @@
 import type { PetDefinition, Pet } from '../types/pet';
 import type { MatchState, Direction, Vec2 } from '../types/game';
-import { MOUSE_STATS, ELEPHANT_STATS, CAT_STATS } from '../config/balance';
+import { MOUSE_STATS, ELEPHANT_STATS, CAT_STATS, RABBIT_STATS } from '../config/balance';
 import { frontTiles, footprintTiles } from './pets';
 import { enemiesInFront, applyAttack } from './combat';
+import { paintTile } from './board';
 
 function getPetDefLocal(id: string): PetDefinition {
   return REGISTRY[id];
@@ -119,6 +120,21 @@ function enemyInSightline(pet: Pet, state: MatchState, maxDistance: number): boo
   return lookAhead(pet, state, maxDistance).kind === 'enemy';
 }
 
+function tileInBounds(state: MatchState, t: Vec2): boolean {
+  return t.x >= 0 && t.x < state.board.size && t.y >= 0 && t.y < state.board.size;
+}
+
+function anyPetAt(state: MatchState, t: Vec2, except: Pet): Pet | null {
+  for (const other of state.pets) {
+    if (other === except) continue;
+    const odef = getPetDefLocal(other.defId);
+    for (const o of footprintTiles(other.anchor, odef.size)) {
+      if (o.x === t.x && o.y === t.y) return other;
+    }
+  }
+  return null;
+}
+
 // ---------- Pet definitions ----------
 
 function scurryOrMove(pet: Pet, state: MatchState): void {
@@ -229,10 +245,53 @@ export const CAT: PetDefinition = {
   ],
 };
 
+function rabbitStep(pet: Pet, state: MatchState): void {
+  // Walk forward whenever the path is clear.
+  if (!frontBlocked(pet, state)) {
+    declareMove(pet, state);
+    return;
+  }
+  // Try to vault: front is a pet AND the tile two steps ahead is clear and in-bounds.
+  if (frontHasPet(pet, state)) {
+    const d = facingDelta(pet.facing);
+    const landing: Vec2 = {
+      x: pet.anchor.x + d.x * 2,
+      y: pet.anchor.y + d.y * 2,
+    };
+    if (tileInBounds(state, landing) && !anyPetAt(state, landing, pet)) {
+      pet.anchor = landing;
+      paintTile(state.board, landing, pet.owner);
+      return;
+    }
+  }
+  // Wall ahead, or pet ahead with no clear landing tile → scurry-turn.
+  scurryTurn(pet);
+}
+
+export const RABBIT: PetDefinition = {
+  id: 'rabbit',
+  displayName: 'Rabbit',
+  emoji: '🐰',
+  cost: RABBIT_STATS.cost,
+  size: { w: 1, h: 1 },
+  weight: RABBIT_STATS.weight,
+  maxHp: RABBIT_STATS.maxHp,
+  atk: RABBIT_STATS.atk,
+  order: RABBIT_STATS.order,
+  tuples: [
+    {
+      intervalSec: 1 / RABBIT_STATS.speedTilesPerSec,
+      trigger: () => true,
+      action: rabbitStep,
+    },
+  ],
+};
+
 const REGISTRY: Record<string, PetDefinition> = {
   [MOUSE.id]: MOUSE,
   [ELEPHANT.id]: ELEPHANT,
   [CAT.id]: CAT,
+  [RABBIT.id]: RABBIT,
 };
 
 export function getPetDef(id: string): PetDefinition {
