@@ -40,39 +40,55 @@ function now(): number {
   return typeof performance !== 'undefined' ? performance.now() : Date.now();
 }
 
+// Kill switch for headless sim. Skips all effect allocation when disabled —
+// the sim still computes correctly but doesn't churn GC on visual effects.
+let effectsEnabled = true;
+export function setEffectsEnabled(on: boolean): void { effectsEnabled = on; }
+
 export function pushHit(x: number, y: number, owner: PlayerId): void {
+  if (!effectsEnabled) return;
   effects.push({ kind: 'hit', x, y, owner, born: now() });
 }
 export function pushPounce(x: number, y: number, owner: PlayerId): void {
+  if (!effectsEnabled) return;
   effects.push({ kind: 'pounce', x, y, owner, born: now() });
 }
 export function pushSpray(x: number, y: number, owner: PlayerId): void {
+  if (!effectsEnabled) return;
   effects.push({ kind: 'spray', x, y, owner, born: now() });
 }
 export function pushSplat(x: number, y: number, owner: PlayerId): void {
+  if (!effectsEnabled) return;
   // Random angle so adjacent splats don't visually rhyme.
   effects.push({ kind: 'splat', x, y, owner, born: now(), angle: Math.random() * Math.PI * 2 });
 }
 export function pushPoof(x: number, y: number, owner: PlayerId): void {
+  if (!effectsEnabled) return;
   effects.push({ kind: 'poof', x, y, owner, born: now() });
 }
 export function pushDamage(x: number, y: number, owner: PlayerId, amount: number): void {
+  if (!effectsEnabled) return;
   // Tiny horizontal jitter so two simultaneous hits don't perfectly overlap.
   effects.push({ kind: 'damage', x, y, owner, born: now(), amount, jitterX: (Math.random() - 0.5) * 0.4 });
 }
 export function pushRoar(x: number, y: number, owner: PlayerId): void {
+  if (!effectsEnabled) return;
   effects.push({ kind: 'roar', x, y, owner, born: now() });
 }
 export function pushWeb(x: number, y: number, owner: PlayerId): void {
+  if (!effectsEnabled) return;
   effects.push({ kind: 'web', x, y, owner, born: now() });
 }
 export function pushFlutter(x: number, y: number, owner: PlayerId, dx: number, dy: number): void {
+  if (!effectsEnabled) return;
   effects.push({ kind: 'flutter', x, y, owner, born: now(), dx, dy });
 }
 export function pushDust(x: number, y: number, owner: PlayerId, dx: number, dy: number, intensity: number): void {
+  if (!effectsEnabled) return;
   effects.push({ kind: 'dust', x, y, owner, born: now(), dx, dy, intensity });
 }
 export function pushFlame(x: number, y: number, owner: PlayerId): void {
+  if (!effectsEnabled) return;
   effects.push({ kind: 'flame', x, y, owner, born: now(), seed: Math.random() });
 }
 

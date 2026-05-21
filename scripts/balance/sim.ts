@@ -7,6 +7,11 @@ import { getPetDef } from '../../src/sim/pet-defs';
 import { createRng } from '../../src/sim/rng';
 import { BOARD_SIZE, HOME_ROWS, TICKS_PER_SEC } from '../../src/config/constants';
 import { WIN_PAINT_THRESHOLD } from '../../src/config/balance';
+import { setEffectsEnabled } from '../../src/render/effects';
+
+// Suppress visual-effect allocation in headless mode. Effects are pushed onto
+// a module-level array that nobody reads in the sim, so they're pure waste here.
+setEffectsEnabled(false);
 
 export interface Comp {
   /** Pet def IDs to cycle through when filling budget. */
