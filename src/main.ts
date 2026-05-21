@@ -12,6 +12,7 @@ import { GameLoop } from './loop';
 import { renderEffects, clearEffects } from './render/effects';
 import { clearRenderHistory } from './render/interpolation';
 import { clearEvents } from './ui/event-log';
+import { loadPalette, applyPalette, getPaletteName } from './render/palette';
 
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 const rc = createRenderContext(canvas);
@@ -31,6 +32,38 @@ function resetMatch(): void {
 
 attachDeployUI(canvas, rc, state, ui, { onReset: resetMatch });
 mountSandboxUI(state, ui, { onReset: resetMatch });
+
+// Settings + accessibility wiring.
+loadPalette();
+const settingsBtn = document.getElementById('settings-btn');
+const settingsMenu = document.getElementById('settings-menu');
+const cbCheckbox = document.getElementById('settings-cb-palette') as HTMLInputElement | null;
+if (cbCheckbox) cbCheckbox.checked = getPaletteName() === 'cb-blue-orange';
+if (settingsBtn && settingsMenu) {
+  settingsBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const willOpen = settingsMenu.hasAttribute('hidden');
+    settingsMenu.toggleAttribute('hidden', !willOpen);
+    settingsBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+  });
+  document.addEventListener('click', (e) => {
+    if (!(e.target instanceof Node)) return;
+    if (settingsMenu.contains(e.target) || settingsBtn.contains(e.target)) return;
+    settingsMenu.setAttribute('hidden', '');
+    settingsBtn.setAttribute('aria-expanded', 'false');
+  });
+}
+cbCheckbox?.addEventListener('change', () => {
+  applyPalette(cbCheckbox.checked ? 'cb-blue-orange' : 'default');
+});
+
+// Esc deselects the currently-selected pet.
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    ui.selectedDefId = null;
+    refreshAll(state, ui);
+  }
+});
 
 function render() {
   clearCanvas(rc);

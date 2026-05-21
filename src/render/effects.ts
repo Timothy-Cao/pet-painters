@@ -16,7 +16,15 @@ const POOF_MS = 420;
 const DAMAGE_MS = 700;
 const effects: Effect[] = [];
 
-const COLORS = { A: '#5b8def', B: '#f25f5c' } as const;
+import { side } from './palette';
+
+function colorFor(owner: PlayerId): string {
+  return side(owner).accent;
+}
+// Backwards-compat shim so existing destructuring sites can stay terse.
+const COLORS = new Proxy({} as Record<PlayerId, string>, {
+  get: (_t, k: PlayerId) => colorFor(k),
+});
 
 function now(): number {
   return typeof performance !== 'undefined' ? performance.now() : Date.now();

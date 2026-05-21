@@ -2,16 +2,8 @@ import { RenderContext, tileToPixel } from './canvas';
 import type { Board } from '../types/game';
 import { BOARD_SIZE, HOME_ROWS } from '../config/constants';
 
-const COLORS = {
-  neutral: '#1a1e29',
-  A: '#3a567f',
-  B: '#7f3a3a',
-};
-const HOME_A_TINT = 'rgba(91, 141, 239, 0.06)';
-const HOME_B_TINT = 'rgba(242, 95, 92, 0.06)';
+import { getPalette } from './palette';
 const GRID_LINE = 'rgba(255, 255, 255, 0.07)';
-const HOME_BORDER_A = 'rgba(91, 141, 239, 0.4)';
-const HOME_BORDER_B = 'rgba(242, 95, 92, 0.4)';
 
 function isHomeRow(y: number, who: 'A' | 'B'): boolean {
   if (who === 'A') return y < HOME_ROWS;
@@ -21,6 +13,12 @@ function isHomeRow(y: number, who: 'A' | 'B'): boolean {
 export function renderBoard(rc: RenderContext, board: Board): void {
   const { ctx, tileSize } = rc;
   const inset = 1;
+  const palette = getPalette();
+  const fill: Record<'A' | 'B' | 'neutral', string> = {
+    A: palette.A.tile,
+    B: palette.B.tile,
+    neutral: palette.neutral,
+  };
 
   for (let y = 0; y < BOARD_SIZE; y++) {
     for (let x = 0; x < BOARD_SIZE; x++) {
@@ -28,7 +26,7 @@ export function renderBoard(rc: RenderContext, board: Board): void {
       const { px, py } = tileToPixel(rc, x, y);
       const homeOwner = isHomeRow(y, 'A') ? 'A' : isHomeRow(y, 'B') ? 'B' : null;
 
-      ctx.fillStyle = COLORS[color];
+      ctx.fillStyle = fill[color];
       ctx.fillRect(px, py, tileSize, tileSize);
 
       // Neutral tiles get a 2x2 dot pattern — gives empty territory a tactile
@@ -36,18 +34,18 @@ export function renderBoard(rc: RenderContext, board: Board): void {
       if (color === 'neutral') {
         ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
         const dotR = 1;
-        const inset = tileSize / 4;
+        const dotInset = tileSize / 4;
         for (let dy = 0; dy < 2; dy++) {
           for (let dx = 0; dx < 2; dx++) {
-            ctx.fillRect(px + inset + dx * (tileSize / 2) - dotR / 2,
-                         py + inset + dy * (tileSize / 2) - dotR / 2,
+            ctx.fillRect(px + dotInset + dx * (tileSize / 2) - dotR / 2,
+                         py + dotInset + dy * (tileSize / 2) - dotR / 2,
                          dotR, dotR);
           }
         }
       }
 
       if (color === 'neutral' && homeOwner) {
-        ctx.fillStyle = homeOwner === 'A' ? HOME_A_TINT : HOME_B_TINT;
+        ctx.fillStyle = homeOwner === 'A' ? palette.A.soft : palette.B.soft;
         ctx.fillRect(px, py, tileSize, tileSize);
       }
 
@@ -60,8 +58,7 @@ export function renderBoard(rc: RenderContext, board: Board): void {
         ctx.fillRect(px + inset, py + inset, tileSize - inset * 2, 2);
       }
 
-      // Home-row "permanent" hatch in the bottom-right corner — a small
-      // double-tick mark so players can tell painted home from painted ground.
+      // Home-row "permanent" hatch in the bottom-right corner.
       if (homeOwner) {
         ctx.save();
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
@@ -78,18 +75,18 @@ export function renderBoard(rc: RenderContext, board: Board): void {
     }
   }
 
-  // Home zone outer borders (dashed)
+  // Home zone outer borders (dashed).
   ctx.save();
   ctx.setLineDash([6, 4]);
   ctx.lineWidth = 1.5;
-  ctx.strokeStyle = HOME_BORDER_A;
+  ctx.strokeStyle = palette.A.glow;
   const aTop = tileToPixel(rc, 0, HOME_ROWS - 1).py;
   ctx.beginPath();
   ctx.moveTo(0, aTop + tileSize);
   ctx.lineTo(BOARD_SIZE * tileSize, aTop + tileSize);
   ctx.stroke();
 
-  ctx.strokeStyle = HOME_BORDER_B;
+  ctx.strokeStyle = palette.B.glow;
   const bBottom = tileToPixel(rc, 0, BOARD_SIZE - HOME_ROWS).py;
   ctx.beginPath();
   ctx.moveTo(0, bBottom);

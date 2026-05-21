@@ -3,11 +3,7 @@ import type { Pet } from '../types/pet';
 import { getPetDef } from '../sim/pet-defs';
 import { BOARD_SIZE } from '../config/constants';
 import { getRenderPosition, getSpawnAgeMs, pruneRenderHistory, SPAWN_MS } from './interpolation';
-
-const RING = {
-  A: { color: '#5b8def', glow: 'rgba(91, 141, 239, 0.55)' },
-  B: { color: '#f25f5c', glow: 'rgba(242, 95, 92, 0.55)' },
-};
+import { side } from './palette';
 
 export function renderPets(rc: RenderContext, pets: Pet[]): void {
   const { ctx, tileSize } = rc;
@@ -20,7 +16,8 @@ export function renderPets(rc: RenderContext, pets: Pet[]): void {
     const py = (BOARD_SIZE - def.size.h - fy) * tileSize;
     const w = def.size.w * tileSize;
     const h = def.size.h * tileSize;
-    const ring = RING[pet.owner];
+    const palette = side(pet.owner);
+    const ring = { color: palette.accent, glow: palette.glow };
 
     // Deploy fade-in: ease-out scale + alpha during the first SPAWN_MS.
     const age = getSpawnAgeMs(pet.petId);
