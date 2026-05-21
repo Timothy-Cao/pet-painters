@@ -1,6 +1,6 @@
 import type { PetDefinition, Pet } from '../types/pet';
-import type { MatchState, Direction } from '../types/game';
-import { MOUSE_STATS, ELEPHANT_STATS } from '../config/balance';
+import type { MatchState, Direction, Vec2 } from '../types/game';
+import { MOUSE_STATS, ELEPHANT_STATS, CAT_STATS } from '../config/balance';
 import { frontTiles, footprintTiles } from './pets';
 import { enemiesInFront, applyAttack } from './combat';
 
@@ -68,6 +68,55 @@ function declareMove(pet: Pet, state: MatchState): void {
 
 function turnAround(pet: Pet, _state: MatchState): void {
   pet.facing = OPPOSITE[pet.facing];
+}
+
+function facingDelta(d: Direction): Vec2 {
+  switch (d) {
+    case 'N': return { x: 0, y: 1 };
+    case 'S': return { x: 0, y: -1 };
+    case 'E': return { x: 1, y: 0 };
+    case 'W': return { x: -1, y: 0 };
+  }
+}
+
+// Cast a 1-wide ray from the pet's front edge. Returns the first thing it
+// hits: an enemy pet, an allied pet, the wall, or nothing within range.
+type Sighted =
+  | { kind: 'enemy'; pet: Pet; distance: number }
+  | { kind: 'ally'; pet: Pet; distance: number }
+  | { kind: 'wall'; distance: number }
+  | { kind: 'clear' };
+
+function lookAhead(pet: Pet, state: MatchState, maxDistance: number): Sighted {
+  const def = getPetDefLocal(pet.defId);
+  const d = facingDelta(pet.facing);
+  const fronts = frontTiles(pet.anchor, def.size, pet.facing);
+  for (let dist = 0; dist < maxDistance; dist++) {
+    for (const f of fronts) {
+      const t: Vec2 = { x: f.x + d.x * dist, y: f.y + d.y * dist };
+      if (t.x < 0 || t.x >= state.board.size || t.y < 0 || t.y >= state.board.size) {
+        return { kind: 'wall', distance: dist + 1 };
+      }
+      for (const other of state.pets) {
+        if (other === pet) continue;
+        const odef = getPetDefLocal(other.defId);
+        for (const o of footprintTiles(other.anchor, odef.size)) {
+          if (o.x === t.x && o.y === t.y) {
+            return {
+              kind: other.owner !== pet.owner ? 'enemy' : 'ally',
+              pet: other,
+              distance: dist + 1,
+            };
+          }
+        }
+      }
+    }
+  }
+  return { kind: 'clear' };
+}
+
+function enemyInSightline(pet: Pet, state: MatchState, maxDistance: number): boolean {
+  return lookAhead(pet, state, maxDistance).kind === 'enemy';
 }
 
 // ---------- Pet definitions ----------
@@ -138,9 +187,52 @@ export const ELEPHANT: PetDefinition = {
   ],
 };
 
+function catStep(pet: Pet, state: MatchState): void {
+  // Front blocked by a wall or ally → turn clockwise to keep searching.
+  // (If an enemy is in the front tile, the attack tuple will handle it.)
+  if (frontIsWall(pet, state) || (frontHasPet(pet, state) && enemiesInFront(pet, state).length === 0)) {
+    pet.facing = CW_NEXT[pet.facing];
+    return;
+  }
+  if (!frontHasPet(pet, state)) declareMove(pet, state);
+}
+
+export const CAT: PetDefinition = {
+  id: 'cat',
+  displayName: 'Cat',
+  emoji: '🐱',
+  cost: CAT_STATS.cost,
+  size: { w: 1, h: 1 },
+  weight: CAT_STATS.weight,
+  maxHp: CAT_STATS.maxHp,
+  atk: CAT_STATS.atk,
+  order: CAT_STATS.order,
+  tuples: [
+    // Hunt: enemy seen in line ahead → sprint forward at hunt cadence.
+    {
+      intervalSec: 1 / CAT_STATS.huntSpeedTilesPerSec,
+      trigger: (pet, state) => enemyInSightline(pet, state, CAT_STATS.sightRange),
+      action: catStep,
+    },
+    // Wander: no enemy ahead → stroll forward at base cadence and turn when blocked.
+    {
+      intervalSec: 1 / CAT_STATS.speedTilesPerSec,
+      trigger: (pet, state) => !enemyInSightline(pet, state, CAT_STATS.sightRange),
+      action: catStep,
+    },
+    // Claw whatever is right in front of it.
+    {
+      intervalSec: 1 / CAT_STATS.atkSpeedPerSec,
+      trigger: (pet, state) => enemiesInFront(pet, state).length > 0,
+      action: applyAttack,
+    },
+  ],
+};
+
 const REGISTRY: Record<string, PetDefinition> = {
   [MOUSE.id]: MOUSE,
   [ELEPHANT.id]: ELEPHANT,
+  [CAT.id]: CAT,
 };
 
 export function getPetDef(id: string): PetDefinition {

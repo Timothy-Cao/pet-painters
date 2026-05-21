@@ -31,3 +31,15 @@ export const ELEPHANT_STATS = {
   atkSpeedPerSec: 0.5,
   order: 1,
 };
+
+export const CAT_STATS = {
+  cost: 4,
+  speedTilesPerSec: 1,        // wander speed
+  huntSpeedTilesPerSec: 3,    // when enemy spotted ahead
+  weight: 2,
+  maxHp: 5,
+  atk: 3,
+  atkSpeedPerSec: 1.5,
+  order: 2,
+  sightRange: 5,
+};
