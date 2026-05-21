@@ -2,6 +2,8 @@ import type { MatchState, Direction } from '../types/game';
 import type { PetDefinition } from '../types/pet';
 import { ALL_PETS } from '../sim/pets';
 import { submitReady } from '../sim/match';
+import { undeploy } from '../sim/deploy';
+import { getPetDef } from '../sim/pet-defs';
 import { WIN_PAINT_THRESHOLD, EXECUTION_PHASE_SECONDS } from '../config/balance';
 import { BOARD_SIZE, TICKS_PER_SEC } from '../config/constants';
 import { scoreFor } from '../sim/board';
@@ -10,6 +12,7 @@ import { getRecentEvents } from './event-log';
 export interface SandboxUIState {
   selectedDefId: string | null;
   facing: Direction;
+  inspectedPetId: number | null;
 }
 
 function speedLabel(speedTilesPerSec: number): string {
@@ -25,7 +28,7 @@ const CW_NEXT: Record<Direction, Direction> = { N: 'E', E: 'S', S: 'W', W: 'N' }
 
 export function createSandboxUIState(): SandboxUIState {
   const first = ALL_PETS[0];
-  return { selectedDefId: first ? first.id : null, facing: 'N' };
+  return { selectedDefId: first ? first.id : null, facing: 'N', inspectedPetId: null };
 }
 
 export interface SandboxUIBindings {
@@ -40,7 +43,21 @@ export function mountSandboxUI(
   buildPetRoster(ui);
   bindFacing(ui);
   bindActions(state, bindings);
+  bindInspector(state, ui);
   refreshAll(state, ui);
+}
+
+function bindInspector(state: MatchState, ui: SandboxUIState): void {
+  document.getElementById('inspect-close')?.addEventListener('click', () => {
+    ui.inspectedPetId = null;
+    refreshAll(state, ui);
+  });
+  document.getElementById('inspect-undeploy')?.addEventListener('click', () => {
+    if (ui.inspectedPetId == null) return;
+    undeploy(state, ui.inspectedPetId);
+    ui.inspectedPetId = null;
+    refreshAll(state, ui);
+  });
 }
 
 function buildPetRoster(ui: SandboxUIState): void {
@@ -163,6 +180,7 @@ export function refreshAll(state: MatchState, ui: SandboxUIState): void {
   refreshPhase(state);
   refreshExecBar(state);
   refreshTactical(state);
+  refreshInspector(state, ui);
   refreshRoundSummary(state);
 }
 
@@ -266,6 +284,39 @@ function refreshTactical(state: MatchState): void {
     li.innerHTML = `<span class="tac-event-emoji">${e.emoji}</span><span>${e.text}</span>`;
     list.appendChild(li);
   }
+}
+
+function refreshInspector(state: MatchState, ui: SandboxUIState): void {
+  const card = document.getElementById('pet-inspect') as HTMLElement | null;
+  if (!card) return;
+  const id = ui.inspectedPetId;
+  const pet = id == null ? null : state.pets.find((p) => p.petId === id) ?? null;
+  // Pet died or de-selected → hide and clear the id.
+  if (!pet || state.phase !== 'planning') {
+    card.hidden = true;
+    if (!pet && id != null) ui.inspectedPetId = null;
+    return;
+  }
+  const def = getPetDef(pet.defId);
+  card.hidden = false;
+  setText('inspect-emoji', def.emoji);
+  setText('inspect-name', def.displayName);
+  const ownerPill = document.getElementById('inspect-owner');
+  if (ownerPill) {
+    ownerPill.textContent = pet.owner;
+    ownerPill.classList.toggle('owner-a', pet.owner === 'A');
+    ownerPill.classList.toggle('owner-b', pet.owner === 'B');
+  }
+  setText('inspect-hp', `${Math.max(0, pet.hp)} / ${def.maxHp}`);
+  const hpFill = document.getElementById('inspect-hp-fill') as HTMLElement | null;
+  if (hpFill) {
+    const frac = Math.max(0, pet.hp / def.maxHp);
+    hpFill.style.width = `${frac * 100}%`;
+    hpFill.style.background = frac > 0.5 ? 'var(--good)' : frac > 0.25 ? 'var(--accent)' : 'var(--player-b)';
+  }
+  setText('inspect-facing', { N: 'North', E: 'East', S: 'South', W: 'West' }[pet.facing]);
+  setText('inspect-pos', `(${pet.anchor.x}, ${pet.anchor.y})`);
+  setText('inspect-blurb', def.ui.ability);
 }
 
 function refreshRoundSummary(state: MatchState): void {

@@ -526,6 +526,103 @@ html, body {
   gap: 6px;
 }
 
+/* ----- Pet inspector (anchored on the canvas near the clicked pet) ----- */
+.pet-inspect {
+  position: absolute;
+  top: 60px;
+  right: 28px;
+  width: 240px;
+  background: rgba(22, 26, 34, 0.97);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+  z-index: 12;
+  animation: rs-rise 0.22s ease-out;
+  font-size: 12px;
+}
+.pet-inspect[hidden] { display: none !important; }
+.inspect-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.inspect-emoji { font-size: 22px; line-height: 1; }
+.inspect-name { font-weight: 600; font-size: 14px; color: var(--text); }
+.inspect-owner-pill {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: #0a0d12;
+}
+.inspect-owner-pill.owner-a { background: var(--player-a); }
+.inspect-owner-pill.owner-b { background: var(--player-b); }
+.inspect-close {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+}
+.inspect-close:hover { color: var(--text); border-color: var(--text-faint); }
+.inspect-stats { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.inspect-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.inspect-key {
+  color: var(--text-faint);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.inspect-val {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.inspect-hp-bar {
+  display: inline-block;
+  width: 70px;
+  height: 5px;
+  background: var(--bg);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.inspect-hp-fill {
+  display: block;
+  height: 100%;
+  background: var(--good);
+  transition: width 0.18s ease, background 0.18s ease;
+}
+.inspect-blurb {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.45;
+  font-style: italic;
+  padding: 6px 0 10px;
+  border-top: 1px dashed var(--border);
+  margin-top: 4px;
+}
+.inspect-undeploy {
+  width: 100%;
+  padding: 6px;
+  font-size: 11px;
+}
+.inspect-undeploy[hidden] { display: none !important; }
+
 /* ----- Round summary card ----- */
 .round-summary {
   position: absolute;

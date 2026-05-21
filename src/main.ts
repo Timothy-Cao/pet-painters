@@ -57,10 +57,14 @@ cbCheckbox?.addEventListener('change', () => {
   applyPalette(cbCheckbox.checked ? 'cb-blue-orange' : 'default');
 });
 
-// Esc deselects the currently-selected pet.
+// Esc closes the inspector first, then deselects the currently-armed pet.
 window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    ui.selectedDefId = null;
+    if (ui.inspectedPetId != null) {
+      ui.inspectedPetId = null;
+    } else {
+      ui.selectedDefId = null;
+    }
     refreshAll(state, ui);
   }
 });

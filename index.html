@@ -69,6 +69,33 @@
           <div class="player-tag player-tag-b">Player B (top)</div>
           <canvas id="game" width="600" height="600"></canvas>
           <div class="player-tag player-tag-a">Player A (bottom)</div>
+          <div class="pet-inspect" id="pet-inspect" hidden>
+            <div class="inspect-head">
+              <span class="inspect-emoji" id="inspect-emoji">🐭</span>
+              <span class="inspect-name" id="inspect-name">Mouse</span>
+              <span class="inspect-owner-pill" id="inspect-owner">A</span>
+              <button class="inspect-close" id="inspect-close" aria-label="Close">×</button>
+            </div>
+            <div class="inspect-stats">
+              <div class="inspect-row">
+                <span class="inspect-key">HP</span>
+                <span class="inspect-val">
+                  <span class="inspect-hp-bar"><span class="inspect-hp-fill" id="inspect-hp-fill"></span></span>
+                  <span id="inspect-hp">3 / 3</span>
+                </span>
+              </div>
+              <div class="inspect-row">
+                <span class="inspect-key">Facing</span>
+                <span class="inspect-val" id="inspect-facing">North</span>
+              </div>
+              <div class="inspect-row">
+                <span class="inspect-key">Position</span>
+                <span class="inspect-val" id="inspect-pos">(0, 0)</span>
+              </div>
+            </div>
+            <div class="inspect-blurb" id="inspect-blurb"></div>
+            <button class="btn-secondary inspect-undeploy" id="inspect-undeploy">Undeploy</button>
+          </div>
           <div class="round-summary" id="round-summary" hidden>
             <div class="rs-head">
               <span class="rs-title">Round <span id="rs-round">1</span> complete</span>

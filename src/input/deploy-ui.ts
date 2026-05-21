@@ -1,5 +1,5 @@
 import type { MatchState, Direction, Vec2 } from '../types/game';
-import { tryDeploy, petAtTile, undeploy } from '../sim/deploy';
+import { tryDeploy, petAtTile } from '../sim/deploy';
 import { submitReady } from '../sim/match';
 import { getPetDef } from '../sim/pet-defs';
 import { ALL_PETS } from '../sim/pets';
@@ -19,10 +19,16 @@ const PET_HOTKEYS: Record<string, string> = Object.fromEntries(
 
 export interface DeployUIState extends SandboxUIState {
   hoverTile: Vec2 | null;
+  inspectedPetId: number | null;
 }
 
 export function createDeployUIState(): DeployUIState {
-  return { selectedDefId: ALL_PETS[0]?.id ?? null, facing: 'N', hoverTile: null };
+  return {
+    selectedDefId: ALL_PETS[0]?.id ?? null,
+    facing: 'N',
+    hoverTile: null,
+    inspectedPetId: null,
+  };
 }
 
 export interface DeployUIBindings {
@@ -80,14 +86,16 @@ export function attachDeployUI(
     if (state.phase !== 'planning') return;
     if (!ui.hoverTile) return;
 
-    // Left-click on an existing pet undeploys it.
+    // Click on an existing pet → toggle the inspector for it.
     const existing = petAtTile(state, ui.hoverTile);
     if (existing) {
-      undeploy(state, existing.petId);
+      ui.inspectedPetId = ui.inspectedPetId === existing.petId ? null : existing.petId;
       refreshAll(state, ui);
       return;
     }
 
+    // Click on empty tile → clear inspector, then attempt deploy.
+    ui.inspectedPetId = null;
     if (!ui.selectedDefId) return;
     const def = getPetDef(ui.selectedDefId);
     const player = inferPlayerFromAnchor(state, ui.hoverTile.x, ui.hoverTile.y, def.size.w, def.size.h);
@@ -99,7 +107,6 @@ export function attachDeployUI(
     if (!result.ok) {
       showBanner(`Cannot deploy: ${result.reason}`);
     } else if (state.lastRoundSummary) {
-      // The first action of the next planning phase dismisses the summary.
       state.lastRoundSummary = null;
     }
     refreshAll(state, ui);
