@@ -6,7 +6,7 @@ import { pushPounce, pushDamage } from '../../render/effects';
 import { MOUSE } from './mouse';
 
 const STATS = {
-  cost: 3,
+  cost: 4,                           // corner-zones r1: 3→4 — 80% meta appearance too dominant
   speedTilesPerSec: 2,
   weight: 2,
   maxHp: 4,

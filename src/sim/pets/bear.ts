@@ -3,11 +3,11 @@ import { enemiesInFront, applyAttack } from '../combat';
 import { walkOrTurnAtWall } from '../behaviors';
 
 const STATS = {
-  cost: 8,
+  cost: 6,                          // corner-zones r1: 8→6 — dead on 20×20; needs affordability to justify slow crossing
   speedTilesPerSec: 0.8,
   rageSpeedTilesPerSec: 1.6,      // double when wounded
   weight: 8,                      // lighter than elephant (10) — Elephant CAN push Bear
-  maxHp: 14,
+  maxHp: 18,                        // corner-zones r2: 14→18 — longer board crossing means bear needs durability to stay relevant
   atk: 3,                         // higher than elephant; mouse dies in one swipe
   atkSpeedPerSec: 1,
   order: 1,

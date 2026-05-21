@@ -4,7 +4,7 @@ import { anyPetAt, tileInBounds, walkOrTurnAtWall } from '../behaviors';
 import { pushDamage, pushFlame, pushHit } from '../../render/effects';
 
 const STATS = {
-  cost: 9,
+  cost: 7,                          // corner-zones r1: 9→7 — dead on 20×20; AOE cone is strong but too expensive to pair
   speedTilesPerSec: 0.5,
   weight: 9,                      // just under Elephant — still pushable by an elephant
   maxHp: 20,

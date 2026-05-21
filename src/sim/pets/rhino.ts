@@ -5,8 +5,8 @@ import { declareMove, facingDelta, frontIsWall, turnAround } from '../behaviors'
 import { pushDust, pushHit, pushDamage } from '../../render/effects';
 
 const STATS = {
-  cost: 9,
-  speedTilesPerSec: 1.5,
+  cost: 7,                          // corner-zones r1: 9→7 — dead on 20×20; momentum charge needs budget headroom to shine
+  speedTilesPerSec: 2.0,            // corner-zones r2: 1.5→2.0 — faster sprint means momentum builds before midfield engagement
   weight: 9,                      // close to elephant's 10 — barely pushable
   maxHp: 15,
   atk: 2,                         // base damage; momentum adds on top

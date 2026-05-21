@@ -3,7 +3,7 @@ import { enemiesInFront, applyAttack } from '../combat';
 import { walkOrTurnAtWall } from '../behaviors';
 
 const STATS = {
-  cost: 5,                          // restored to 5 — cost 4 allows too many Elephants per budget
+  cost: 4,                          // corner-zones r2: 5→4 — 5×5 corner reduces deployment pressure; 4 allows pairs again
   speedTilesPerSec: 0.5,
   weight: 10,
   maxHp: 25,
