@@ -24,6 +24,7 @@ export const ELEPHANT: PetDefinition = {
   order: STATS.order,
   immovable: true,
   stats: STATS,
+  role: 'tank',
   ui: {
     hotkey: '2',
     short: 'Unmovable, steady',

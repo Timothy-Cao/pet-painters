@@ -23,6 +23,7 @@ export const MOUSE: PetDefinition = {
   atk: STATS.atk,
   order: STATS.order,
   stats: STATS,
+  role: 'painter',
   ui: {
     hotkey: '1',
     short: 'Scurries, scared of others',

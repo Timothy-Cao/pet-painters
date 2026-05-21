@@ -46,6 +46,7 @@ export const SKUNK: PetDefinition = {
   atk: STATS.atk,
   order: STATS.order,
   stats: STATS,
+  role: 'disruptor',
   ui: {
     hotkey: '6',
     short: 'Forces enemies to flee',

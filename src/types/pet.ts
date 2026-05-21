@@ -31,6 +31,12 @@ export interface PetUiMetadata {
   readonly ability: string;
 }
 
+/**
+ * Broad gameplay archetype. Drives the aura color rendered behind the pet
+ * sprite so players can read role at a glance. Multiple pets may share a role.
+ */
+export type PetRole = 'painter' | 'predator' | 'tank' | 'disruptor' | 'specialist';
+
 export interface PetDefinition {
   id: string;
   displayName: string;
@@ -46,6 +52,8 @@ export interface PetDefinition {
   stats: PetStats;
   /** UI/UX metadata used by the roster and HUD. */
   ui: PetUiMetadata;
+  /** Visual archetype. Drives the role aura behind the pet. */
+  role: PetRole;
   // Optional traits
   immovable?: boolean;
 }

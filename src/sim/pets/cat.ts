@@ -58,6 +58,7 @@ export const CAT: PetDefinition = {
   atk: STATS.atk,
   order: STATS.order,
   stats: STATS,
+  role: 'predator',
   ui: {
     hotkey: '3',
     short: 'Wanders wide, eats mice',

@@ -34,6 +34,7 @@ export const TURTLE: PetDefinition = {
   atk: STATS.atk,
   order: STATS.order,
   stats: STATS,
+  role: 'painter',
   ui: {
     hotkey: '5',
     short: 'Slow, paints all around',

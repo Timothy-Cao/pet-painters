@@ -4,6 +4,19 @@ import { getPetDef } from '../sim/pet-defs';
 import { BOARD_SIZE } from '../config/constants';
 import { getRenderPosition, getSpawnAgeMs, pruneRenderHistory, SPAWN_MS } from './interpolation';
 import { side } from './palette';
+import type { PetRole } from '../types/pet';
+
+const ROLE_TINT: Record<PetRole, string> = {
+  painter:    'rgba(79, 209, 165, 0.65)',   // teal
+  predator:   'rgba(255, 209, 102, 0.65)',  // warm yellow
+  tank:       'rgba(138, 147, 166, 0.55)',  // cool gray
+  disruptor:  'rgba(192, 132, 252, 0.60)',  // soft purple
+  specialist: 'rgba(164, 255, 124, 0.60)',  // lime
+};
+
+function now(): number {
+  return typeof performance !== 'undefined' ? performance.now() : Date.now();
+}
 
 export function renderPets(rc: RenderContext, pets: Pet[]): void {
   const { ctx, tileSize } = rc;
@@ -31,6 +44,26 @@ export function renderPets(rc: RenderContext, pets: Pet[]): void {
     ctx.scale(scale, scale);
     ctx.translate(-(px + w / 2), -(py + h / 2));
     ctx.globalAlpha = alpha;
+
+    // Role aura — a slow-pulsing radial glow behind the pet so each archetype
+    // is recognizable at a glance. 2.4s sine cycle, alpha 0.55→0.95 of the
+    // role tint.
+    {
+      const tint = ROLE_TINT[def.role];
+      const phase = (now() + pet.petId * 137) % 2400 / 2400;
+      const pulse = 0.55 + 0.40 * (0.5 + 0.5 * Math.sin(phase * Math.PI * 2));
+      const cx = px + w / 2;
+      const cy = py + h / 2;
+      const r = Math.max(w, h) * 0.65;
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      grad.addColorStop(0, withAlpha(tint, pulse));
+      grad.addColorStop(0.7, withAlpha(tint, pulse * 0.25));
+      grad.addColorStop(1, withAlpha(tint, 0));
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     // Soft glow background
     ctx.save();
@@ -73,6 +106,16 @@ export function renderPets(rc: RenderContext, pets: Pet[]): void {
   }
 
   pruneRenderHistory(pets.map((p) => p.petId));
+}
+
+/** Multiplies an `rgba(...)` string's alpha by `mul`. Returns the same string
+ *  shape; falls back to the input untouched if parsing fails. */
+function withAlpha(rgba: string, mul: number): string {
+  const m = rgba.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)$/);
+  if (!m) return rgba;
+  const r = m[1], g = m[2], b = m[3];
+  const a = m[4] ? parseFloat(m[4]) : 1;
+  return `rgba(${r}, ${g}, ${b}, ${Math.max(0, Math.min(1, a * mul)).toFixed(3)})`;
 }
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {

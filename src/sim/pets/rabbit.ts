@@ -50,6 +50,7 @@ export const RABBIT: PetDefinition = {
   atk: STATS.atk,
   order: STATS.order,
   stats: STATS,
+  role: 'painter',
   ui: {
     hotkey: '4',
     short: 'Hops over blockers',
