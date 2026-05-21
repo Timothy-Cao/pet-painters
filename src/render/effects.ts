@@ -6,10 +6,12 @@ type Effect =
   | { kind: 'hit'; x: number; y: number; owner: PlayerId; born: number }
   | { kind: 'pounce'; x: number; y: number; owner: PlayerId; born: number }
   | { kind: 'spray'; x: number; y: number; owner: PlayerId; born: number }
-  | { kind: 'splat'; x: number; y: number; owner: PlayerId; born: number; angle: number };
+  | { kind: 'splat'; x: number; y: number; owner: PlayerId; born: number; angle: number }
+  | { kind: 'poof'; x: number; y: number; owner: PlayerId; born: number };
 
 const DURATION_MS = 360;
 const SPLAT_MS = 480;
+const POOF_MS = 420;
 const effects: Effect[] = [];
 
 const COLORS = { A: '#5b8def', B: '#f25f5c' } as const;
@@ -31,6 +33,9 @@ export function pushSplat(x: number, y: number, owner: PlayerId): void {
   // Random angle so adjacent splats don't visually rhyme.
   effects.push({ kind: 'splat', x, y, owner, born: now(), angle: Math.random() * Math.PI * 2 });
 }
+export function pushPoof(x: number, y: number, owner: PlayerId): void {
+  effects.push({ kind: 'poof', x, y, owner, born: now() });
+}
 
 export function clearEffects(): void {
   effects.length = 0;
@@ -41,7 +46,9 @@ export function renderEffects(rc: RenderContext): void {
   for (let i = effects.length - 1; i >= 0; i--) {
     const e = effects[i];
     const age = t0 - e.born;
-    const lifetime = e.kind === 'splat' ? SPLAT_MS : DURATION_MS;
+    const lifetime = e.kind === 'splat' ? SPLAT_MS
+                   : e.kind === 'poof' ? POOF_MS
+                   : DURATION_MS;
     if (age >= lifetime) { effects.splice(i, 1); continue; }
     const t = age / lifetime;       // 0..1
     const size = rc.tileSize;
@@ -93,6 +100,25 @@ export function renderEffects(rc: RenderContext): void {
       rc.ctx.beginPath();
       rc.ctx.arc(0, 0, r, 0, Math.PI * 2);
       rc.ctx.stroke();
+    } else if (e.kind === 'poof') {
+      // Grey-tinted dust burst: 8 small dots drift outward and fade.
+      const dots = 8;
+      const ringR = size * (0.18 + 0.34 * t);
+      rc.ctx.globalAlpha = (1 - t) * 0.65;
+      rc.ctx.fillStyle = '#cdd3df';
+      for (let k = 0; k < dots; k++) {
+        const a = (Math.PI * 2 * k) / dots + (e.born % 1);
+        const dotR = size * 0.05 * (1 - t * 0.6);
+        rc.ctx.beginPath();
+        rc.ctx.arc(Math.cos(a) * ringR, Math.sin(a) * ringR, dotR, 0, Math.PI * 2);
+        rc.ctx.fill();
+      }
+      // Faint colored core in owner tint, hinting which side just lost a pet.
+      rc.ctx.globalAlpha = (1 - t) * 0.35;
+      rc.ctx.fillStyle = COLORS[e.owner];
+      rc.ctx.beginPath();
+      rc.ctx.arc(0, 0, size * 0.18 * (1 - t), 0, Math.PI * 2);
+      rc.ctx.fill();
     } else if (e.kind === 'splat') {
       // Brief brush bloom: a soft filled circle that puffs out and fades,
       // plus 5 small droplets radiating outward.

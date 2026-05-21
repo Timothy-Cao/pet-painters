@@ -28,7 +28,11 @@ interface History {
   toY: number;
   toRad: number;
   startMs: number;
+  /** Wallclock ms when the pet was first observed. Drives the deploy fade-in. */
+  spawnMs: number;
 }
+
+export const SPAWN_MS = 280;
 
 const history = new Map<number, History>();
 
@@ -63,11 +67,13 @@ export function getRenderPosition(pet: Pet): RenderPosition {
   let hist = history.get(pet.petId);
 
   if (!hist) {
-    // First sighting — skip the lerp, snap to current.
+    // First sighting — snap position, but record `spawnMs` so the renderer
+    // can play a fade-in.
     hist = {
       fromX: targetX, fromY: targetY, fromRad: targetRad,
       toX: targetX, toY: targetY, toRad: targetRad,
       startMs: t - LERP_MS,
+      spawnMs: t,
     };
     history.set(pet.petId, hist);
     return { x: targetX, y: targetY, rad: targetRad };
@@ -103,6 +109,13 @@ export function getRenderPosition(pet: Pet): RenderPosition {
     y: hist.fromY + (hist.toY - hist.fromY) * eased,
     rad: hist.fromRad + shortestRadDelta(hist.fromRad, hist.toRad) * eased,
   };
+}
+
+/** Age in ms since this pet was first seen by the renderer. Returns 0 if unknown. */
+export function getSpawnAgeMs(petId: number): number {
+  const hist = history.get(petId);
+  if (!hist) return 0;
+  return now() - hist.spawnMs;
 }
 
 /** Drop entries whose petId is no longer in the live pet list. */

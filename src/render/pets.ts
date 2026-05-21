@@ -2,7 +2,7 @@ import { RenderContext } from './canvas';
 import type { Pet } from '../types/pet';
 import { getPetDef } from '../sim/pet-defs';
 import { BOARD_SIZE } from '../config/constants';
-import { getRenderPosition, pruneRenderHistory } from './interpolation';
+import { getRenderPosition, getSpawnAgeMs, pruneRenderHistory, SPAWN_MS } from './interpolation';
 
 const RING = {
   A: { color: '#5b8def', glow: 'rgba(91, 141, 239, 0.55)' },
@@ -21,6 +21,19 @@ export function renderPets(rc: RenderContext, pets: Pet[]): void {
     const w = def.size.w * tileSize;
     const h = def.size.h * tileSize;
     const ring = RING[pet.owner];
+
+    // Deploy fade-in: ease-out scale + alpha during the first SPAWN_MS.
+    const age = getSpawnAgeMs(pet.petId);
+    const tSpawn = Math.min(1, age / SPAWN_MS);
+    const eased = 1 - (1 - tSpawn) * (1 - tSpawn);
+    const scale = 0.35 + 0.65 * eased;
+    const alpha = eased;
+
+    ctx.save();
+    ctx.translate(px + w / 2, py + h / 2);
+    ctx.scale(scale, scale);
+    ctx.translate(-(px + w / 2), -(py + h / 2));
+    ctx.globalAlpha = alpha;
 
     // Soft glow background
     ctx.save();
@@ -58,6 +71,8 @@ export function renderPets(rc: RenderContext, pets: Pet[]): void {
       ctx.fillStyle = hpFrac > 0.5 ? '#4fd1a5' : hpFrac > 0.25 ? '#ffd166' : '#f25f5c';
       ctx.fillRect(barX, barY, barW * hpFrac, 4);
     }
+
+    ctx.restore();
   }
 
   pruneRenderHistory(pets.map((p) => p.petId));

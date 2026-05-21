@@ -3,6 +3,7 @@ import { getPetDef } from './pet-defs';
 import { TICKS_PER_SEC } from '../config/constants';
 import { resolveMovements } from './movement';
 import { pushEvent } from '../ui/event-log';
+import { pushPoof } from '../render/effects';
 
 export function advanceTick(state: MatchState): void {
   if (state.phase !== 'execution') return;
@@ -26,11 +27,13 @@ export function advanceTick(state: MatchState): void {
     }
   }
 
-  // Death cleanup — log each dying pet then remove from the live list.
+  // Death cleanup — emit the death poof and log each dying pet.
   for (const p of state.pets) {
     if (p.hp <= 0) {
       const d = getPetDef(p.defId);
       pushEvent(d.emoji, `${d.displayName} (${p.owner}) fell`);
+      // Poof at the pet's center (anchor + half-size for multi-tile pets).
+      pushPoof(p.anchor.x + (d.size.w - 1) / 2, p.anchor.y + (d.size.h - 1) / 2, p.owner);
     }
   }
   state.pets = state.pets.filter((p) => p.hp > 0);
