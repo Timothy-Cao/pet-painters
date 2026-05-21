@@ -276,8 +276,8 @@ html, body {
   border-radius: 2px;
   background: rgba(255, 255, 255, 0.35);
 }
-.threshold-a { left: 75%; }
-.threshold-b { left: 25%; }
+.threshold-a { left: 60%; }
+.threshold-b { left: 40%; }
 .threshold-a::after { background: var(--player-a); }
 .threshold-b::after { background: var(--player-b); }
 
