@@ -198,6 +198,30 @@
     </footer>
   </div>
 
+  <div class="win-overlay" id="win-overlay" hidden>
+    <div class="win-confetti" id="win-confetti"></div>
+    <div class="win-card">
+      <div class="win-eyebrow">Match complete</div>
+      <div class="win-headline">
+        Player <span id="win-winner">A</span> wins
+      </div>
+      <div class="win-recap">
+        <div class="win-recap-side">
+          <span class="win-recap-tag win-recap-tag-a">A</span>
+          <span class="win-recap-val" id="win-recap-a">0%</span>
+        </div>
+        <div class="win-recap-vs">vs</div>
+        <div class="win-recap-side">
+          <span class="win-recap-tag win-recap-tag-b">B</span>
+          <span class="win-recap-val" id="win-recap-b">0%</span>
+        </div>
+      </div>
+      <div class="win-actions">
+        <button class="btn-primary" id="win-rematch">▶ New Match</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

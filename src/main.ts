@@ -13,6 +13,7 @@ import { renderEffects, clearEffects } from './render/effects';
 import { clearRenderHistory } from './render/interpolation';
 import { clearEvents } from './ui/event-log';
 import { loadPalette, applyPalette, getPaletteName } from './render/palette';
+import { bindWinOverlay, refreshWinOverlay } from './ui/win-overlay';
 
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 const rc = createRenderContext(canvas);
@@ -32,6 +33,7 @@ function resetMatch(): void {
 
 attachDeployUI(canvas, rc, state, ui, { onReset: resetMatch });
 mountSandboxUI(state, ui, { onReset: resetMatch });
+bindWinOverlay(resetMatch);
 
 // Settings + accessibility wiring.
 loadPalette();
@@ -76,6 +78,7 @@ function render() {
   renderEffects(rc);
   renderDeployPreview(rc, state, ui);
   refreshAll(state, ui);
+  refreshWinOverlay(state);
 }
 
 const loop = new GameLoop(state, render);

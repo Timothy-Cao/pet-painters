@@ -1131,6 +1131,133 @@ kbd {
   margin: 0 2px;
 }
 
+/* ---------- Win celebration overlay ---------- */
+.win-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at center, rgba(10, 13, 18, 0.4) 0%, rgba(10, 13, 18, 0.85) 70%);
+  backdrop-filter: blur(6px);
+  animation: win-fade 0.45s ease-out;
+}
+.win-overlay[hidden] { display: none !important; }
+@keyframes win-fade {
+  from { opacity: 0; backdrop-filter: blur(0px); }
+  to   { opacity: 1; backdrop-filter: blur(6px); }
+}
+.win-overlay.win-a { --win-color: var(--player-a); }
+.win-overlay.win-b { --win-color: var(--player-b); }
+.win-card {
+  position: relative;
+  z-index: 1;
+  background: var(--bg-elev);
+  border: 1px solid var(--win-color, var(--accent));
+  border-radius: 18px;
+  padding: 28px 36px;
+  text-align: center;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 80px var(--win-color, var(--accent));
+  min-width: 360px;
+  animation: win-rise 0.5s 0.05s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards;
+}
+@keyframes win-rise {
+  from { opacity: 0; transform: scale(0.85) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.win-eyebrow {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 6px;
+}
+.win-headline {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 18px;
+  letter-spacing: -0.5px;
+}
+.win-headline span {
+  color: var(--win-color, var(--accent));
+  text-shadow: 0 0 30px var(--win-color, var(--accent));
+}
+.win-recap {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 22px;
+}
+.win-recap-side { display: flex; align-items: center; gap: 8px; }
+.win-recap-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 3px 9px;
+  border-radius: 5px;
+  color: #0a0d12;
+}
+.win-recap-tag-a { background: var(--player-a); }
+.win-recap-tag-b { background: var(--player-b); }
+.win-recap-val {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.win-recap-vs {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+.win-actions { display: flex; gap: 10px; justify-content: center; }
+.win-actions .btn-primary {
+  background: linear-gradient(180deg, var(--win-color, var(--accent)), color-mix(in srgb, var(--win-color, var(--accent)) 75%, #000));
+  color: #0a0d12;
+  border-color: var(--win-color, var(--accent));
+  font-size: 15px;
+  padding: 12px 22px;
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--win-color, var(--accent)) 35%, transparent);
+}
+
+/* ----- Confetti ----- */
+.win-confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.confetti-piece {
+  position: absolute;
+  top: -20px;
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: confetti-fall var(--dur, 2.4s) var(--delay, 0s) linear forwards;
+}
+@keyframes confetti-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -20px, 0) rotate(0deg);
+  }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--drift, 0px), 100vh, 0) rotate(var(--rot, 720deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .win-confetti { display: none; }
+  .win-card { animation: none; }
+  .win-overlay { animation: none; }
+}
+
 /* ---------- Toast / banner ---------- */
 .banner {
   position: fixed;
