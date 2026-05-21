@@ -1,7 +1,7 @@
 import type { PetDefinition, Pet } from '../../types/pet';
-import type { MatchState, Vec2, Direction } from '../../types/game';
+import type { MatchState } from '../../types/game';
 import { enemiesInFront, applyAttack } from '../combat';
-import { anyPetAt, tileInBounds, walkOrScurry } from '../behaviors';
+import { walkOrScurry } from '../behaviors';
 import { pushSpray } from '../../render/effects';
 
 const STATS = {
@@ -14,24 +14,15 @@ const STATS = {
   order: 2,
   // bespoke
   sprayPerSec: 2,
+  freezeTicks: 16, // ~0.8 s freeze
 } as const;
 
 function skunkSpray(pet: Pet, state: MatchState): void {
-  // For each orthogonal neighbor, if an enemy pet occupies that tile,
-  // force its facing to point directly away from the skunk.
-  const sides: { delta: Vec2; faceAway: Direction }[] = [
-    { delta: { x: 0, y: 1 }, faceAway: 'N' },
-    { delta: { x: 0, y: -1 }, faceAway: 'S' },
-    { delta: { x: 1, y: 0 }, faceAway: 'E' },
-    { delta: { x: -1, y: 0 }, faceAway: 'W' },
-  ];
-  for (const { delta, faceAway } of sides) {
-    const t: Vec2 = { x: pet.anchor.x + delta.x, y: pet.anchor.y + delta.y };
-    if (!tileInBounds(state, t)) continue;
-    const occupant = anyPetAt(state, t, pet);
-    if (!occupant || occupant.owner === pet.owner) continue;
-    occupant.facing = faceAway;
-    pushSpray(t.x, t.y, pet.owner);
+  // Freeze ALL enemies in front of the skunk (entire front row footprint).
+  const targets = enemiesInFront(pet, state);
+  for (const target of targets) {
+    target.frozenUntilTick = state.tick + STATS.freezeTicks;
+    pushSpray(target.anchor.x, target.anchor.y, pet.owner);
   }
 }
 
@@ -49,9 +40,9 @@ export const SKUNK: PetDefinition = {
   role: 'disruptor',
   ui: {
     hotkey: '6',
-    short: 'Forces enemies to flee',
+    short: 'Freezes enemies in front',
     ability:
-      'Twice a second, every adjacent enemy is forced to face directly away from the skunk, scattering enemy formations.',
+      'Twice a second, the skunk sprays all enemies in front of it, freezing them for ~0.8 s. Also attacks the pet directly ahead once per second.',
   },
   tuples: [
     { intervalSec: 1 / STATS.speedTilesPerSec, trigger: () => true, action: walkOrScurry },

@@ -6,7 +6,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 const ENERGY_BUDGET = 20;
-const MAX_SECONDS = 30;
+const MAX_SECONDS = 60;
 
 // Parse --threshold=N from CLI args. Falls back to game default.
 function parseThreshold(): number {
@@ -21,8 +21,8 @@ const WIN_PCT = Math.round((WIN_THRESHOLD / (BOARD_SIZE * BOARD_SIZE)) * 100);
 
 // Team-comp sweep settings.
 // 455 comps total × M opponents × S samples each side = total matches.
-const TEAM_OPPONENTS = 25;    // random opponents per comp
-const TEAM_SAMPLES = 10;      // total matches per (comp, opponent) pair (5 each side)
+const TEAM_OPPONENTS = 15;    // random opponents per comp
+const TEAM_SAMPLES = 6;       // total matches per (comp, opponent) pair (3 each side)
 
 interface Aggregate {
   winsA: number;
@@ -406,9 +406,21 @@ function computeMetaPool(
     .sort((a, b) => b[1] - a[1]);
   const counter20Indices = counterSorted.slice(0, 20).map(([ci]) => ci);
 
-  // Step 4: meta pool = union
-  const metaPoolSet = new Set([...top20Indices, ...counter20Indices]);
-  const metaPoolIndices = [...metaPoolSet];
+  // Step 4: meta pool = union (explicit dedup by canonical comp string)
+  const seenCompKeys = new Set<string>();
+  const metaPoolIndices: number[] = [];
+  let duplicatesRemoved = 0;
+  for (const ci of [...top20Indices, ...counter20Indices]) {
+    const key = comps[ci].join('|');
+    if (seenCompKeys.has(key)) {
+      duplicatesRemoved++;
+    } else {
+      seenCompKeys.add(key);
+      metaPoolIndices.push(ci);
+    }
+  }
+  const metaPoolSet = new Set(metaPoolIndices);
+  console.log(`Meta pool: ${metaPoolIndices.length} comps (${top20Indices.length} top-WR + ${counter20Indices.length} top-counter, ${duplicatesRemoved} duplicates removed).`);
 
   // Step 5: per-pet appearance rate
   const appearanceCount = new Map<string, number>();
@@ -622,7 +634,7 @@ async function main() {
 
   console.log('\nRunning meta-comp counter pass...');
   const meta = computeMetaPool(comps, results);
-  console.log(`Meta pool: ${meta.metaPoolIndices.length} comps (${meta.top20Indices.length} top-WR + ${meta.counter20Indices.length} top-counter, ${meta.metaPoolIndices.length - meta.top20Indices.length - meta.counter20Indices.length + meta.metaPoolIndices.filter(ci => meta.top20Indices.includes(ci) && meta.counter20Indices.includes(ci)).length} overlap).`);
+  // Meta pool log is printed inside computeMetaPool.
 
   const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
   console.log(`Total wall time: ${elapsed}s`);

@@ -61,9 +61,9 @@ export const CAT: PetDefinition = {
   role: 'predator',
   ui: {
     hotkey: '3',
-    short: 'Wanders wide, eats mice',
+    short: 'Wanders wide, eats mice (+2 dmg)',
     ability:
-      'Drifts in unpredictable arcs, turning randomly even when nothing blocks the path. Ignores most pets, but pounces on any enemy mouse within one tile (orthogonal or diagonal) for an instant kill.',
+      'Drifts in unpredictable arcs, turning randomly even when nothing blocks the path. Ignores most pets, but pounces on any enemy mouse within one tile (orthogonal or diagonal) for an instant kill. Deals +2 damage to mice (the pounce always exceeds this threshold).',
   },
   tuples: [
     { intervalSec: 1 / STATS.speedTilesPerSec, trigger: () => true, action: catWander },

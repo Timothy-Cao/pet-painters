@@ -103,6 +103,27 @@ function deployComp(state: MatchState, player: PlayerId, comp: Comp): number {
 
     if (!placed) break; // No pet could be placed anywhere — board is full
   }
+
+  // Final pass: ensure no energy is wasted. Greedy fill with the cheapest still-affordable pet
+  // until either no pet fits in budget OR no anchor accepts the cheapest.
+  const sortedByCost = [...new Set(comp.petIds)].sort(
+    (a, b) => getPetDef(a).cost - getPetDef(b).cost,
+  );
+  let finalSafety = 0;
+  while (finalSafety++ < 200) {
+    const cheapestAffordable = sortedByCost.find(id => getPetDef(id).cost <= state.energy[player]);
+    if (!cheapestAffordable) break;
+    let placed = false;
+    for (const a of anchors) {
+      if (tryDeploy(state, player, cheapestAffordable, a, facing).ok) {
+        deployed++;
+        placed = true;
+        break;
+      }
+    }
+    if (!placed) break;
+  }
+
   return deployed;
 }
 
@@ -124,7 +145,7 @@ export function runHeadlessMatch(compA: Comp, compB: Comp, opts: MatchOptions): 
   submitReady(state, 'B');
 
   const maxTicks = opts.maxSeconds * TICKS_PER_SEC;
-  const stallTicks = opts.stallTicks ?? 4 * TICKS_PER_SEC;
+  const stallTicks = opts.stallTicks ?? 6 * TICKS_PER_SEC;
   const winThreshold = opts.winThreshold ?? WIN_PAINT_THRESHOLD;
   let lastScoreA = scoreFor(state.board, 'A');
   let lastScoreB = scoreFor(state.board, 'B');
