@@ -1,7 +1,7 @@
 import type { MatchState, PlayerId, Vec2, Direction } from '../types/game';
 import type { Pet } from '../types/pet';
 import { getPetDef } from './pet-defs';
-import { footprintTiles } from './pets';
+import { footprintTiles } from './geometry';
 import { BOARD_SIZE } from '../config/constants';
 import { getTile } from './board';
 

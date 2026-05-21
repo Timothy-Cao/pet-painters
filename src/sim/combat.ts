@@ -1,7 +1,7 @@
 import type { MatchState } from '../types/game';
 import type { Pet } from '../types/pet';
 import { getPetDef } from './pet-defs';
-import { frontTiles, footprintTiles } from './pets';
+import { frontTiles, footprintTiles } from './geometry';
 import { pushHit } from '../render/effects';
 
 export function enemiesInFront(pet: Pet, state: MatchState): Pet[] {

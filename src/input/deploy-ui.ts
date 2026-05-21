@@ -1,7 +1,8 @@
 import type { MatchState, Direction, Vec2 } from '../types/game';
 import { tryDeploy, petAtTile, undeploy } from '../sim/deploy';
 import { submitReady } from '../sim/match';
-import { MOUSE, ELEPHANT, CAT, RABBIT, TURTLE, SKUNK, getPetDef } from '../sim/pet-defs';
+import { getPetDef } from '../sim/pet-defs';
+import { ALL_PETS } from '../sim/pets';
 import { BOARD_SIZE } from '../config/constants';
 import type { RenderContext } from '../render/canvas';
 import { tileToPixel } from '../render/canvas';
@@ -11,21 +12,17 @@ import { getTile } from '../sim/board';
 
 const CW_NEXT: Record<Direction, Direction> = { N: 'E', E: 'S', S: 'W', W: 'N' };
 
-const PET_HOTKEYS: Record<string, string> = {
-  '1': MOUSE.id,
-  '2': ELEPHANT.id,
-  '3': CAT.id,
-  '4': RABBIT.id,
-  '5': TURTLE.id,
-  '6': SKUNK.id,
-};
+// Derived from each pet's `ui.hotkey`. Pet authors declare their own.
+const PET_HOTKEYS: Record<string, string> = Object.fromEntries(
+  ALL_PETS.map((def) => [def.ui.hotkey, def.id]),
+);
 
 export interface DeployUIState extends SandboxUIState {
   hoverTile: Vec2 | null;
 }
 
 export function createDeployUIState(): DeployUIState {
-  return { selectedDefId: MOUSE.id, facing: 'N', hoverTile: null };
+  return { selectedDefId: ALL_PETS[0]?.id ?? null, facing: 'N', hoverTile: null };
 }
 
 export interface DeployUIBindings {

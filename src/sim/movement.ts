@@ -1,7 +1,7 @@
 import type { MatchState, Vec2, Direction } from '../types/game';
 import type { Pet } from '../types/pet';
 import { getPetDef } from './pet-defs';
-import { footprintTiles } from './pets';
+import { footprintTiles } from './geometry';
 import { paintTile } from './board';
 
 function tileKey(v: Vec2): string { return `${v.x},${v.y}`; }

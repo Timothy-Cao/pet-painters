@@ -1,62 +1,15 @@
 import type { MatchState, Direction } from '../types/game';
-import { MOUSE, ELEPHANT, CAT, RABBIT, TURTLE, SKUNK, getPetDef } from '../sim/pet-defs';
+import type { PetDefinition } from '../types/pet';
+import { ALL_PETS } from '../sim/pets';
 import { submitReady } from '../sim/match';
-import { MOUSE_STATS, ELEPHANT_STATS, CAT_STATS, RABBIT_STATS, TURTLE_STATS, SKUNK_STATS, WIN_PAINT_THRESHOLD } from '../config/balance';
-import { BOARD_SIZE } from '../config/constants';
+import { WIN_PAINT_THRESHOLD, EXECUTION_PHASE_SECONDS } from '../config/balance';
+import { BOARD_SIZE, TICKS_PER_SEC } from '../config/constants';
 import { scoreFor } from '../sim/board';
-import { EXECUTION_PHASE_SECONDS } from '../config/balance';
-import { TICKS_PER_SEC } from '../config/constants';
 
 export interface SandboxUIState {
   selectedDefId: string | null;
   facing: Direction;
 }
-
-interface PetRosterEntry {
-  defId: string;
-  hotkey: string;
-  short: string;     // 3–5 words shown on the card
-  ability: string;   // longer description shown in the popup
-}
-
-const ROSTER: PetRosterEntry[] = [
-  {
-    defId: MOUSE.id,
-    hotkey: '1',
-    short: 'Scurries, scared of others',
-    ability: 'Sprints in a straight line, then turns randomly the moment anything blocks its path. Painter, not a fighter.',
-  },
-  {
-    defId: ELEPHANT.id,
-    hotkey: '2',
-    short: 'Unmovable, steady',
-    ability: 'Cannot be pushed by anything. Trudges in straight lines and only about-faces at walls, ramming through lighter pets along the way.',
-  },
-  {
-    defId: CAT.id,
-    hotkey: '3',
-    short: 'Wanders wide, eats mice',
-    ability: 'Drifts in unpredictable arcs, turning randomly even when nothing blocks the path. Ignores most pets, but pounces on any enemy mouse within one tile (orthogonal or diagonal) for an instant kill.',
-  },
-  {
-    defId: RABBIT.id,
-    hotkey: '4',
-    short: 'Hops over blockers',
-    ability: 'When a pet blocks its path, leaps over it onto the tile beyond. Refuses to fight — paints and hops only.',
-  },
-  {
-    defId: TURTLE.id,
-    hotkey: '5',
-    short: 'Slow, paints all around',
-    ability: 'Once per second, paints all four neighboring tiles in its color. Slow walker, but its real damage is in area coverage.',
-  },
-  {
-    defId: SKUNK.id,
-    hotkey: '6',
-    short: 'Forces enemies to flee',
-    ability: 'Twice a second, every adjacent enemy is forced to face directly away from the skunk, scattering enemy formations.',
-  },
-];
 
 function speedLabel(speedTilesPerSec: number): string {
   if (speedTilesPerSec === 0) return 'Still';
@@ -65,21 +18,13 @@ function speedLabel(speedTilesPerSec: number): string {
   return 'Fast';
 }
 
-const STAT_LABELS = {
-  [MOUSE.id]: MOUSE_STATS,
-  [ELEPHANT.id]: ELEPHANT_STATS,
-  [CAT.id]: CAT_STATS,
-  [RABBIT.id]: RABBIT_STATS,
-  [TURTLE.id]: TURTLE_STATS,
-  [SKUNK.id]: SKUNK_STATS,
-} as const;
-
 const FACING_NAME: Record<Direction, string> = { N: 'North', E: 'East', S: 'South', W: 'West' };
 const FACING_ARROW: Record<Direction, string> = { N: '▲', E: '▶', S: '▼', W: '◀' };
 const CW_NEXT: Record<Direction, Direction> = { N: 'E', E: 'S', S: 'W', W: 'N' };
 
 export function createSandboxUIState(): SandboxUIState {
-  return { selectedDefId: MOUSE.id, facing: 'N' };
+  const first = ALL_PETS[0];
+  return { selectedDefId: first ? first.id : null, facing: 'N' };
 }
 
 export interface SandboxUIBindings {
@@ -91,48 +36,49 @@ export function mountSandboxUI(
   ui: SandboxUIState,
   bindings: SandboxUIBindings,
 ): void {
-  buildPetRoster(state, ui);
+  buildPetRoster(ui);
   bindFacing(ui);
   bindActions(state, bindings);
   refreshAll(state, ui);
 }
 
-function buildPetRoster(_state: MatchState, ui: SandboxUIState): void {
+function buildPetRoster(ui: SandboxUIState): void {
   const root = document.getElementById('pet-roster')!;
   root.innerHTML = '';
-  const popup = ensurePopup();
-  for (const entry of ROSTER) {
-    const def = getPetDef(entry.defId);
-    const stats = STAT_LABELS[entry.defId as keyof typeof STAT_LABELS];
-    const spd = speedLabel(stats.speedTilesPerSec);
-
-    const card = document.createElement('button');
-    card.type = 'button';
-    card.className = 'pet-card';
-    card.dataset.defId = def.id;
-    card.innerHTML = `
-      <div class="pet-emoji">${def.emoji}</div>
-      <div class="pet-info">
-        <div class="pet-name">${def.displayName}<span class="pet-hotkey">${entry.hotkey}</span></div>
-        <div class="pet-short">${entry.short}</div>
-        <div class="pet-quick-stats">
-          <span class="quick-pill quick-pill-${spd.toLowerCase()}">${spd}</span>
-          <span class="quick-stat"><span class="quick-key">HP</span> ${stats.maxHp}</span>
-          <span class="quick-stat"><span class="quick-key">ATK</span> ${stats.atk}</span>
-        </div>
-      </div>
-    `;
+  ensurePopup();
+  for (const def of ALL_PETS) {
+    const card = renderPetCard(def);
     card.addEventListener('click', () => {
       ui.selectedDefId = def.id;
       refreshRoster(ui);
     });
-    card.addEventListener('mouseenter', () => showPopup(card, entry, def, stats));
+    card.addEventListener('mouseenter', () => showPopup(card, def));
     card.addEventListener('mouseleave', () => hidePopup());
-    card.addEventListener('focus', () => showPopup(card, entry, def, stats));
+    card.addEventListener('focus', () => showPopup(card, def));
     card.addEventListener('blur', () => hidePopup());
     root.appendChild(card);
   }
-  void popup;
+}
+
+function renderPetCard(def: PetDefinition): HTMLButtonElement {
+  const spd = speedLabel(def.stats.speedTilesPerSec);
+  const card = document.createElement('button');
+  card.type = 'button';
+  card.className = 'pet-card';
+  card.dataset.defId = def.id;
+  card.innerHTML = `
+    <div class="pet-emoji">${def.emoji}</div>
+    <div class="pet-info">
+      <div class="pet-name">${def.displayName}<span class="pet-hotkey">${def.ui.hotkey}</span></div>
+      <div class="pet-short">${def.ui.short}</div>
+      <div class="pet-quick-stats">
+        <span class="quick-pill quick-pill-${spd.toLowerCase()}">${spd}</span>
+        <span class="quick-stat"><span class="quick-key">HP</span> ${def.stats.maxHp}</span>
+        <span class="quick-stat"><span class="quick-key">ATK</span> ${def.stats.atk}</span>
+      </div>
+    </div>
+  `;
+  return card;
 }
 
 function ensurePopup(): HTMLElement {
@@ -145,16 +91,12 @@ function ensurePopup(): HTMLElement {
   return el;
 }
 
-function showPopup(
-  anchor: HTMLElement,
-  entry: PetRosterEntry,
-  def: ReturnType<typeof getPetDef>,
-  stats: typeof STAT_LABELS[keyof typeof STAT_LABELS],
-): void {
+function showPopup(anchor: HTMLElement, def: PetDefinition): void {
   const popup = ensurePopup();
+  const stats = def.stats;
   const spd = speedLabel(stats.speedTilesPerSec);
   const speedText = stats.speedTilesPerSec === 0
-    ? `Still (does not walk)`
+    ? 'Still (does not walk)'
     : `${stats.speedTilesPerSec} tile/s — ${spd}`;
   popup.innerHTML = `
     <div class="popup-head">
@@ -170,10 +112,9 @@ function showPopup(
       <div class="popup-row"><span>Weight</span><span>${stats.weight}</span></div>
       <div class="popup-row" title="Lower goes first each tick — earlier acts wins movement conflicts; later acts wins paint conflicts on contested tiles."><span>Initiative</span><span>${stats.order}</span></div>
     </div>
-    <div class="popup-ability">${entry.ability}</div>
+    <div class="popup-ability">${def.ui.ability}</div>
   `;
   const rect = anchor.getBoundingClientRect();
-  // Position to the right of the card; flip to the left if it would go off-screen.
   const popupWidth = 300;
   const margin = 12;
   let left = rect.right + margin;
