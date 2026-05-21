@@ -6,7 +6,7 @@ import { getRenderPosition, getSpawnAgeMs, pruneRenderHistory, SPAWN_MS } from '
 import { side } from './palette';
 import type { PetRole } from '../types/pet';
 
-const ROLE_TINT: Record<PetRole, string> = {
+export const ROLE_TINT: Record<PetRole, string> = {
   painter:    'rgba(79, 209, 165, 0.65)',   // teal
   predator:   'rgba(255, 209, 102, 0.65)',  // warm yellow
   tank:       'rgba(138, 147, 166, 0.55)',  // cool gray
@@ -47,9 +47,9 @@ export function renderPets(rc: RenderContext, pets: Pet[]): void {
 
     // Role aura — a slow-pulsing radial glow behind the pet so each archetype
     // is recognizable at a glance. 2.4s sine cycle, alpha 0.55→0.95 of the
-    // role tint.
+    // role tint. Pets can override the color (e.g. Bear shifts red when raged).
     {
-      const tint = ROLE_TINT[def.role];
+      const tint = def.getAuraColor ? def.getAuraColor(pet) : ROLE_TINT[def.role];
       const phase = (now() + pet.petId * 137) % 2400 / 2400;
       const pulse = 0.55 + 0.40 * (0.5 + 0.5 * Math.sin(phase * Math.PI * 2));
       const cx = px + w / 2;

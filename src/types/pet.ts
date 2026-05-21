@@ -56,6 +56,8 @@ export interface PetDefinition {
   role: PetRole;
   // Optional traits
   immovable?: boolean;
+  /** Override the role aura color per pet — e.g. Bear shifts red when raged. */
+  getAuraColor?: (pet: Pet) => string;
 }
 
 export interface Pet {

@@ -16,6 +16,7 @@ import { SKUNK } from './skunk';
 import { LION } from './lion';
 import { SPIDER } from './spider';
 import { EAGLE } from './eagle';
+import { BEAR } from './bear';
 
 export const ALL_PETS = [
   MOUSE,
@@ -27,6 +28,7 @@ export const ALL_PETS = [
   LION,
   SPIDER,
   EAGLE,
+  BEAR,
 ] as const satisfies ReadonlyArray<PetDefinition>;
 
 /**
@@ -35,4 +37,4 @@ export const ALL_PETS = [
  */
 export type PetId = typeof ALL_PETS[number]['id'];
 
-export { MOUSE, ELEPHANT, CAT, RABBIT, TURTLE, SKUNK, LION, SPIDER, EAGLE };
+export { MOUSE, ELEPHANT, CAT, RABBIT, TURTLE, SKUNK, LION, SPIDER, EAGLE, BEAR };
