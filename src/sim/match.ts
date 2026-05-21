@@ -1,6 +1,13 @@
-import type { MatchState } from '../types/game';
-import { createInitialBoard } from './board';
-import { STARTING_ENERGY } from '../config/balance';
+import type { MatchState, PlayerId } from '../types/game';
+import { createInitialBoard, scoreFor } from './board';
+import {
+  STARTING_ENERGY,
+  ENERGY_CAP,
+  ENERGY_PER_EXEC_SECOND,
+  WIN_PAINT_THRESHOLD,
+} from '../config/balance';
+import { TICKS_PER_SEC } from '../config/constants';
+import { advanceTick } from './tick';
 
 export function createInitialMatch(): MatchState {
   return {
@@ -17,4 +24,55 @@ export function createInitialMatch(): MatchState {
     pendingDeployments: [],
     moveIntents: [],
   };
+}
+
+export function submitReady(state: MatchState, player: PlayerId): void {
+  if (state.phase !== 'planning') return;
+  state.ready[player] = true;
+  if (state.ready.A && state.ready.B) {
+    state.phase = 'execution';
+    state.execPhaseStartTick = state.tick;
+    state.ready = { A: false, B: false };
+    state.activePlanningPlayer = 'A';
+  }
+}
+
+function regenEnergy(state: MatchState): void {
+  const elapsed = state.tick - state.execPhaseStartTick;
+  if (elapsed > 0 && elapsed % TICKS_PER_SEC === 0) {
+    state.energy.A = Math.min(ENERGY_CAP, state.energy.A + ENERGY_PER_EXEC_SECOND);
+    state.energy.B = Math.min(ENERGY_CAP, state.energy.B + ENERGY_PER_EXEC_SECOND);
+  }
+}
+
+function checkWin(state: MatchState): void {
+  const aScore = scoreFor(state.board, 'A');
+  const bScore = scoreFor(state.board, 'B');
+  if (aScore >= WIN_PAINT_THRESHOLD && bScore >= WIN_PAINT_THRESHOLD) {
+    state.winner = aScore >= bScore ? 'A' : 'B';
+    state.phase = 'ended';
+    return;
+  }
+  if (aScore >= WIN_PAINT_THRESHOLD) {
+    state.winner = 'A';
+    state.phase = 'ended';
+    return;
+  }
+  if (bScore >= WIN_PAINT_THRESHOLD) {
+    state.winner = 'B';
+    state.phase = 'ended';
+    return;
+  }
+}
+
+export function tickMatch(state: MatchState): void {
+  if (state.phase !== 'execution') return;
+  advanceTick(state);
+  regenEnergy(state);
+  checkWin(state);
+}
+
+export function endExecution(state: MatchState): void {
+  if (state.phase !== 'execution') return;
+  state.phase = 'planning';
 }
