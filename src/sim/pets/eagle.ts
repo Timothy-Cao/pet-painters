@@ -5,7 +5,7 @@ import { anyPetAt, facingDelta, scurryTurn, tileInBounds } from '../behaviors';
 import { pushFlutter } from '../../render/effects';
 
 const STATS = {
-  cost: 4,
+  cost: 2,
   speedTilesPerSec: 1,            // one tuple-fire per second
   weight: 1,
   maxHp: 3,

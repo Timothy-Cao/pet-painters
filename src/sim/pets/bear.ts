@@ -7,7 +7,7 @@ const STATS = {
   speedTilesPerSec: 0.8,
   rageSpeedTilesPerSec: 1.6,      // double when wounded
   weight: 8,                      // lighter than elephant (10) — Elephant CAN push Bear
-  maxHp: 18,
+  maxHp: 14,
   atk: 3,                         // higher than elephant; mouse dies in one swipe
   atkSpeedPerSec: 1,
   order: 1,

@@ -3,7 +3,7 @@ import { enemiesInFront, applyAttack } from '../combat';
 import { walkOrScurry } from '../behaviors';
 
 const STATS = {
-  cost: 2,
+  cost: 3,
   speedTilesPerSec: 4,
   weight: 1,
   maxHp: 3,

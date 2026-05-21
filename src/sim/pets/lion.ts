@@ -8,7 +8,7 @@ import {
 import { pushRoar } from '../../render/effects';
 
 const STATS = {
-  cost: 6,
+  cost: 4,
   speedTilesPerSec: 1,            // calm patrol
   huntSpeedTilesPerSec: 3,        // sprint when locked on
   weight: 3,

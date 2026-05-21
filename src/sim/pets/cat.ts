@@ -6,7 +6,7 @@ import { pushPounce, pushDamage } from '../../render/effects';
 import { MOUSE } from './mouse';
 
 const STATS = {
-  cost: 5,
+  cost: 3,
   speedTilesPerSec: 2,
   weight: 2,
   maxHp: 4,

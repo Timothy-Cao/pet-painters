@@ -5,7 +5,7 @@ import { anyPetAt, tileInBounds, walkOrScurry } from '../behaviors';
 import { pushSpray } from '../../render/effects';
 
 const STATS = {
-  cost: 3,
+  cost: 4,
   speedTilesPerSec: 1,
   weight: 2,
   maxHp: 4,

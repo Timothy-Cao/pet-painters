@@ -4,7 +4,7 @@ import { anyPetAt, ORTHO_DELTAS, tileInBounds } from '../behaviors';
 import { pushWeb } from '../../render/effects';
 
 const STATS = {
-  cost: 4,
+  cost: 2,
   speedTilesPerSec: 0,            // stationary
   weight: 2,
   maxHp: 6,
@@ -13,7 +13,7 @@ const STATS = {
   order: 3,                       // late — webs apply after enemies have tried to act
   // bespoke
   webPerSec: 1,                   // weave webs once per second
-  freezeTicks: 12,                // each web lasts 0.6 sec
+  freezeTicks: 18,                // each web lasts 0.9 sec (was 0.6 sec)
 } as const;
 
 function spiderWeb(pet: Pet, state: MatchState): void {
