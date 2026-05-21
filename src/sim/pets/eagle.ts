@@ -7,7 +7,7 @@ import { getPetDef } from '../pet-defs';
 import { pushFlutter, pushHit, pushDamage } from '../../render/effects';
 
 const STATS = {
-  cost: 2,
+  cost: 3,
   speedTilesPerSec: 1,            // one tuple-fire per second
   weight: 1,
   maxHp: 3,

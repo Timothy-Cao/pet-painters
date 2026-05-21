@@ -14,7 +14,7 @@ const STATS = {
   huntSpeedTilesPerSec: 3,        // sprint when locked on
   weight: 3,
   maxHp: 6,
-  atk: 3,                         // one-shots a Mouse, two-shots a Cat
+  atk: 2,                         // base 2; with rage cap (+2) peaks at 4 dmg
   atkSpeedPerSec: 1,
   order: 1,                       // acts early — gets the kill before the prey reacts
   sightRange: 5,
@@ -73,9 +73,9 @@ function lionAttack(pet: Pet, state: MatchState): void {
     target.hp -= dmg;
     pushHit(target.anchor.x, target.anchor.y, pet.owner);
     if (dmg > 0) pushDamage(target.anchor.x, target.anchor.y, pet.owner, dmg);
-    // Kill detected: increment rage
+    // Kill detected: increment rage, capped at +2
     if (wasAlive && target.hp <= 0) {
-      rageBonus.set(pet.petId, rage + 1);
+      rageBonus.set(pet.petId, Math.min(rage + 1, 2));
     }
   }
 }
@@ -96,7 +96,7 @@ export const LION: PetDefinition = {
     hotkey: '7',
     short: 'Stalks, sprints, rages',
     ability:
-      'Patrols at a walk. The instant an enemy enters its line of sight (up to 5 tiles), it roars and sprints at triple speed. Deals 3 damage per strike, plus +1 for each kill (rage stacks — first kill: 3 dmg, second: 4, third: 5, etc.).',
+      'Patrols at a walk. The instant an enemy enters its line of sight (up to 5 tiles), it roars and sprints at triple speed. Deals 2 base damage, +1 per kill (capped at +2): first kill: 3 dmg, second: 4 dmg max.',
   },
   tuples: [
     // Hunt: enemy in straight-line sight → step forward at the hunt cadence.

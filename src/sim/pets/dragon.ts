@@ -4,7 +4,7 @@ import { anyPetAt, tileInBounds, walkOrTurnAtWall } from '../behaviors';
 import { pushDamage, pushFlame, pushHit } from '../../render/effects';
 
 const STATS = {
-  cost: 8,
+  cost: 9,
   speedTilesPerSec: 0.5,
   weight: 9,                      // just under Elephant — still pushable by an elephant
   maxHp: 20,

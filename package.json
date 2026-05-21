@@ -9,7 +9,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "balance": "tsx scripts/balance/runner.ts",
-    "balance:multi": "tsx scripts/balance/multi-round-runner.ts"
+    "balance:multi": "tsx scripts/balance/multi-round-runner.ts",
+    "balance:ga": "tsx scripts/balance/ga.ts"
   },
   "devDependencies": {
     "@types/node": "^25.9.1",

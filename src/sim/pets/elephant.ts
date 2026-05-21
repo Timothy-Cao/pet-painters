@@ -3,7 +3,7 @@ import { enemiesInFront, applyAttack } from '../combat';
 import { walkOrTurnAtWall } from '../behaviors';
 
 const STATS = {
-  cost: 5,                          // reduced from 6 — opens up more combo slots without breaking solo power
+  cost: 5,                          // restored to 5 — cost 4 allows too many Elephants per budget
   speedTilesPerSec: 0.5,
   weight: 10,
   maxHp: 25,

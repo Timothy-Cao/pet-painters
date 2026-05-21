@@ -1,7 +1,7 @@
 import type { PetDefinition, Pet } from '../../types/pet';
-import type { MatchState } from '../../types/game';
+import type { MatchState, Vec2 } from '../../types/game';
 import { enemiesInFront, applyAttack } from '../combat';
-import { walkOrScurry } from '../behaviors';
+import { anyPetAt, tileInBounds, walkOrScurry, ORTHO_DELTAS } from '../behaviors';
 import { pushSpray } from '../../render/effects';
 
 const STATS = {
@@ -18,11 +18,14 @@ const STATS = {
 } as const;
 
 function skunkSpray(pet: Pet, state: MatchState): void {
-  // Freeze ALL enemies in front of the skunk (entire front row footprint).
-  const targets = enemiesInFront(pet, state);
-  for (const target of targets) {
-    target.frozenUntilTick = state.tick + STATS.freezeTicks;
-    pushSpray(target.anchor.x, target.anchor.y, pet.owner);
+  // Freeze ALL enemies in any orthogonal adjacent tile (omnidirectional spray).
+  for (const delta of ORTHO_DELTAS) {
+    const t: Vec2 = { x: pet.anchor.x + delta.x, y: pet.anchor.y + delta.y };
+    if (!tileInBounds(state, t)) continue;
+    const occupant = anyPetAt(state, t, pet);
+    if (!occupant || occupant.owner === pet.owner) continue;
+    occupant.frozenUntilTick = state.tick + STATS.freezeTicks;
+    pushSpray(t.x, t.y, pet.owner);
   }
 }
 
@@ -40,9 +43,9 @@ export const SKUNK: PetDefinition = {
   role: 'disruptor',
   ui: {
     hotkey: '6',
-    short: 'Freezes enemies in front',
+    short: 'Freezes all adjacent enemies',
     ability:
-      'Twice a second, the skunk sprays all enemies in front of it, freezing them for ~0.8 s. Also attacks the pet directly ahead once per second.',
+      'Twice a second, the skunk sprays all enemies in any orthogonal adjacent tile (N/E/S/W), freezing each for ~0.8 s. Also attacks the pet directly ahead once per second.',
   },
   tuples: [
     { intervalSec: 1 / STATS.speedTilesPerSec, trigger: () => true, action: walkOrScurry },
