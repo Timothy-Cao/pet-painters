@@ -99,11 +99,11 @@ export class OnlineMatchController {
 
   /**
    * Called by the game loop when the local execution phase ends.
-   * Advances round counter and persists it on the server so a reconnecting
-   * client can pick up the right round.
+   * `state.round` was already incremented by `submitReady` when both players
+   * went ready (see sim/match.ts). We just reseed the RNG for the new round
+   * and persist the round number on the server for reconnect support.
    */
   async onExecutionEnd(): Promise<void> {
-    this.state.round += 1;
     this.reseedRng();
     try {
       const supabase = getSupabase();
