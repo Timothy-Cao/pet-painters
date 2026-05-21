@@ -18,7 +18,11 @@ import { tryDeploy } from '../../src/sim/deploy';
 import { scoreFor } from '../../src/sim/board';
 import { getPetDef } from '../../src/sim/pet-defs';
 import { createRng } from '../../src/sim/rng';
-import { BOARD_SIZE, HOME_ROWS, TICKS_PER_SEC } from '../../src/config/constants';
+import {
+  BOARD_SIZE, TICKS_PER_SEC,
+  HOME_A_MIN_X, HOME_A_MAX_X, HOME_A_MIN_Y, HOME_A_MAX_Y,
+  HOME_B_MIN_X, HOME_B_MAX_X, HOME_B_MIN_Y, HOME_B_MAX_Y,
+} from '../../src/config/constants';
 import { WIN_PAINT_THRESHOLD, ENERGY_CAP, ENERGY_PER_EXEC_SECOND } from '../../src/config/balance';
 import { setEffectsEnabled } from '../../src/render/effects';
 
@@ -69,20 +73,27 @@ function tryRandomDeploy(
   if (state.energy[player] < def.cost) return false;
 
   const { w, h } = def.size;
-  const facing: Direction = player === 'A' ? 'N' : 'S';
+  // Random facing: A gets N or E (50/50), B gets S or W (50/50).
+  const facingChoicesA: Direction[] = ['N', 'E'];
+  const facingChoicesB: Direction[] = ['S', 'W'];
+  const facing: Direction = player === 'A'
+    ? facingChoicesA[Math.floor(rng.next() * 2)]
+    : facingChoicesB[Math.floor(rng.next() * 2)];
 
-  // Home zone bounds for this player
-  const yMin = player === 'A' ? 0 : BOARD_SIZE - HOME_ROWS;
-  const yMax = player === 'A' ? HOME_ROWS : BOARD_SIZE;
+  // Home zone bounds for this player (5×5 corner zones)
+  const xMin = player === 'A' ? HOME_A_MIN_X : HOME_B_MIN_X;
+  const xMax = player === 'A' ? HOME_A_MAX_X : HOME_B_MAX_X;
+  const yMin = player === 'A' ? HOME_A_MIN_Y : HOME_B_MIN_Y;
+  const yMax = player === 'A' ? HOME_A_MAX_Y : HOME_B_MAX_Y;
 
-  const maxAnchorX = BOARD_SIZE - w;
-  const maxAnchorY = yMax - h;
+  const maxAnchorX = xMax - w + 1;
+  const maxAnchorY = yMax - h + 1;
 
-  // If pet is too tall to fit in home zone, skip
-  if (maxAnchorY < yMin) return false;
+  // If pet footprint doesn't fit in home zone, skip
+  if (maxAnchorX < xMin || maxAnchorY < yMin) return false;
 
   for (let attempt = 0; attempt < PLACEMENT_RETRIES; attempt++) {
-    const x = Math.floor(rng.next() * (maxAnchorX + 1));
+    const x = xMin + Math.floor(rng.next() * (maxAnchorX - xMin + 1));
     const y = yMin + Math.floor(rng.next() * (maxAnchorY - yMin + 1));
     const anchor: Vec2 = { x, y };
     const result = tryDeploy(state, player, defId, anchor, facing);

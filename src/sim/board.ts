@@ -1,5 +1,9 @@
 import type { Board, TileColor, Vec2, PlayerId } from '../types/game';
-import { BOARD_SIZE, HOME_ROWS } from '../config/constants';
+import {
+  BOARD_SIZE,
+  HOME_A_MIN_X, HOME_A_MAX_X, HOME_A_MIN_Y, HOME_A_MAX_Y,
+  HOME_B_MIN_X, HOME_B_MAX_X, HOME_B_MIN_Y, HOME_B_MAX_Y,
+} from '../config/constants';
 import { pushSplat } from '../render/effects';
 
 function inBounds(board: Board, p: Vec2): boolean {
@@ -9,11 +13,13 @@ function inBounds(board: Board, p: Vec2): boolean {
 export function createInitialBoard(): Board {
   const size = BOARD_SIZE;
   const tiles: TileColor[] = new Array(size * size).fill('neutral');
-  for (let y = 0; y < HOME_ROWS; y++) {
-    for (let x = 0; x < size; x++) tiles[y * size + x] = 'A';
+  // Player A: bottom-left 5×5 corner
+  for (let y = HOME_A_MIN_Y; y <= HOME_A_MAX_Y; y++) {
+    for (let x = HOME_A_MIN_X; x <= HOME_A_MAX_X; x++) tiles[y * size + x] = 'A';
   }
-  for (let y = size - HOME_ROWS; y < size; y++) {
-    for (let x = 0; x < size; x++) tiles[y * size + x] = 'B';
+  // Player B: top-right 5×5 corner
+  for (let y = HOME_B_MIN_Y; y <= HOME_B_MAX_Y; y++) {
+    for (let x = HOME_B_MIN_X; x <= HOME_B_MAX_X; x++) tiles[y * size + x] = 'B';
   }
   return { size, tiles };
 }
@@ -23,15 +29,16 @@ export function getTile(board: Board, p: Vec2): TileColor {
   return board.tiles[p.y * board.size + p.x];
 }
 
-export function isHomeRow(p: Vec2): 'A' | 'B' | null {
-  if (p.y < HOME_ROWS) return 'A';
-  if (p.y >= BOARD_SIZE - HOME_ROWS) return 'B';
+/** Returns which player's home zone this tile is in, or null if neutral territory. */
+export function isHomeZone(p: Vec2): 'A' | 'B' | null {
+  if (p.x >= HOME_A_MIN_X && p.x <= HOME_A_MAX_X && p.y >= HOME_A_MIN_Y && p.y <= HOME_A_MAX_Y) return 'A';
+  if (p.x >= HOME_B_MIN_X && p.x <= HOME_B_MAX_X && p.y >= HOME_B_MIN_Y && p.y <= HOME_B_MAX_Y) return 'B';
   return null;
 }
 
 export function paintTile(board: Board, p: Vec2, color: TileColor): void {
   if (!inBounds(board, p)) return;
-  if (isHomeRow(p) !== null) return;
+  if (isHomeZone(p) !== null) return;
   const idx = p.y * board.size + p.x;
   if (board.tiles[idx] === color) return;     // no-op when nothing changes
   board.tiles[idx] = color;

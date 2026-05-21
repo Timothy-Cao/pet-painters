@@ -1,7 +1,7 @@
 import { ALL_PETS } from '../../src/sim/pets';
 import { runHeadlessMatch, type Comp, type MatchResult } from './sim';
 import { WIN_PAINT_THRESHOLD } from '../../src/config/balance';
-import { BOARD_SIZE, HOME_ROWS } from '../../src/config/constants';
+import { BOARD_SIZE, HOME_ZONE_SIZE } from '../../src/config/constants';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -597,7 +597,7 @@ function writeReport(
   lines.push(`- **Per comp:** plays ${TEAM_OPPONENTS} random opponents (different comp index), ${TEAM_SAMPLES} samples each (${Math.floor(TEAM_SAMPLES / 2)} as side A, ${TEAM_SAMPLES - Math.floor(TEAM_SAMPLES / 2)} as side B). Side-B samples reframed to comp's perspective.`);
   lines.push(`- **Team WR for pet P:** average WR across all comps containing P, weighted by sample count.`);
   lines.push(`- **Energy budget ${ENERGY_BUDGET}, match cap ${MAX_SECONDS}s**, greedy deployment, 20 ticks/s, 4 s stall-out.`);
-  lines.push(`- Player A in rows 0..${HOME_ROWS - 1} (North), player B in rows ${BOARD_SIZE - HOME_ROWS}..${BOARD_SIZE - 1} (South). Bias cancelled by side-swapping.`);
+  lines.push(`- Player A in 5×5 bottom-left corner (rows 0..${HOME_ZONE_SIZE - 1}, cols 0..${HOME_ZONE_SIZE - 1}), player B in 5×5 top-right corner. Bias cancelled by side-swapping.`);
   lines.push('');
 
   return {

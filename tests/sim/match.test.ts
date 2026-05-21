@@ -56,11 +56,15 @@ describe('match flow', () => {
 
   it('declares winner when paint threshold is reached', () => {
     const s = createInitialMatch();
-    // Force A's score above threshold by painting tiles directly
-    for (let i = 0; i < WIN_PAINT_THRESHOLD - 24; i++) {
-      const y = 2 + Math.floor(i / BOARD_SIZE);
-      const x = i % BOARD_SIZE;
-      s.board.tiles[y * BOARD_SIZE + x] = 'A';
+    // Force A's score above threshold by marking tiles directly.
+    // We need scoreFor(board, 'A') >= WIN_PAINT_THRESHOLD.
+    // Start counting from a neutral region and fill until we have enough.
+    let count = 0;
+    for (let y = 0; y < BOARD_SIZE && count < WIN_PAINT_THRESHOLD; y++) {
+      for (let x = 0; x < BOARD_SIZE && count < WIN_PAINT_THRESHOLD; x++) {
+        s.board.tiles[y * BOARD_SIZE + x] = 'A';
+        count++;
+      }
     }
     submitReady(s, 'A'); submitReady(s, 'B');
     tickMatch(s);

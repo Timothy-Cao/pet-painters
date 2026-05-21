@@ -2,14 +2,17 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { createInitialMatch } from '../../src/sim/match';
 import { tryDeploy } from '../../src/sim/deploy';
 import { MOUSE, ELEPHANT } from '../../src/sim/pet-defs';
-import { BOARD_SIZE } from '../../src/config/constants';
+import {
+  HOME_A_MAX_X, HOME_A_MAX_Y,
+  HOME_B_MAX_X, HOME_B_MAX_Y,
+} from '../../src/config/constants';
 import type { MatchState } from '../../src/types/game';
 
 describe('tryDeploy', () => {
   let state: MatchState;
   beforeEach(() => { state = createInitialMatch(); });
 
-  it('player A can deploy a 1x1 mouse on row 0', () => {
+  it('player A can deploy a 1x1 mouse in the bottom-left corner', () => {
     const r = tryDeploy(state, 'A', MOUSE.id, { x: 3, y: 0 }, 'N');
     expect(r.ok).toBe(true);
     if (r.ok) {
@@ -19,25 +22,27 @@ describe('tryDeploy', () => {
     }
   });
 
-  it('player A can deploy a 2x2 elephant with anchor on row 0', () => {
+  it('player A can deploy a 2x2 elephant with anchor at corner', () => {
     state.energy.A = ELEPHANT.cost;
-    const r = tryDeploy(state, 'A', ELEPHANT.id, { x: 3, y: 0 }, 'N');
+    // Elephant is 2×2; anchor at (0,0) → footprint covers (0,0),(1,0),(0,1),(1,1) — all in A's zone
+    const r = tryDeploy(state, 'A', ELEPHANT.id, { x: 0, y: 0 }, 'N');
     expect(r.ok).toBe(true);
   });
 
   it('player A cannot deploy if footprint exits the home zone', () => {
-    const r = tryDeploy(state, 'A', ELEPHANT.id, { x: 3, y: 1 }, 'N');
+    // Mouse at (HOME_A_MAX_X, HOME_A_MAX_Y) is still inside A zone — fine.
+    // But Elephant (2×2) at (HOME_A_MAX_X, HOME_A_MAX_Y) exits the zone.
+    const r = tryDeploy(state, 'A', ELEPHANT.id, { x: HOME_A_MAX_X, y: HOME_A_MAX_Y }, 'N');
     expect(r.ok).toBe(false);
   });
 
-  it('player B home zone is the top rows', () => {
-    const topRow = BOARD_SIZE - 1;
-    const r = tryDeploy(state, 'B', MOUSE.id, { x: 5, y: topRow }, 'S');
+  it('player B home zone is the top-right corner', () => {
+    const r = tryDeploy(state, 'B', MOUSE.id, { x: HOME_B_MAX_X, y: HOME_B_MAX_Y }, 'S');
     expect(r.ok).toBe(true);
   });
 
   it('B cannot deploy in A home zone', () => {
-    const r = tryDeploy(state, 'B', MOUSE.id, { x: 5, y: 0 }, 'N');
+    const r = tryDeploy(state, 'B', MOUSE.id, { x: 0, y: 0 }, 'N');
     expect(r.ok).toBe(false);
   });
 

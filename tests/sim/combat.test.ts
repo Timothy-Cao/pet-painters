@@ -3,11 +3,12 @@ import { createInitialMatch } from '../../src/sim/match';
 import { tryDeploy } from '../../src/sim/deploy';
 import { advanceTick } from '../../src/sim/tick';
 import { MOUSE, ELEPHANT } from '../../src/sim/pet-defs';
-import { TICKS_PER_SEC, BOARD_SIZE, HOME_ROWS } from '../../src/config/constants';
+import { TICKS_PER_SEC, HOME_B_MIN_X, HOME_B_MIN_Y } from '../../src/config/constants';
 
-// B's home zone is the last HOME_ROWS rows; this is the topmost anchor row
-// where a 1×1 B-owned pet can still deploy.
-const B_HOME_TOP = BOARD_SIZE - HOME_ROWS;
+// B's home zone corner: use valid anchor for deployment (then reposition)
+const B_HOME_ANCHOR_X = HOME_B_MIN_X;   // 15
+const B_HOME_ANCHOR_Y = HOME_B_MIN_Y;   // 15
+
 import type { MatchState } from '../../src/types/game';
 import type { Pet } from '../../src/types/pet';
 
@@ -30,8 +31,8 @@ describe('combat', () => {
   });
 
   it('mouse attacks an enemy in front, dealing 1 damage at 1s intervals', () => {
-    tryDeploy(state, 'A', MOUSE.id, { x: 5, y: 1 }, 'N');
-    tryDeploy(state, 'B', MOUSE.id, { x: 5, y: B_HOME_TOP }, 'S');
+    tryDeploy(state, 'A', MOUSE.id, { x: 0, y: 0 }, 'N');
+    tryDeploy(state, 'B', MOUSE.id, { x: B_HOME_ANCHOR_X, y: B_HOME_ANCHOR_Y }, 'S');
     state.pets[0].anchor = { x: 5, y: 4 };
     state.pets[1].anchor = { x: 5, y: 5 };
     // Pin every tuple on both pets except the attack we want to observe.
@@ -47,10 +48,10 @@ describe('combat', () => {
   });
 
   it('flank attack: defender takes damage but does not retaliate', () => {
-    tryDeploy(state, 'A', MOUSE.id, { x: 5, y: 1 }, 'E');
-    state.pets[0].anchor = { x: BOARD_SIZE - 1, y: 5 };
-    tryDeploy(state, 'B', MOUSE.id, { x: 5, y: B_HOME_TOP }, 'E');
-    state.pets[1].anchor = { x: BOARD_SIZE - 2, y: 5 };
+    tryDeploy(state, 'A', MOUSE.id, { x: 0, y: 0 }, 'E');
+    state.pets[0].anchor = { x: 18, y: 5 };
+    tryDeploy(state, 'B', MOUSE.id, { x: B_HOME_ANCHOR_X, y: B_HOME_ANCHOR_Y }, 'E');
+    state.pets[1].anchor = { x: 17, y: 5 };
     pin(state.pets[0]);
     pin(state.pets[1]);
     // Unpin only B's attack so it lands a hit on A; A faces a wall so it cannot retaliate.
@@ -65,11 +66,11 @@ describe('combat', () => {
   });
 
   it('elephant facing two mice in front kills both within range of attacks', () => {
-    tryDeploy(state, 'A', ELEPHANT.id, { x: 5, y: 0 }, 'N');
+    tryDeploy(state, 'A', ELEPHANT.id, { x: 0, y: 0 }, 'N');
     state.pets[0].anchor = { x: 5, y: 5 };
-    tryDeploy(state, 'B', MOUSE.id, { x: 5, y: B_HOME_TOP }, 'S');
+    tryDeploy(state, 'B', MOUSE.id, { x: B_HOME_ANCHOR_X, y: B_HOME_ANCHOR_Y }, 'S');
     state.pets[1].anchor = { x: 5, y: 7 };
-    tryDeploy(state, 'B', MOUSE.id, { x: 5, y: B_HOME_TOP + 1 }, 'S');
+    tryDeploy(state, 'B', MOUSE.id, { x: B_HOME_ANCHOR_X + 1, y: B_HOME_ANCHOR_Y }, 'S');
     state.pets[2].anchor = { x: 6, y: 7 };
     pin(state.pets[0]);
     pin(state.pets[1]);
@@ -84,9 +85,9 @@ describe('combat', () => {
   });
 
   it('pet dies and is removed at hp 0', () => {
-    tryDeploy(state, 'A', ELEPHANT.id, { x: 5, y: 0 }, 'N');
+    tryDeploy(state, 'A', ELEPHANT.id, { x: 0, y: 0 }, 'N');
     state.pets[0].anchor = { x: 5, y: 5 };
-    tryDeploy(state, 'B', MOUSE.id, { x: 5, y: B_HOME_TOP }, 'S');
+    tryDeploy(state, 'B', MOUSE.id, { x: B_HOME_ANCHOR_X, y: B_HOME_ANCHOR_Y }, 'S');
     state.pets[1].anchor = { x: 5, y: 7 };
     pin(state.pets[0]);
     pin(state.pets[1]);

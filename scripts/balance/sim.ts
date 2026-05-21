@@ -5,7 +5,11 @@ import { tryDeploy } from '../../src/sim/deploy';
 import { scoreFor } from '../../src/sim/board';
 import { getPetDef } from '../../src/sim/pet-defs';
 import { createRng } from '../../src/sim/rng';
-import { BOARD_SIZE, HOME_ROWS, TICKS_PER_SEC } from '../../src/config/constants';
+import {
+  BOARD_SIZE, TICKS_PER_SEC,
+  HOME_A_MIN_X, HOME_A_MAX_X, HOME_A_MIN_Y, HOME_A_MAX_Y,
+  HOME_B_MIN_X, HOME_B_MAX_X, HOME_B_MIN_Y, HOME_B_MAX_Y,
+} from '../../src/config/constants';
 import { WIN_PAINT_THRESHOLD } from '../../src/config/balance';
 import { setEffectsEnabled } from '../../src/render/effects';
 
@@ -52,24 +56,29 @@ export interface MatchOptions {
  */
 function deployComp(state: MatchState, player: PlayerId, comp: Comp): number {
   let deployed = 0;
-  // Build the scan order over home zone anchors.
+  // Build the scan order over home zone anchors (5×5 corner zones).
   const anchors: Vec2[] = [];
   if (player === 'A') {
-    for (let y = 0; y < HOME_ROWS; y++) {
-      for (let x = 0; x < BOARD_SIZE; x++) anchors.push({ x, y });
+    for (let y = HOME_A_MIN_Y; y <= HOME_A_MAX_Y; y++) {
+      for (let x = HOME_A_MIN_X; x <= HOME_A_MAX_X; x++) anchors.push({ x, y });
     }
   } else {
-    for (let y = BOARD_SIZE - HOME_ROWS; y < BOARD_SIZE; y++) {
-      for (let x = 0; x < BOARD_SIZE; x++) anchors.push({ x, y });
+    for (let y = HOME_B_MIN_Y; y <= HOME_B_MAX_Y; y++) {
+      for (let x = HOME_B_MIN_X; x <= HOME_B_MAX_X; x++) anchors.push({ x, y });
     }
   }
-  const facing: Direction = player === 'A' ? 'N' : 'S';
-
   // Unique pet ids in comp
   const uniquePetIds = [...new Set(comp.petIds)];
 
   // Helper: use match RNG if available, else Math.random
   const rand = (): number => state.rng ? state.rng.next() : Math.random();
+
+  // Random facing per deployment: A gets N or E (50/50), B gets S or W (50/50).
+  const facingChoicesA: Direction[] = ['N', 'E'];
+  const facingChoicesB: Direction[] = ['S', 'W'];
+  const pickFacing = (): Direction => player === 'A'
+    ? facingChoicesA[Math.floor(rand() * 2)]
+    : facingChoicesB[Math.floor(rand() * 2)];
 
   let safetyIterations = 0;
   while (safetyIterations++ < 2000) {
@@ -86,8 +95,9 @@ function deployComp(state: MatchState, player: PlayerId, comp: Comp): number {
 
       // Try to find an anchor for this pet
       let foundAnchor = false;
+      const f = pickFacing();
       for (const a of anchors) {
-        const result = tryDeploy(state, player, defId, a, facing);
+        const result = tryDeploy(state, player, defId, a, f);
         if (result.ok) {
           deployed++;
           foundAnchor = true;
@@ -114,8 +124,9 @@ function deployComp(state: MatchState, player: PlayerId, comp: Comp): number {
     const cheapestAffordable = sortedByCost.find(id => getPetDef(id).cost <= state.energy[player]);
     if (!cheapestAffordable) break;
     let placed = false;
+    const f = pickFacing();
     for (const a of anchors) {
-      if (tryDeploy(state, player, cheapestAffordable, a, facing).ok) {
+      if (tryDeploy(state, player, cheapestAffordable, a, f).ok) {
         deployed++;
         placed = true;
         break;

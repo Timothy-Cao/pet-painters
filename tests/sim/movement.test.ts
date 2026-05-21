@@ -76,9 +76,13 @@ describe('entry conflicts', () => {
   });
 
   it('two mice racing to the same empty tile: equal weight → exactly one wins (random)', () => {
-    tryDeploy(state, 'A', MOUSE.id, { x: 5, y: 1 }, 'N'); // target (5,2)
-    state.energy.B = 10;
-    tryDeploy(state, 'B', MOUSE.id, { x: 5, y: 3 }, 'S'); // target (5,2)
+    // Deploy in valid home zones then reposition
+    tryDeploy(state, 'A', MOUSE.id, { x: 0, y: 0 }, 'N'); // target (5,2)
+    state.pets[0].anchor = { x: 5, y: 1 };
+    state.pets[0].facing = 'N';
+    tryDeploy(state, 'B', MOUSE.id, { x: 15, y: 15 }, 'S'); // target (5,2)
+    state.pets[1].anchor = { x: 5, y: 3 };
+    state.pets[1].facing = 'S';
     runTicks(state, MOUSE_TICKS_PER_STEP);
     const occupants = state.pets.filter(p => p.anchor.x === 5 && p.anchor.y === 2);
     expect(occupants.length).toBe(1);
@@ -154,13 +158,13 @@ describe('push-through movement', () => {
   });
 
   it('Mouse facing an immovable Elephant scurries instead of pushing', () => {
-    // Both players deploy in their own home zones, then we manually reposition.
-    tryDeploy(state, 'A', MOUSE.id, { x: 5, y: 1 }, 'N');
+    // Deploy in valid home zones then reposition.
+    tryDeploy(state, 'A', MOUSE.id, { x: 0, y: 0 }, 'N');
     state.pets[0].anchor = { x: 5, y: 5 };
     state.pets[0].facing = 'N';
-    // Player B's home is now the last 3 rows of a 16-row board: y ∈ [13, 15].
-    // Elephant is 2×2 so the deepest fitting anchor is y = BOARD_SIZE - 2 = 14.
-    tryDeploy(state, 'B', ELEPHANT.id, { x: 5, y: BOARD_SIZE - 2 }, 'S');
+    // Elephant for B deployed in B's corner zone (cols 15-19, rows 15-19).
+    // Elephant is 2×2 so deepest fitting anchor: x=15, y=15
+    tryDeploy(state, 'B', ELEPHANT.id, { x: 15, y: 15 }, 'S');
     state.pets[1].anchor = { x: 5, y: 6 };
     state.pets[1].facing = 'W';
     pin(state.pets[1]);

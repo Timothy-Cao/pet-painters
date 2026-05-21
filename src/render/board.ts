@@ -1,13 +1,18 @@
 import { RenderContext, tileToPixel } from './canvas';
 import type { Board } from '../types/game';
-import { BOARD_SIZE, HOME_ROWS } from '../config/constants';
+import {
+  BOARD_SIZE,
+  HOME_A_MIN_X, HOME_A_MAX_X, HOME_A_MIN_Y, HOME_A_MAX_Y,
+  HOME_B_MIN_X, HOME_B_MAX_X, HOME_B_MIN_Y, HOME_B_MAX_Y,
+} from '../config/constants';
 
 import { getPalette } from './palette';
 const GRID_LINE = 'rgba(255, 255, 255, 0.07)';
 
-function isHomeRow(y: number, who: 'A' | 'B'): boolean {
-  if (who === 'A') return y < HOME_ROWS;
-  return y >= BOARD_SIZE - HOME_ROWS;
+function isHomeCorner(x: number, y: number): 'A' | 'B' | null {
+  if (x >= HOME_A_MIN_X && x <= HOME_A_MAX_X && y >= HOME_A_MIN_Y && y <= HOME_A_MAX_Y) return 'A';
+  if (x >= HOME_B_MIN_X && x <= HOME_B_MAX_X && y >= HOME_B_MIN_Y && y <= HOME_B_MAX_Y) return 'B';
+  return null;
 }
 
 export function renderBoard(rc: RenderContext, board: Board): void {
@@ -24,7 +29,7 @@ export function renderBoard(rc: RenderContext, board: Board): void {
     for (let x = 0; x < BOARD_SIZE; x++) {
       const color = board.tiles[y * BOARD_SIZE + x];
       const { px, py } = tileToPixel(rc, x, y);
-      const homeOwner = isHomeRow(y, 'A') ? 'A' : isHomeRow(y, 'B') ? 'B' : null;
+      const homeOwner = isHomeCorner(x, y);
 
       ctx.fillStyle = fill[color];
       ctx.fillRect(px, py, tileSize, tileSize);
@@ -58,7 +63,7 @@ export function renderBoard(rc: RenderContext, board: Board): void {
         ctx.fillRect(px + inset, py + inset, tileSize - inset * 2, 2);
       }
 
-      // Home-row "permanent" hatch in the bottom-right corner.
+      // Home-zone "permanent" hatch in the bottom-right corner.
       if (homeOwner) {
         ctx.save();
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
@@ -75,22 +80,20 @@ export function renderBoard(rc: RenderContext, board: Board): void {
     }
   }
 
-  // Home zone outer borders (dashed).
+  // Home zone corner borders (dashed box outlines).
   ctx.save();
   ctx.setLineDash([6, 4]);
   ctx.lineWidth = 1.5;
-  ctx.strokeStyle = palette.A.glow;
-  const aTop = tileToPixel(rc, 0, HOME_ROWS - 1).py;
-  ctx.beginPath();
-  ctx.moveTo(0, aTop + tileSize);
-  ctx.lineTo(BOARD_SIZE * tileSize, aTop + tileSize);
-  ctx.stroke();
 
+  // Player A corner (bottom-left)
+  ctx.strokeStyle = palette.A.glow;
+  const aCornerLeft = tileToPixel(rc, HOME_A_MIN_X, HOME_A_MAX_Y);
+  ctx.strokeRect(aCornerLeft.px, aCornerLeft.py, (HOME_A_MAX_X - HOME_A_MIN_X + 1) * tileSize, (HOME_A_MAX_Y - HOME_A_MIN_Y + 1) * tileSize);
+
+  // Player B corner (top-right)
   ctx.strokeStyle = palette.B.glow;
-  const bBottom = tileToPixel(rc, 0, BOARD_SIZE - HOME_ROWS).py;
-  ctx.beginPath();
-  ctx.moveTo(0, bBottom);
-  ctx.lineTo(BOARD_SIZE * tileSize, bBottom);
-  ctx.stroke();
+  const bCornerLeft = tileToPixel(rc, HOME_B_MIN_X, HOME_B_MAX_Y);
+  ctx.strokeRect(bCornerLeft.px, bCornerLeft.py, (HOME_B_MAX_X - HOME_B_MIN_X + 1) * tileSize, (HOME_B_MAX_Y - HOME_B_MIN_Y + 1) * tileSize);
+
   ctx.restore();
 }

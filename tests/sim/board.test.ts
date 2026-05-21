@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { createInitialBoard, getTile, paintTile, scoreFor } from '../../src/sim/board';
-import { BOARD_SIZE, HOME_ROWS } from '../../src/config/constants';
+import {
+  BOARD_SIZE,
+  HOME_ZONE_SIZE,
+  HOME_A_MIN_X, HOME_A_MAX_X, HOME_A_MIN_Y, HOME_A_MAX_Y,
+  HOME_B_MIN_X, HOME_B_MAX_X, HOME_B_MIN_Y, HOME_B_MAX_Y,
+} from '../../src/config/constants';
 
 describe('createInitialBoard', () => {
   it('creates a board with the configured size', () => {
@@ -9,31 +14,32 @@ describe('createInitialBoard', () => {
     expect(b.tiles.length).toBe(BOARD_SIZE * BOARD_SIZE);
   });
 
-  it('pre-paints the bottom HOME_ROWS rows for player A', () => {
+  it('pre-paints the bottom-left 5×5 corner for player A', () => {
     const b = createInitialBoard();
-    for (let y = 0; y < HOME_ROWS; y++) {
-      for (let x = 0; x < BOARD_SIZE; x++) {
+    for (let y = HOME_A_MIN_Y; y <= HOME_A_MAX_Y; y++) {
+      for (let x = HOME_A_MIN_X; x <= HOME_A_MAX_X; x++) {
         expect(getTile(b, { x, y })).toBe('A');
       }
     }
   });
 
-  it('pre-paints the top HOME_ROWS rows for player B', () => {
+  it('pre-paints the top-right 5×5 corner for player B', () => {
     const b = createInitialBoard();
-    for (let y = BOARD_SIZE - HOME_ROWS; y < BOARD_SIZE; y++) {
-      for (let x = 0; x < BOARD_SIZE; x++) {
+    for (let y = HOME_B_MIN_Y; y <= HOME_B_MAX_Y; y++) {
+      for (let x = HOME_B_MIN_X; x <= HOME_B_MAX_X; x++) {
         expect(getTile(b, { x, y })).toBe('B');
       }
     }
   });
 
-  it('leaves middle rows neutral', () => {
+  it('leaves non-corner tiles neutral', () => {
     const b = createInitialBoard();
-    for (let y = HOME_ROWS; y < BOARD_SIZE - HOME_ROWS; y++) {
-      for (let x = 0; x < BOARD_SIZE; x++) {
-        expect(getTile(b, { x, y })).toBe('neutral');
-      }
-    }
+    // Check a tile in middle that should definitely be neutral
+    expect(getTile(b, { x: 10, y: 10 })).toBe('neutral');
+    // Bottom-right corner — not player A's zone
+    expect(getTile(b, { x: BOARD_SIZE - 1, y: 0 })).toBe('neutral');
+    // Top-left corner — not player B's zone
+    expect(getTile(b, { x: 0, y: BOARD_SIZE - 1 })).toBe('neutral');
   });
 });
 
@@ -56,8 +62,8 @@ describe('paintTile', () => {
 describe('scoreFor', () => {
   it('counts tiles of a given color', () => {
     const b = createInitialBoard();
-    expect(scoreFor(b, 'A')).toBe(BOARD_SIZE * HOME_ROWS);
-    expect(scoreFor(b, 'B')).toBe(BOARD_SIZE * HOME_ROWS);
+    expect(scoreFor(b, 'A')).toBe(HOME_ZONE_SIZE * HOME_ZONE_SIZE);
+    expect(scoreFor(b, 'B')).toBe(HOME_ZONE_SIZE * HOME_ZONE_SIZE);
   });
 
   it('updates as tiles are painted', () => {
