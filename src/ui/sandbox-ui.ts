@@ -15,41 +15,55 @@ export interface SandboxUIState {
 interface PetRosterEntry {
   defId: string;
   hotkey: string;
-  ability: string;
+  short: string;     // 3–5 words shown on the card
+  ability: string;   // longer description shown in the popup
 }
 
 const ROSTER: PetRosterEntry[] = [
   {
     defId: MOUSE.id,
     hotkey: '1',
-    ability: 'Scurry — sprints in a straight line, but turns randomly the moment anything blocks its path. Painter, not a fighter.',
+    short: 'Scurries, scared of others',
+    ability: 'Sprints in a straight line, then turns randomly the moment anything blocks its path. Painter, not a fighter.',
   },
   {
     defId: ELEPHANT.id,
     hotkey: '2',
-    ability: 'Unshakable — cannot be pushed by anything. Trudges in straight lines and only about-faces when it hits a wall, ramming through lighter pets along the way.',
+    short: 'Unmovable, steady',
+    ability: 'Cannot be pushed by anything. Trudges in straight lines and only about-faces at walls, ramming through lighter pets along the way.',
   },
   {
     defId: CAT.id,
     hotkey: '3',
-    ability: 'Curious — drifts in unpredictable arcs, randomly changing direction even when nothing blocks the path. Ignores most pets, but pounces on any enemy mouse within one tile (orthogonal or diagonal) for an instant kill.',
+    short: 'Wanders wide, eats mice',
+    ability: 'Drifts in unpredictable arcs, turning randomly even when nothing blocks the path. Ignores most pets, but pounces on any enemy mouse within one tile (orthogonal or diagonal) for an instant kill.',
   },
   {
     defId: RABBIT.id,
     hotkey: '4',
-    ability: 'Vault — when a pet blocks its path, leaps over it onto the tile beyond. Refuses to fight, just paints and hops.',
+    short: 'Hops over blockers',
+    ability: 'When a pet blocks its path, leaps over it onto the tile beyond. Refuses to fight — paints and hops only.',
   },
   {
     defId: TURTLE.id,
     hotkey: '5',
-    ability: 'Splash — once per second, paints all four neighboring tiles in its color. Slow walker, but its real damage is in coverage.',
+    short: 'Slow, paints all around',
+    ability: 'Once per second, paints all four neighboring tiles in its color. Slow walker, but its real damage is in area coverage.',
   },
   {
     defId: SKUNK.id,
     hotkey: '6',
-    ability: 'Spray — every adjacent enemy is forced to face directly away from the skunk, scattering enemy formations.',
+    short: 'Forces enemies to flee',
+    ability: 'Twice a second, every adjacent enemy is forced to face directly away from the skunk, scattering enemy formations.',
   },
 ];
+
+function speedLabel(speedTilesPerSec: number): string {
+  if (speedTilesPerSec === 0) return 'Still';
+  if (speedTilesPerSec < 1) return 'Slow';
+  if (speedTilesPerSec < 2) return 'Normal';
+  return 'Fast';
+}
 
 const STAT_LABELS = {
   [MOUSE.id]: MOUSE_STATS,
@@ -86,9 +100,11 @@ export function mountSandboxUI(
 function buildPetRoster(_state: MatchState, ui: SandboxUIState): void {
   const root = document.getElementById('pet-roster')!;
   root.innerHTML = '';
+  const popup = ensurePopup();
   for (const entry of ROSTER) {
     const def = getPetDef(entry.defId);
     const stats = STAT_LABELS[entry.defId as keyof typeof STAT_LABELS];
+    const spd = speedLabel(stats.speedTilesPerSec);
 
     const card = document.createElement('button');
     card.type = 'button';
@@ -97,31 +113,81 @@ function buildPetRoster(_state: MatchState, ui: SandboxUIState): void {
     card.innerHTML = `
       <div class="pet-emoji">${def.emoji}</div>
       <div class="pet-info">
-        <div class="pet-name">${def.displayName}<span class="size-chip">${def.size.w}×${def.size.h}</span></div>
-        <div class="pet-stats">
-          <span><span class="stat-label">HP</span> ${stats.maxHp}</span>
-          <span><span class="stat-label">ATK</span> ${stats.atk}</span>
-          <span><span class="stat-label">SPD</span> ${stats.speedTilesPerSec}/s</span>
+        <div class="pet-name">${def.displayName}<span class="pet-hotkey">${entry.hotkey}</span></div>
+        <div class="pet-short">${entry.short}</div>
+        <div class="pet-quick-stats">
+          <span class="quick-pill quick-pill-${spd.toLowerCase()}">${spd}</span>
+          <span class="quick-stat"><span class="quick-key">HP</span> ${stats.maxHp}</span>
+          <span class="quick-stat"><span class="quick-key">ATK</span> ${stats.atk}</span>
         </div>
-      </div>
-      <div class="pet-hotkey">${entry.hotkey}</div>
-      <div class="pet-tooltip">
-        <div class="pet-tooltip-row"><span class="pet-tooltip-key">Health</span><span class="pet-tooltip-val">${stats.maxHp}</span></div>
-        <div class="pet-tooltip-row"><span class="pet-tooltip-key">Attack</span><span class="pet-tooltip-val">${stats.atk}</span></div>
-        <div class="pet-tooltip-row"><span class="pet-tooltip-key">Move speed</span><span class="pet-tooltip-val">${stats.speedTilesPerSec} tile/s</span></div>
-        <div class="pet-tooltip-row"><span class="pet-tooltip-key">Attack speed</span><span class="pet-tooltip-val">${stats.atkSpeedPerSec}/s</span></div>
-        <div class="pet-tooltip-row"><span class="pet-tooltip-key">Weight</span><span class="pet-tooltip-val">${stats.weight}</span></div>
-        <div class="pet-tooltip-row"><span class="pet-tooltip-key">Footprint</span><span class="pet-tooltip-val">${def.size.w}×${def.size.h}</span></div>
-        <div class="pet-tooltip-row"><span class="pet-tooltip-key" title="Lower goes first each tick — earlier acts before later acts, so earlier wins movement conflicts and later wins paint conflicts on contested tiles.">Initiative</span><span class="pet-tooltip-val">${stats.order}</span></div>
-        <div class="pet-tooltip-ability">${entry.ability}</div>
       </div>
     `;
     card.addEventListener('click', () => {
       ui.selectedDefId = def.id;
       refreshRoster(ui);
     });
+    card.addEventListener('mouseenter', () => showPopup(card, entry, def, stats));
+    card.addEventListener('mouseleave', () => hidePopup());
+    card.addEventListener('focus', () => showPopup(card, entry, def, stats));
+    card.addEventListener('blur', () => hidePopup());
     root.appendChild(card);
   }
+  void popup;
+}
+
+function ensurePopup(): HTMLElement {
+  let el = document.getElementById('pet-popup');
+  if (el) return el;
+  el = document.createElement('div');
+  el.id = 'pet-popup';
+  el.className = 'pet-popup';
+  document.body.appendChild(el);
+  return el;
+}
+
+function showPopup(
+  anchor: HTMLElement,
+  entry: PetRosterEntry,
+  def: ReturnType<typeof getPetDef>,
+  stats: typeof STAT_LABELS[keyof typeof STAT_LABELS],
+): void {
+  const popup = ensurePopup();
+  const spd = speedLabel(stats.speedTilesPerSec);
+  const speedText = stats.speedTilesPerSec === 0
+    ? `Still (does not walk)`
+    : `${stats.speedTilesPerSec} tile/s — ${spd}`;
+  popup.innerHTML = `
+    <div class="popup-head">
+      <span class="popup-emoji">${def.emoji}</span>
+      <span class="popup-name">${def.displayName}</span>
+      <span class="popup-size">${def.size.w}×${def.size.h}</span>
+    </div>
+    <div class="popup-stats">
+      <div class="popup-row"><span>Health</span><span>${stats.maxHp}</span></div>
+      <div class="popup-row"><span>Attack</span><span>${stats.atk}</span></div>
+      <div class="popup-row"><span>Move speed</span><span>${speedText}</span></div>
+      <div class="popup-row"><span>Attack speed</span><span>${stats.atkSpeedPerSec === 0 ? '—' : `${stats.atkSpeedPerSec}/s`}</span></div>
+      <div class="popup-row"><span>Weight</span><span>${stats.weight}</span></div>
+      <div class="popup-row" title="Lower goes first each tick — earlier acts wins movement conflicts; later acts wins paint conflicts on contested tiles."><span>Initiative</span><span>${stats.order}</span></div>
+    </div>
+    <div class="popup-ability">${entry.ability}</div>
+  `;
+  const rect = anchor.getBoundingClientRect();
+  // Position to the right of the card; flip to the left if it would go off-screen.
+  const popupWidth = 300;
+  const margin = 12;
+  let left = rect.right + margin;
+  if (left + popupWidth > window.innerWidth - 8) {
+    left = rect.left - popupWidth - margin;
+  }
+  popup.style.left = `${Math.max(8, left)}px`;
+  popup.style.top = `${Math.max(8, rect.top)}px`;
+  popup.classList.add('show');
+}
+
+function hidePopup(): void {
+  const popup = document.getElementById('pet-popup');
+  if (popup) popup.classList.remove('show');
 }
 
 function bindFacing(ui: SandboxUIState): void {
