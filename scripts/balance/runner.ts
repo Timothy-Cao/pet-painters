@@ -8,6 +8,17 @@ import { join } from 'node:path';
 const ENERGY_BUDGET = 20;
 const MAX_SECONDS = 30;
 
+// Parse --threshold=N from CLI args. Falls back to game default.
+function parseThreshold(): number {
+  for (const arg of process.argv.slice(2)) {
+    const m = arg.match(/^--threshold=(\d+)$/);
+    if (m) return parseInt(m[1], 10);
+  }
+  return WIN_PAINT_THRESHOLD;
+}
+const WIN_THRESHOLD = parseThreshold();
+const WIN_PCT = Math.round((WIN_THRESHOLD / (BOARD_SIZE * BOARD_SIZE)) * 100);
+
 const SOLO_SAMPLES = 100;
 const PAIR_COMPS = 60;      // number of randomly drawn pair comps
 const PAIR_SAMPLES = 30;    // matches per (compA, compB) pair
@@ -90,6 +101,7 @@ function runSoloSweep(): { matchups: SoloResult[]; petScores: Map<string, { wr: 
       for (let i = 0; i < halfA; i++) {
         const r = runHeadlessMatch(compA, compB, {
           energyBudget: ENERGY_BUDGET,
+          winThreshold: WIN_THRESHOLD,
           maxSeconds: MAX_SECONDS,
           seed: matchCount * 10000 + i,
         });
@@ -101,6 +113,7 @@ function runSoloSweep(): { matchups: SoloResult[]; petScores: Map<string, { wr: 
       for (let i = 0; i < halfB; i++) {
         const raw = runHeadlessMatch(compB, compA, {
           energyBudget: ENERGY_BUDGET,
+          winThreshold: WIN_THRESHOLD,
           maxSeconds: MAX_SECONDS,
           seed: matchCount * 10000 + i,
         });
@@ -170,6 +183,7 @@ function runMultiSweep(size: number, numComps: number, numMatchups: number, samp
     for (let s = 0; s < halfA; s++) {
       const r = runHeadlessMatch({ petIds: a }, { petIds: b }, {
         energyBudget: ENERGY_BUDGET,
+          winThreshold: WIN_THRESHOLD,
         maxSeconds: MAX_SECONDS,
         seed: i * 100000 + s,
       });
@@ -179,6 +193,7 @@ function runMultiSweep(size: number, numComps: number, numMatchups: number, samp
     for (let s = 0; s < halfB; s++) {
       const raw = runHeadlessMatch({ petIds: b }, { petIds: a }, {
         energyBudget: ENERGY_BUDGET,
+          winThreshold: WIN_THRESHOLD,
         maxSeconds: MAX_SECONDS,
         seed: i * 100000 + halfA + s,
       });
@@ -218,7 +233,7 @@ function writeReport(
   lines.push(`# Pet Painters — Balance Report`);
   lines.push('');
   lines.push(`**Date:** ${new Date().toISOString().split('T')[0]}`);
-  lines.push(`**Config:** energy budget ${ENERGY_BUDGET}, match cap ${MAX_SECONDS}s, win threshold ${WIN_PAINT_THRESHOLD} tiles (${Math.round(WIN_PAINT_THRESHOLD / (BOARD_SIZE * BOARD_SIZE) * 100)}% of ${BOARD_SIZE}x${BOARD_SIZE} board), ${SOLO_SAMPLES} samples per solo matchup, ${PAIR_SAMPLES} per pair matchup, ${TRIPLET_SAMPLES} per triplet matchup.`);
+  lines.push(`**Config:** energy budget ${ENERGY_BUDGET}, match cap ${MAX_SECONDS}s, win threshold ${WIN_THRESHOLD} tiles (${WIN_PCT}% of ${BOARD_SIZE}x${BOARD_SIZE} board), ${SOLO_SAMPLES} samples per solo matchup, ${PAIR_SAMPLES} per pair matchup, ${TRIPLET_SAMPLES} per triplet matchup.`);
   lines.push('');
   lines.push(`## Tier list — solo pet by average win rate across all opponents`);
   lines.push('');
@@ -337,7 +352,7 @@ function writeReport(
   // Methodology
   lines.push(`## Methodology & caveats`);
   lines.push('');
-  lines.push(`- Each match: both players get ${ENERGY_BUDGET} energy, deploy greedy in home zone (cycling through their comp). Sim runs at 20 ticks/sec for up to ${MAX_SECONDS}s or until ${WIN_PAINT_THRESHOLD} painted tiles (${Math.round(WIN_PAINT_THRESHOLD / (BOARD_SIZE * BOARD_SIZE) * 100)}%), with early-out if no paint changes for 4s (stall).`);
+  lines.push(`- Each match: both players get ${ENERGY_BUDGET} energy, deploy greedy in home zone (cycling through their comp). Sim runs at 20 ticks/sec for up to ${MAX_SECONDS}s or until ${WIN_PAINT_THRESHOLD} painted tiles (${Math.round(WIN_THRESHOLD / (BOARD_SIZE * BOARD_SIZE) * 100)}%), with early-out if no paint changes for 4s (stall).`);
   lines.push(`- Player A deploys in rows 0..${HOME_ROWS - 1} facing North. Player B deploys in rows ${BOARD_SIZE - HOME_ROWS}..${BOARD_SIZE - 1} facing South. Slight asymmetry possible from movement timer alignment and deployment order — see Mirror match section to gauge bias.`);
   lines.push(`- RNG used only for movement tiebreaks. Seeded per match; reproducible.`);
   lines.push(`- "Pets deployed" reflects how many pets the budget can fit; greedy placement may leave budget unspent if home zone is full.`);
@@ -347,7 +362,7 @@ function writeReport(
   return {
     md: lines.join('\n'),
     json: JSON.stringify({
-      config: { energyBudget: ENERGY_BUDGET, maxSeconds: MAX_SECONDS, soloSamples: SOLO_SAMPLES, pairSamples: PAIR_SAMPLES, tripletSamples: TRIPLET_SAMPLES, winThreshold: WIN_PAINT_THRESHOLD },
+      config: { energyBudget: ENERGY_BUDGET, maxSeconds: MAX_SECONDS, soloSamples: SOLO_SAMPLES, pairSamples: PAIR_SAMPLES, tripletSamples: TRIPLET_SAMPLES, winThreshold: WIN_THRESHOLD, winPct: WIN_PCT },
       solo,
       petScores: Object.fromEntries(petScores),
       pairs,
@@ -369,8 +384,8 @@ async function main() {
   const dir = join(process.cwd(), 'docs', 'balance-reports');
   mkdirSync(dir, { recursive: true });
   const stamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').split('Z')[0];
-  const mdPath = join(dir, `report-${stamp}.md`);
-  const jsonPath = join(dir, `report-${stamp}.json`);
+  const mdPath = join(dir, `report-${stamp}-${WIN_PCT}pct.md`);
+  const jsonPath = join(dir, `report-${stamp}-${WIN_PCT}pct.json`);
   writeFileSync(mdPath, md);
   writeFileSync(jsonPath, json);
   console.log(`\nWrote ${mdPath}`);

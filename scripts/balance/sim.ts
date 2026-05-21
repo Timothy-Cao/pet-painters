@@ -1,5 +1,6 @@
 import type { MatchState, PlayerId, Vec2, Direction } from '../../src/types/game';
-import { createInitialMatch, submitReady, tickMatch } from '../../src/sim/match';
+import { createInitialMatch, submitReady } from '../../src/sim/match';
+import { advanceTick } from '../../src/sim/tick';
 import { tryDeploy } from '../../src/sim/deploy';
 import { scoreFor } from '../../src/sim/board';
 import { getPetDef } from '../../src/sim/pet-defs';
@@ -27,6 +28,7 @@ export interface MatchOptions {
   maxSeconds: number;       // e.g. 30 → 600 ticks
   seed: number;             // for sim determinism
   stallTicks?: number;      // if no paint change for this many ticks, declare stall (default = 4 * TICKS_PER_SEC)
+  winThreshold?: number;    // paint tiles needed to win; defaults to WIN_PAINT_THRESHOLD from balance.ts
 }
 
 /**
@@ -94,20 +96,15 @@ export function runHeadlessMatch(compA: Comp, compB: Comp, opts: MatchOptions): 
 
   const maxTicks = opts.maxSeconds * TICKS_PER_SEC;
   const stallTicks = opts.stallTicks ?? 4 * TICKS_PER_SEC;
+  const winThreshold = opts.winThreshold ?? WIN_PAINT_THRESHOLD;
   let lastScoreA = scoreFor(state.board, 'A');
   let lastScoreB = scoreFor(state.board, 'B');
   let ticksSinceChange = 0;
 
   for (let t = 1; t <= maxTicks; t++) {
-    // tickMatch handles advanceTick + regenEnergy + checkWin
-    tickMatch(state);
-
-    if (state.phase === 'ended') {
-      const sA = scoreFor(state.board, 'A');
-      const sB = scoreFor(state.board, 'B');
-      const w = state.winner ?? (sA > sB ? 'A' : sB > sA ? 'B' : 'draw');
-      return { winner: w as PlayerId | 'draw', scoreA: sA, scoreB: sB, ticks: t, reason: 'paint_threshold', petsDeployedA: petsA, petsDeployedB: petsB };
-    }
+    // Use advanceTick directly so we can apply our own win-threshold override.
+    // We skip energy regen because no further deployments happen during the headless match.
+    advanceTick(state);
 
     const sA = scoreFor(state.board, 'A');
     const sB = scoreFor(state.board, 'B');
@@ -119,11 +116,10 @@ export function runHeadlessMatch(compA: Comp, compB: Comp, opts: MatchOptions): 
       ticksSinceChange++;
     }
 
-    // Also check threshold manually (tickMatch should handle this, but belt-and-suspenders)
-    if (sA >= WIN_PAINT_THRESHOLD) {
+    if (sA >= winThreshold) {
       return { winner: 'A', scoreA: sA, scoreB: sB, ticks: t, reason: 'paint_threshold', petsDeployedA: petsA, petsDeployedB: petsB };
     }
-    if (sB >= WIN_PAINT_THRESHOLD) {
+    if (sB >= winThreshold) {
       return { winner: 'B', scoreA: sA, scoreB: sB, ticks: t, reason: 'paint_threshold', petsDeployedA: petsA, petsDeployedB: petsB };
     }
 
