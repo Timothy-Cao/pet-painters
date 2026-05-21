@@ -2,16 +2,126 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Pet Painters</title>
-  <style>
-    body { margin: 0; background: #1a1a1a; color: #fff; font-family: system-ui, sans-serif; }
-    #game { display: block; margin: 20px auto; background: #2a2a2a; }
-    #ui { text-align: center; margin: 10px; }
-  </style>
+  <title>Pet Painters — Sandbox</title>
+  <link rel="stylesheet" href="/src/styles.css" />
 </head>
 <body>
-  <div id="ui">Pet Painters</div>
-  <canvas id="game" width="600" height="600"></canvas>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">🎨</span>
+        <span class="brand-name">Pet Painters</span>
+        <span class="brand-mode">Sandbox</span>
+      </div>
+      <div class="phase-pill" id="phase-pill">
+        <span class="phase-dot"></span>
+        <span id="phase-text">Planning</span>
+      </div>
+      <div class="score-strip">
+        <div class="score score-a">
+          <div class="score-label">Player A</div>
+          <div class="score-bar"><div class="score-fill" id="score-fill-a"></div></div>
+          <div class="score-val"><span id="score-a">0</span> / 144</div>
+        </div>
+        <div class="score score-b">
+          <div class="score-label">Player B</div>
+          <div class="score-bar"><div class="score-fill" id="score-fill-b"></div></div>
+          <div class="score-val"><span id="score-b">0</span> / 144</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar sidebar-left">
+        <div class="panel-title">Pet Roster</div>
+        <div class="panel-hint">Choose a pet, then click the board to deploy</div>
+        <div id="pet-roster" class="pet-roster"></div>
+
+        <div class="panel-title panel-title-sm">Legend</div>
+        <div class="legend">
+          <div class="legend-item"><span class="swatch swatch-a"></span> Player A territory</div>
+          <div class="legend-item"><span class="swatch swatch-b"></span> Player B territory</div>
+          <div class="legend-item"><span class="swatch swatch-n"></span> Neutral tile</div>
+          <div class="legend-item"><span class="swatch swatch-home-a"></span> A home zone</div>
+          <div class="legend-item"><span class="swatch swatch-home-b"></span> B home zone</div>
+        </div>
+      </aside>
+
+      <section class="stage">
+        <div class="canvas-frame">
+          <div class="player-tag player-tag-b">Player B (top)</div>
+          <canvas id="game" width="600" height="600"></canvas>
+          <div class="player-tag player-tag-a">Player A (bottom)</div>
+        </div>
+        <div class="exec-bar" id="exec-bar">
+          <div class="exec-fill" id="exec-fill"></div>
+          <div class="exec-label" id="exec-label">Execution 0.0s / 8.0s</div>
+        </div>
+      </section>
+
+      <aside class="sidebar sidebar-right">
+        <div class="panel-title">Deploying As</div>
+        <div class="player-toggle">
+          <button class="btn-player btn-player-a" data-player="A" id="player-a">
+            <span class="dot dot-a"></span>
+            <span class="btn-player-label">Player A</span>
+            <span class="btn-hotkey">Tab</span>
+          </button>
+          <button class="btn-player btn-player-b" data-player="B" id="player-b">
+            <span class="dot dot-b"></span>
+            <span class="btn-player-label">Player B</span>
+            <span class="btn-hotkey">Tab</span>
+          </button>
+        </div>
+
+        <div class="panel-title">Facing</div>
+        <div class="facing-grid">
+          <div></div>
+          <button class="btn-facing" data-facing="N" id="facing-N"><span>▲</span><span class="btn-hotkey">W</span></button>
+          <div></div>
+          <button class="btn-facing" data-facing="W" id="facing-W"><span>◀</span><span class="btn-hotkey">A</span></button>
+          <div class="facing-center">FACE</div>
+          <button class="btn-facing" data-facing="E" id="facing-E"><span>▶</span><span class="btn-hotkey">D</span></button>
+          <div></div>
+          <button class="btn-facing" data-facing="S" id="facing-S"><span>▼</span><span class="btn-hotkey">S</span></button>
+          <div></div>
+        </div>
+
+        <div class="panel-title">Energy</div>
+        <div class="energy-row">
+          <div class="energy-cell energy-a">
+            <div class="energy-label">A</div>
+            <div class="energy-val" id="energy-a">∞</div>
+          </div>
+          <div class="energy-cell energy-b">
+            <div class="energy-label">B</div>
+            <div class="energy-val" id="energy-b">∞</div>
+          </div>
+        </div>
+
+        <div class="action-area">
+          <button class="btn-primary" id="btn-start">
+            ▶ Start Round
+            <span class="btn-hotkey-light">Space</span>
+          </button>
+          <button class="btn-secondary" id="btn-reset">
+            ⟲ Reset Match
+            <span class="btn-hotkey-light">R</span>
+          </button>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      <span><kbd>1</kbd>/<kbd>2</kbd> select pet</span>
+      <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> facing</span>
+      <span><kbd>Tab</kbd> switch player</span>
+      <span><kbd>Click</kbd> deploy</span>
+      <span><kbd>Space</kbd> start round</span>
+      <span><kbd>R</kbd> reset</span>
+    </footer>
+  </div>
+
   <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

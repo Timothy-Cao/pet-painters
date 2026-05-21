@@ -34,6 +34,7 @@ export interface MatchState {
   winner: PlayerId | null;
   pendingDeployments: PendingDeployment[];
   moveIntents: MoveIntent[];
+  sandbox: boolean;
 }
 
 export interface PendingDeployment {

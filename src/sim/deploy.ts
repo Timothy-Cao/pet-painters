@@ -23,7 +23,7 @@ export function tryDeploy(
 ): DeployResult {
   const def = getPetDef(defId);
 
-  if (state.energy[owner] < def.cost) {
+  if (!state.sandbox && state.energy[owner] < def.cost) {
     return { ok: false, reason: 'insufficient energy' };
   }
 
@@ -53,7 +53,7 @@ export function tryDeploy(
     tupleLastFireTick: def.tuples.map(() => -1),
   };
 
-  state.energy[owner] -= def.cost;
+  if (!state.sandbox) state.energy[owner] -= def.cost;
   state.pets.push(pet);
   return { ok: true, pet };
 }

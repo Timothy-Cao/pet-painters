@@ -9,7 +9,8 @@ import {
 import { TICKS_PER_SEC } from '../config/constants';
 import { advanceTick } from './tick';
 
-export function createInitialMatch(): MatchState {
+export function createInitialMatch(opts: { sandbox?: boolean } = {}): MatchState {
+  const sandbox = opts.sandbox ?? false;
   return {
     board: createInitialBoard(),
     pets: [],
@@ -23,6 +24,7 @@ export function createInitialMatch(): MatchState {
     winner: null,
     pendingDeployments: [],
     moveIntents: [],
+    sandbox,
   };
 }
 
@@ -38,6 +40,7 @@ export function submitReady(state: MatchState, player: PlayerId): void {
 }
 
 function regenEnergy(state: MatchState): void {
+  if (state.sandbox) return;
   const elapsed = state.tick - state.execPhaseStartTick;
   if (elapsed > 0 && elapsed % TICKS_PER_SEC === 0) {
     state.energy.A = Math.min(ENERGY_CAP, state.energy.A + ENERGY_PER_EXEC_SECOND);
@@ -75,4 +78,21 @@ export function tickMatch(state: MatchState): void {
 export function endExecution(state: MatchState): void {
   if (state.phase !== 'execution') return;
   state.phase = 'planning';
+}
+
+export function resetMatchInPlace(state: MatchState, opts: { sandbox?: boolean } = {}): void {
+  const fresh = createInitialMatch({ sandbox: opts.sandbox ?? state.sandbox });
+  state.board = fresh.board;
+  state.pets = fresh.pets;
+  state.nextPetId = fresh.nextPetId;
+  state.energy = fresh.energy;
+  state.phase = fresh.phase;
+  state.tick = fresh.tick;
+  state.execPhaseStartTick = fresh.execPhaseStartTick;
+  state.activePlanningPlayer = fresh.activePlanningPlayer;
+  state.ready = fresh.ready;
+  state.winner = fresh.winner;
+  state.pendingDeployments = fresh.pendingDeployments;
+  state.moveIntents = fresh.moveIntents;
+  state.sandbox = fresh.sandbox;
 }
