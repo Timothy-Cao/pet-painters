@@ -1,3 +1,5 @@
+import type { Rng } from '../sim/rng';
+
 export type PlayerId = 'A' | 'B';
 export type Direction = 'N' | 'S' | 'E' | 'W';
 
@@ -38,6 +40,8 @@ export interface MatchState {
   moveIntents: MoveIntent[];
   /** Sandbox mode: infinite energy, no regen, deploy anywhere on own territory. */
   sandbox: boolean;
+  /** Optional seeded RNG for deterministic online sim; null in local/sandbox mode. */
+  rng: Rng | null;
   /** Snapshot captured when execution starts; cleared when execution ends. */
   execStartSnapshot: RoundSnapshot | null;
   /** Result of the most recently completed execution phase; cleared when the next round starts. */

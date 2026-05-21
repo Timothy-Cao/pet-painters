@@ -146,7 +146,7 @@ export function resolveMovements(state: MatchState): void {
       const aw = getPetDef(a.pet.defId).weight;
       const bw = getPetDef(b.pet.defId).weight;
       if (bw !== aw) return bw - aw;
-      return Math.random() - 0.5;
+      return (state.rng ? state.rng.next() : Math.random()) - 0.5;
     });
     // All but the first are blocked
     for (let i = 1; i < group.length; i++) {

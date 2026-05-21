@@ -27,6 +27,7 @@ export function createInitialMatch(opts: { sandbox?: boolean } = {}): MatchState
     execStartSnapshot: null,
     lastRoundSummary: null,
     round: 0,
+    rng: null,
   };
 }
 
@@ -129,4 +130,5 @@ export function resetMatchInPlace(state: MatchState, opts: { sandbox?: boolean }
   state.execStartSnapshot = fresh.execStartSnapshot;
   state.lastRoundSummary = fresh.lastRoundSummary;
   state.round = fresh.round;
+  state.rng = fresh.rng;
 }
