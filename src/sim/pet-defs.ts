@@ -4,6 +4,7 @@ import { MOUSE_STATS, ELEPHANT_STATS, CAT_STATS, RABBIT_STATS, TURTLE_STATS, SKU
 import { frontTiles, footprintTiles } from './pets';
 import { enemiesInFront, applyAttack } from './combat';
 import { paintTile } from './board';
+import { pushPounce, pushSpray } from '../render/effects';
 
 function getPetDefLocal(id: string): PetDefinition {
   return REGISTRY[id];
@@ -192,6 +193,7 @@ function catPounce(pet: Pet, state: MatchState): void {
     if (occupant.owner === pet.owner) continue;
     occupant.hp = 0;
     paintTile(state.board, t, pet.owner);
+    pushPounce(t.x, t.y, pet.owner);
     return;
   }
 }
@@ -333,6 +335,7 @@ function skunkSpray(pet: Pet, state: MatchState): void {
     if (!occupant) continue;
     if (occupant.owner === pet.owner) continue;
     occupant.facing = faceAway;
+    pushSpray(t.x, t.y, pet.owner);
   }
 }
 

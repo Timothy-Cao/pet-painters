@@ -9,6 +9,7 @@ import {
 } from './input/deploy-ui';
 import { mountSandboxUI, refreshAll, showBanner } from './ui/sandbox-ui';
 import { GameLoop } from './loop';
+import { renderEffects, clearEffects } from './render/effects';
 
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 const rc = createRenderContext(canvas);
@@ -18,6 +19,7 @@ const ui = createDeployUIState();
 
 function resetMatch(): void {
   resetMatchInPlace(state, { sandbox: true });
+  clearEffects();
   ui.hoverTile = null;
   refreshAll(state, ui);
   showBanner('Match reset');
@@ -30,6 +32,7 @@ function render() {
   clearCanvas(rc);
   renderBoard(rc, state.board);
   renderPets(rc, state.pets);
+  renderEffects(rc);
   renderDeployPreview(rc, state, ui);
   refreshAll(state, ui);
 }
