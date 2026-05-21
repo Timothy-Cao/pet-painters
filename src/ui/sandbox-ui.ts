@@ -69,6 +69,11 @@ function buildPetRoster(ui: SandboxUIState): void {
     card.addEventListener('click', () => {
       ui.selectedDefId = def.id;
       refreshRoster(ui);
+      // One-shot pop animation so the click feels confirmed.
+      card.classList.remove('just-picked');
+      // Force reflow so the animation restarts on rapid re-clicks.
+      void card.offsetWidth;
+      card.classList.add('just-picked');
     });
     card.addEventListener('mouseenter', () => showPopup(card, def));
     card.addEventListener('mouseleave', () => hidePopup());

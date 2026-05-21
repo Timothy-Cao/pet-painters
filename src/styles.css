@@ -175,8 +175,15 @@ html, body {
   padding: 12px;
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
   z-index: 500;
+  animation: settings-slide 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.05);
+  transform-origin: top right;
 }
 .settings-menu[hidden] { display: none !important; }
+@keyframes settings-slide {
+  from { opacity: 0; transform: translateY(-6px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.settings-btn:active { transform: scale(0.92); transition-duration: 0.06s; }
 .settings-section-title {
   font-size: 10px;
   letter-spacing: 1.5px;
@@ -333,6 +340,18 @@ html, body {
 .pet-card:hover {
   border-color: var(--text-faint);
   transform: translateY(-1px);
+}
+.pet-card:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.06s;
+}
+.pet-card.just-picked {
+  animation: card-pop 0.32s ease-out;
+}
+@keyframes card-pop {
+  0%   { transform: translateY(-1px) scale(1); }
+  40%  { transform: translateY(-3px) scale(1.04); }
+  100% { transform: translateY(-1px) scale(1); }
 }
 .pet-card.active {
   border-color: var(--accent);
@@ -1078,7 +1097,17 @@ html, body {
   box-shadow: 0 4px 14px rgba(79, 209, 165, 0.3);
 }
 .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(79, 209, 165, 0.4); }
-.btn-primary:active { transform: translateY(0); }
+.btn-primary:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 2px 8px rgba(79, 209, 165, 0.3);
+  transition-duration: 0.05s;
+}
+.btn-secondary:active {
+  transform: scale(0.97);
+  transition-duration: 0.05s;
+}
+.btn-rotate:active { transform: scale(0.94); transition-duration: 0.06s; }
+.btn-rotate:active .rotate-icon { transform: rotate(120deg); }
 .btn-primary:disabled {
   background: var(--bg-elev-2);
   color: var(--text-faint);
