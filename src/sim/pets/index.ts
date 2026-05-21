@@ -14,13 +14,19 @@ import { RABBIT } from './rabbit';
 import { TURTLE } from './turtle';
 import { SKUNK } from './skunk';
 
-export const ALL_PETS: ReadonlyArray<PetDefinition> = [
+export const ALL_PETS = [
   MOUSE,
   ELEPHANT,
   CAT,
   RABBIT,
   TURTLE,
   SKUNK,
-];
+] as const satisfies ReadonlyArray<PetDefinition>;
+
+/**
+ * Union of all known pet ids, derived directly from ALL_PETS. Add a new pet
+ * to ALL_PETS and `PetId` updates automatically — no string typos.
+ */
+export type PetId = typeof ALL_PETS[number]['id'];
 
 export { MOUSE, ELEPHANT, CAT, RABBIT, TURTLE, SKUNK };

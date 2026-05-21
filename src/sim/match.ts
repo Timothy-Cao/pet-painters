@@ -22,7 +22,6 @@ export function createInitialMatch(opts: { sandbox?: boolean } = {}): MatchState
     activePlanningPlayer: 'A',
     ready: { A: false, B: false },
     winner: null,
-    pendingDeployments: [],
     moveIntents: [],
     sandbox,
   };
@@ -92,7 +91,6 @@ export function resetMatchInPlace(state: MatchState, opts: { sandbox?: boolean }
   state.activePlanningPlayer = fresh.activePlanningPlayer;
   state.ready = fresh.ready;
   state.winner = fresh.winner;
-  state.pendingDeployments = fresh.pendingDeployments;
   state.moveIntents = fresh.moveIntents;
   state.sandbox = fresh.sandbox;
 }

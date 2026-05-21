@@ -27,19 +27,15 @@ export interface MatchState {
   nextPetId: number;
   energy: { A: number; B: number };
   phase: MatchPhase;
-  tick: number;            // monotonically increasing across execution phases
+  /** Monotonically increasing tick counter, across execution phases. */
+  tick: number;
   execPhaseStartTick: number;
-  activePlanningPlayer: PlayerId; // for hot-seat
+  /** For hot-seat planning; mostly informational under sandbox. */
+  activePlanningPlayer: PlayerId;
   ready: { A: boolean; B: boolean };
   winner: PlayerId | null;
-  pendingDeployments: PendingDeployment[];
+  /** Active move intents pushed by pet behaviors this tick; cleared by `resolveMovements`. */
   moveIntents: MoveIntent[];
+  /** Sandbox mode: infinite energy, no regen, deploy anywhere on own territory. */
   sandbox: boolean;
-}
-
-export interface PendingDeployment {
-  owner: PlayerId;
-  defId: string;
-  anchor: Vec2;
-  facing: Direction;
 }
