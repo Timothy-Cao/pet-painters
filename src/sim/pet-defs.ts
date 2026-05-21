@@ -1,6 +1,6 @@
 import type { PetDefinition, Pet } from '../types/pet';
 import type { MatchState, Direction, Vec2 } from '../types/game';
-import { MOUSE_STATS, ELEPHANT_STATS, CAT_STATS, RABBIT_STATS } from '../config/balance';
+import { MOUSE_STATS, ELEPHANT_STATS, CAT_STATS, RABBIT_STATS, TURTLE_STATS } from '../config/balance';
 import { frontTiles, footprintTiles } from './pets';
 import { enemiesInFront, applyAttack } from './combat';
 import { paintTile } from './board';
@@ -287,11 +287,59 @@ export const RABBIT: PetDefinition = {
   ],
 };
 
+function turtleStep(pet: Pet, state: MatchState): void {
+  if (frontBlocked(pet, state)) {
+    pet.facing = CW_NEXT[pet.facing];
+    return;
+  }
+  declareMove(pet, state);
+}
+
+function turtleSplash(pet: Pet, state: MatchState): void {
+  // Paint the 4 orthogonal neighbors of the turtle's anchor in its color.
+  const neighbors: Vec2[] = [
+    { x: pet.anchor.x + 1, y: pet.anchor.y },
+    { x: pet.anchor.x - 1, y: pet.anchor.y },
+    { x: pet.anchor.x, y: pet.anchor.y + 1 },
+    { x: pet.anchor.x, y: pet.anchor.y - 1 },
+  ];
+  for (const t of neighbors) {
+    if (tileInBounds(state, t)) paintTile(state.board, t, pet.owner);
+  }
+}
+
+export const TURTLE: PetDefinition = {
+  id: 'turtle',
+  displayName: 'Turtle',
+  emoji: '🐢',
+  cost: TURTLE_STATS.cost,
+  size: { w: 1, h: 1 },
+  weight: TURTLE_STATS.weight,
+  maxHp: TURTLE_STATS.maxHp,
+  atk: TURTLE_STATS.atk,
+  order: TURTLE_STATS.order,
+  tuples: [
+    // Walk forward; turn clockwise whenever the front is blocked.
+    {
+      intervalSec: 1 / TURTLE_STATS.speedTilesPerSec,
+      trigger: () => true,
+      action: turtleStep,
+    },
+    // Splash paint orthogonal neighbors on its own cadence.
+    {
+      intervalSec: 1 / TURTLE_STATS.splashPerSec,
+      trigger: () => true,
+      action: turtleSplash,
+    },
+  ],
+};
+
 const REGISTRY: Record<string, PetDefinition> = {
   [MOUSE.id]: MOUSE,
   [ELEPHANT.id]: ELEPHANT,
   [CAT.id]: CAT,
   [RABBIT.id]: RABBIT,
+  [TURTLE.id]: TURTLE,
 };
 
 export function getPetDef(id: string): PetDefinition {

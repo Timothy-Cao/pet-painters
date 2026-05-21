@@ -42,6 +42,17 @@ export const RABBIT_STATS = {
   order: 3,
 };
 
+export const TURTLE_STATS = {
+  cost: 4,
+  speedTilesPerSec: 0.5,      // very slow walker
+  splashPerSec: 1,            // paints adjacent tiles every second
+  weight: 3,
+  maxHp: 8,
+  atk: 0,
+  atkSpeedPerSec: 0,
+  order: 2,
+};
+
 export const CAT_STATS = {
   cost: 4,
   speedTilesPerSec: 1,        // wander speed
