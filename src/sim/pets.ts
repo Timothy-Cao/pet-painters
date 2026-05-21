@@ -40,11 +40,3 @@ export function frontTiles(anchor: Vec2, size: Size, facing: Direction): Vec2[] 
   return out;
 }
 
-export function advanceAnchor(anchor: Vec2, facing: Direction): Vec2 {
-  switch (facing) {
-    case 'N': return { x: anchor.x, y: anchor.y + 1 };
-    case 'S': return { x: anchor.x, y: anchor.y - 1 };
-    case 'E': return { x: anchor.x + 1, y: anchor.y };
-    case 'W': return { x: anchor.x - 1, y: anchor.y };
-  }
-}
