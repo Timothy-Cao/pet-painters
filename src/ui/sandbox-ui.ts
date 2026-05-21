@@ -4,6 +4,7 @@ import { ALL_PETS } from '../sim/pets';
 import { submitReady } from '../sim/match';
 import { undeploy } from '../sim/deploy';
 import { getPetDef } from '../sim/pet-defs';
+import { CW_NEXT } from '../sim/behaviors';
 import { WIN_PAINT_THRESHOLD, EXECUTION_PHASE_SECONDS } from '../config/balance';
 import { BOARD_SIZE, TICKS_PER_SEC } from '../config/constants';
 import { scoreFor } from '../sim/board';
@@ -24,7 +25,6 @@ function speedLabel(speedTilesPerSec: number): string {
 
 const FACING_NAME: Record<Direction, string> = { N: 'North', E: 'East', S: 'South', W: 'West' };
 const FACING_ARROW: Record<Direction, string> = { N: '▲', E: '▶', S: '▼', W: '◀' };
-const CW_NEXT: Record<Direction, Direction> = { N: 'E', E: 'S', S: 'W', W: 'N' };
 
 export function createSandboxUIState(): SandboxUIState {
   const first = ALL_PETS[0];

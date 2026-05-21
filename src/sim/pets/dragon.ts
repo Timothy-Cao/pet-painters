@@ -1,6 +1,6 @@
 import type { PetDefinition, Pet } from '../../types/pet';
 import type { MatchState, Vec2 } from '../../types/game';
-import { anyPetAt, facingDelta, tileInBounds, walkOrTurnAtWall } from '../behaviors';
+import { anyPetAt, tileInBounds, walkOrTurnAtWall } from '../behaviors';
 import { pushDamage, pushFlame, pushHit } from '../../render/effects';
 
 const STATS = {
@@ -18,7 +18,6 @@ const STATS = {
  *  `breathRange` tiles in the facing direction. */
 function coneTiles(pet: Pet, range: number): Vec2[] {
   const tiles: Vec2[] = [];
-  const d = facingDelta(pet.facing);
   // For each depth (1..range) and each lateral position on the front edge.
   for (let depth = 1; depth <= range; depth++) {
     if (pet.facing === 'N' || pet.facing === 'S') {
@@ -31,7 +30,6 @@ function coneTiles(pet: Pet, range: number): Vec2[] {
       tiles.push({ x, y: pet.anchor.y });
       tiles.push({ x, y: pet.anchor.y + 1 });
     }
-    void d;
   }
   return tiles;
 }
