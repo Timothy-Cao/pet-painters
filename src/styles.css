@@ -95,6 +95,13 @@ html, body {
   background: var(--accent);
   box-shadow: 0 0 8px currentColor;
 }
+.phase-pill.phase-execution .phase-dot {
+  animation: phase-pulse 1.2s ease-in-out infinite;
+}
+@keyframes phase-pulse {
+  0%, 100% { box-shadow: 0 0 6px currentColor; transform: scale(1); }
+  50%      { box-shadow: 0 0 12px currentColor; transform: scale(1.25); }
+}
 
 .territory {
   display: grid;

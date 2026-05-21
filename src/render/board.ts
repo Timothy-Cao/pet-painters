@@ -31,6 +31,21 @@ export function renderBoard(rc: RenderContext, board: Board): void {
       ctx.fillStyle = COLORS[color];
       ctx.fillRect(px, py, tileSize, tileSize);
 
+      // Neutral tiles get a 2x2 dot pattern — gives empty territory a tactile
+      // texture so painted territory reads as visibly more "solid."
+      if (color === 'neutral') {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
+        const dotR = 1;
+        const inset = tileSize / 4;
+        for (let dy = 0; dy < 2; dy++) {
+          for (let dx = 0; dx < 2; dx++) {
+            ctx.fillRect(px + inset + dx * (tileSize / 2) - dotR / 2,
+                         py + inset + dy * (tileSize / 2) - dotR / 2,
+                         dotR, dotR);
+          }
+        }
+      }
+
       if (color === 'neutral' && homeOwner) {
         ctx.fillStyle = homeOwner === 'A' ? HOME_A_TINT : HOME_B_TINT;
         ctx.fillRect(px, py, tileSize, tileSize);
