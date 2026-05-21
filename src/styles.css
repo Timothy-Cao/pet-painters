@@ -1347,3 +1347,31 @@ kbd {
 .back-btn:hover { background: rgba(0,0,0,0.6); }
 
 .sandbox-screen { position: relative; }
+
+.sign-in-screen {
+  max-width: 420px;
+  margin: 100px auto;
+  text-align: center;
+  color: var(--text, #eee);
+  padding: 20px;
+}
+.sign-in-screen h2 { font-size: 24px; margin-bottom: 12px; }
+.sign-in-screen p { color: var(--text-dim, #aaa); margin-bottom: 24px; }
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.g-icon {
+  background: #fff;
+  color: #444;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-family: serif;
+}
