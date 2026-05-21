@@ -140,3 +140,45 @@ export const DIAG_DELTAS: Vec2[] = [
 ];
 
 export const KING_DELTAS: Vec2[] = [...ORTHO_DELTAS, ...DIAG_DELTAS];
+
+// ---------- Sightline ----------
+
+export type SightHit =
+  | { kind: 'enemy'; pet: Pet; distance: number }
+  | { kind: 'ally'; pet: Pet; distance: number }
+  | { kind: 'wall'; distance: number }
+  | { kind: 'clear' };
+
+/** Cast a ray from the pet's front edge in its facing direction. Returns the
+ *  first thing it hits — enemy, ally, wall, or nothing within `maxDistance`. */
+export function lookAhead(pet: Pet, state: MatchState, maxDistance: number): SightHit {
+  const def = getPetDef(pet.defId);
+  const d = facingDelta(pet.facing);
+  const fronts = frontTiles(pet.anchor, def.size, pet.facing);
+  for (let dist = 0; dist < maxDistance; dist++) {
+    for (const f of fronts) {
+      const t: Vec2 = { x: f.x + d.x * dist, y: f.y + d.y * dist };
+      if (!tileInBounds(state, t)) {
+        return { kind: 'wall', distance: dist + 1 };
+      }
+      for (const other of state.pets) {
+        if (other === pet) continue;
+        const odef = getPetDef(other.defId);
+        for (const o of footprintTiles(other.anchor, odef.size)) {
+          if (o.x === t.x && o.y === t.y) {
+            return {
+              kind: other.owner !== pet.owner ? 'enemy' : 'ally',
+              pet: other,
+              distance: dist + 1,
+            };
+          }
+        }
+      }
+    }
+  }
+  return { kind: 'clear' };
+}
+
+export function enemyInSight(pet: Pet, state: MatchState, maxDistance: number): boolean {
+  return lookAhead(pet, state, maxDistance).kind === 'enemy';
+}

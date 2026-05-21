@@ -8,12 +8,14 @@ type Effect =
   | { kind: 'spray'; x: number; y: number; owner: PlayerId; born: number }
   | { kind: 'splat'; x: number; y: number; owner: PlayerId; born: number; angle: number }
   | { kind: 'poof'; x: number; y: number; owner: PlayerId; born: number }
-  | { kind: 'damage'; x: number; y: number; owner: PlayerId; born: number; amount: number; jitterX: number };
+  | { kind: 'damage'; x: number; y: number; owner: PlayerId; born: number; amount: number; jitterX: number }
+  | { kind: 'roar'; x: number; y: number; owner: PlayerId; born: number };
 
 const DURATION_MS = 360;
 const SPLAT_MS = 480;
 const POOF_MS = 420;
 const DAMAGE_MS = 700;
+const ROAR_MS = 520;
 const effects: Effect[] = [];
 
 import { side } from './palette';
@@ -50,6 +52,9 @@ export function pushDamage(x: number, y: number, owner: PlayerId, amount: number
   // Tiny horizontal jitter so two simultaneous hits don't perfectly overlap.
   effects.push({ kind: 'damage', x, y, owner, born: now(), amount, jitterX: (Math.random() - 0.5) * 0.4 });
 }
+export function pushRoar(x: number, y: number, owner: PlayerId): void {
+  effects.push({ kind: 'roar', x, y, owner, born: now() });
+}
 
 export function clearEffects(): void {
   effects.length = 0;
@@ -63,6 +68,7 @@ export function renderEffects(rc: RenderContext): void {
     const lifetime = e.kind === 'splat' ? SPLAT_MS
                    : e.kind === 'poof' ? POOF_MS
                    : e.kind === 'damage' ? DAMAGE_MS
+                   : e.kind === 'roar' ? ROAR_MS
                    : DURATION_MS;
     if (age >= lifetime) { effects.splice(i, 1); continue; }
     const t = age / lifetime;       // 0..1
@@ -136,6 +142,22 @@ export function renderEffects(rc: RenderContext): void {
       const r = size * 0.4 + size * 0.3 * t;
       rc.ctx.beginPath();
       rc.ctx.arc(0, 0, r, 0, Math.PI * 2);
+      rc.ctx.stroke();
+    } else if (e.kind === 'roar') {
+      // Two concentric warm-yellow rings expanding outward — reads as a
+      // "spotted you" cue when the lion locks onto a target.
+      rc.ctx.globalAlpha = 1 - t;
+      rc.ctx.strokeStyle = '#ffd166';
+      rc.ctx.lineWidth = 2.5;
+      const r1 = size * (0.20 + 0.70 * t);
+      rc.ctx.beginPath();
+      rc.ctx.arc(0, 0, r1, 0, Math.PI * 2);
+      rc.ctx.stroke();
+      rc.ctx.globalAlpha = (1 - t) * 0.55;
+      rc.ctx.lineWidth = 1.5;
+      const r2 = size * (0.05 + 0.55 * t);
+      rc.ctx.beginPath();
+      rc.ctx.arc(0, 0, r2, 0, Math.PI * 2);
       rc.ctx.stroke();
     } else if (e.kind === 'poof') {
       // Grey-tinted dust burst: 8 small dots drift outward and fade.
