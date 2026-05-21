@@ -7,11 +7,13 @@ type Effect =
   | { kind: 'pounce'; x: number; y: number; owner: PlayerId; born: number }
   | { kind: 'spray'; x: number; y: number; owner: PlayerId; born: number }
   | { kind: 'splat'; x: number; y: number; owner: PlayerId; born: number; angle: number }
-  | { kind: 'poof'; x: number; y: number; owner: PlayerId; born: number };
+  | { kind: 'poof'; x: number; y: number; owner: PlayerId; born: number }
+  | { kind: 'damage'; x: number; y: number; owner: PlayerId; born: number; amount: number; jitterX: number };
 
 const DURATION_MS = 360;
 const SPLAT_MS = 480;
 const POOF_MS = 420;
+const DAMAGE_MS = 700;
 const effects: Effect[] = [];
 
 const COLORS = { A: '#5b8def', B: '#f25f5c' } as const;
@@ -36,6 +38,10 @@ export function pushSplat(x: number, y: number, owner: PlayerId): void {
 export function pushPoof(x: number, y: number, owner: PlayerId): void {
   effects.push({ kind: 'poof', x, y, owner, born: now() });
 }
+export function pushDamage(x: number, y: number, owner: PlayerId, amount: number): void {
+  // Tiny horizontal jitter so two simultaneous hits don't perfectly overlap.
+  effects.push({ kind: 'damage', x, y, owner, born: now(), amount, jitterX: (Math.random() - 0.5) * 0.4 });
+}
 
 export function clearEffects(): void {
   effects.length = 0;
@@ -48,11 +54,34 @@ export function renderEffects(rc: RenderContext): void {
     const age = t0 - e.born;
     const lifetime = e.kind === 'splat' ? SPLAT_MS
                    : e.kind === 'poof' ? POOF_MS
+                   : e.kind === 'damage' ? DAMAGE_MS
                    : DURATION_MS;
     if (age >= lifetime) { effects.splice(i, 1); continue; }
     const t = age / lifetime;       // 0..1
     const size = rc.tileSize;
     const { px, py } = tileToPixel(rc, e.x, e.y);
+
+    // Damage numbers render without the centering-translate dance — they
+    // need to draw above the tile, not on it, and they don't rotate.
+    if (e.kind === 'damage') {
+      const eased = 1 - (1 - t) * (1 - t);
+      const cx = px + size / 2 + e.jitterX * size;
+      const startY = py + size / 2;
+      const ny = startY - size * 0.6 * eased;
+      rc.ctx.save();
+      rc.ctx.globalAlpha = t < 0.85 ? 1 : (1 - t) / 0.15;
+      rc.ctx.font = `700 ${Math.floor(size * 0.42)}px ui-monospace, monospace`;
+      rc.ctx.textAlign = 'center';
+      rc.ctx.textBaseline = 'middle';
+      // Black halo for readability over any tile color.
+      rc.ctx.fillStyle = 'rgba(0,0,0,0.85)';
+      rc.ctx.fillText(`-${e.amount}`, cx + 1, ny + 1);
+      rc.ctx.fillStyle = COLORS[e.owner];
+      rc.ctx.fillText(`-${e.amount}`, cx, ny);
+      rc.ctx.restore();
+      continue;
+    }
+
     rc.ctx.save();
     rc.ctx.translate(px + size / 2, py + size / 2);
 

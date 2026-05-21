@@ -2,7 +2,7 @@ import type { PetDefinition, Pet } from '../../types/pet';
 import type { MatchState, Vec2 } from '../../types/game';
 import { paintTile } from '../board';
 import { anyPetAt, declareMove, frontBlocked, scurryTurn, tileInBounds, KING_DELTAS } from '../behaviors';
-import { pushPounce } from '../../render/effects';
+import { pushPounce, pushDamage } from '../../render/effects';
 import { MOUSE } from './mouse';
 
 const STATS = {
@@ -38,9 +38,11 @@ function catPounce(pet: Pet, state: MatchState): void {
     if (!occupant) continue;
     if (occupant.defId !== MOUSE.id) continue;
     if (occupant.owner === pet.owner) continue;
+    const lethalDmg = occupant.hp;
     occupant.hp = 0;
     paintTile(state.board, t, pet.owner);
     pushPounce(t.x, t.y, pet.owner);
+    if (lethalDmg > 0) pushDamage(t.x, t.y, pet.owner, lethalDmg);
     return;
   }
 }
