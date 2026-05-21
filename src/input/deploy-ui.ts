@@ -1,5 +1,5 @@
 import type { MatchState, Direction, Vec2 } from '../types/game';
-import { tryDeploy } from '../sim/deploy';
+import { tryDeploy, petAtTile, undeploy } from '../sim/deploy';
 import { submitReady } from '../sim/match';
 import { MOUSE, ELEPHANT, getPetDef } from '../sim/pet-defs';
 import { BOARD_SIZE, HOME_ROWS } from '../config/constants';
@@ -7,6 +7,8 @@ import type { RenderContext } from '../render/canvas';
 import { tileToPixel } from '../render/canvas';
 import type { SandboxUIState } from '../ui/sandbox-ui';
 import { refreshAll, showBanner } from '../ui/sandbox-ui';
+
+const CW_NEXT: Record<Direction, Direction> = { N: 'E', E: 'S', S: 'W', W: 'N' };
 
 const PET_HOTKEYS: Record<string, string> = {
   '1': MOUSE.id,
@@ -34,24 +36,18 @@ export function attachDeployUI(
 ): void {
   window.addEventListener('keydown', (e) => {
     const k = e.key.toLowerCase();
-    if (k === 'r') {
-      e.preventDefault();
-      bindings.onReset();
-      return;
-    }
     if (state.phase !== 'planning') return;
     if (PET_HOTKEYS[k]) { ui.selectedDefId = PET_HOTKEYS[k]; refreshAll(state, ui); return; }
-    if (k === 'w') ui.facing = 'N';
-    else if (k === 's') ui.facing = 'S';
-    else if (k === 'a') ui.facing = 'W';
-    else if (k === 'd') ui.facing = 'E';
-    else if (k === ' ' || k === 'enter') {
+    if (k === 'r' && !e.ctrlKey && !e.metaKey) {
+      ui.facing = CW_NEXT[ui.facing];
+    } else if (k === ' ' || k === 'enter') {
       e.preventDefault();
       submitReady(state, 'A');
       submitReady(state, 'B');
     }
     refreshAll(state, ui);
   });
+  void bindings;
 
   canvas.addEventListener('mousemove', (e) => {
     const rect = canvas.getBoundingClientRect();
@@ -70,9 +66,27 @@ export function attachDeployUI(
 
   canvas.addEventListener('mouseleave', () => { ui.hoverTile = null; });
 
+  // Right-click rotates the facing clockwise; suppress the browser context menu over the canvas.
+  canvas.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    if (state.phase !== 'planning') return;
+    ui.facing = CW_NEXT[ui.facing];
+    refreshAll(state, ui);
+  });
+
   canvas.addEventListener('click', () => {
     if (state.phase !== 'planning') return;
-    if (!ui.selectedDefId || !ui.hoverTile) return;
+    if (!ui.hoverTile) return;
+
+    // Left-click on an existing pet undeploys it.
+    const existing = petAtTile(state, ui.hoverTile);
+    if (existing) {
+      undeploy(state, existing.petId);
+      refreshAll(state, ui);
+      return;
+    }
+
+    if (!ui.selectedDefId) return;
     const def = getPetDef(ui.selectedDefId);
     const player = inferPlayerFromAnchor(ui.hoverTile.x, ui.hoverTile.y, def.size.w, def.size.h);
     if (!player) {

@@ -15,17 +15,30 @@ export interface SandboxUIState {
 interface PetRosterEntry {
   defId: string;
   hotkey: string;
+  ability: string;
 }
 
 const ROSTER: PetRosterEntry[] = [
-  { defId: MOUSE.id, hotkey: '1' },
-  { defId: ELEPHANT.id, hotkey: '2' },
+  {
+    defId: MOUSE.id,
+    hotkey: '1',
+    ability: 'Quick scout. Paints territory rapidly but is fragile — easily pushed aside or worn down by heavier units.',
+  },
+  {
+    defId: ELEPHANT.id,
+    hotkey: '2',
+    ability: 'Heavy bruiser. Moves slowly but shoves lighter pets out of its path and soaks up a lot of damage while painting.',
+  },
 ];
 
 const STAT_LABELS = {
   [MOUSE.id]: MOUSE_STATS,
   [ELEPHANT.id]: ELEPHANT_STATS,
 } as const;
+
+const FACING_NAME: Record<Direction, string> = { N: 'North', E: 'East', S: 'South', W: 'West' };
+const FACING_ARROW: Record<Direction, string> = { N: '▲', E: '▶', S: '▼', W: '◀' };
+const CW_NEXT: Record<Direction, Direction> = { N: 'E', E: 'S', S: 'W', W: 'N' };
 
 export function createSandboxUIState(): SandboxUIState {
   return { selectedDefId: MOUSE.id, facing: 'N' };
@@ -64,10 +77,19 @@ function buildPetRoster(_state: MatchState, ui: SandboxUIState): void {
         <div class="pet-stats">
           <span><span class="stat-label">HP</span> ${stats.maxHp}</span>
           <span><span class="stat-label">ATK</span> ${stats.atk}</span>
-          <span><span class="stat-label">SPD</span> ${stats.speedTilesPerSec}</span>
+          <span><span class="stat-label">SPD</span> ${stats.speedTilesPerSec}/s</span>
         </div>
       </div>
       <div class="pet-hotkey">${entry.hotkey}</div>
+      <div class="pet-tooltip">
+        <div class="pet-tooltip-row"><span class="pet-tooltip-key">Health</span><span class="pet-tooltip-val">${stats.maxHp}</span></div>
+        <div class="pet-tooltip-row"><span class="pet-tooltip-key">Attack</span><span class="pet-tooltip-val">${stats.atk}</span></div>
+        <div class="pet-tooltip-row"><span class="pet-tooltip-key">Move speed</span><span class="pet-tooltip-val">${stats.speedTilesPerSec} tile/s</span></div>
+        <div class="pet-tooltip-row"><span class="pet-tooltip-key">Attack speed</span><span class="pet-tooltip-val">${stats.atkSpeedPerSec}/s</span></div>
+        <div class="pet-tooltip-row"><span class="pet-tooltip-key">Weight</span><span class="pet-tooltip-val">${stats.weight}</span></div>
+        <div class="pet-tooltip-row"><span class="pet-tooltip-key">Footprint</span><span class="pet-tooltip-val">${def.size.w}×${def.size.h}</span></div>
+        <div class="pet-tooltip-ability">${entry.ability}</div>
+      </div>
     `;
     card.addEventListener('click', () => {
       ui.selectedDefId = def.id;
@@ -78,11 +100,11 @@ function buildPetRoster(_state: MatchState, ui: SandboxUIState): void {
 }
 
 function bindFacing(ui: SandboxUIState): void {
-  document.querySelectorAll<HTMLButtonElement>('.btn-facing').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      ui.facing = btn.dataset.facing as Direction;
-      refreshFacing(ui);
-    });
+  const rotateBtn = document.getElementById('btn-rotate');
+  if (!rotateBtn) return;
+  rotateBtn.addEventListener('click', () => {
+    ui.facing = CW_NEXT[ui.facing];
+    refreshFacing(ui);
   });
 }
 
@@ -113,9 +135,10 @@ function refreshRoster(ui: SandboxUIState): void {
 }
 
 function refreshFacing(ui: SandboxUIState): void {
-  document.querySelectorAll<HTMLElement>('.btn-facing').forEach((el) => {
-    el.classList.toggle('active', el.dataset.facing === ui.facing);
-  });
+  const arrow = document.getElementById('facing-arrow');
+  const name = document.getElementById('facing-name');
+  if (arrow) arrow.textContent = FACING_ARROW[ui.facing];
+  if (name) name.textContent = FACING_NAME[ui.facing];
 }
 
 function refreshScores(state: MatchState): void {

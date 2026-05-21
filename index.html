@@ -62,16 +62,16 @@
 
       <aside class="sidebar sidebar-right">
         <div class="panel-title">Facing</div>
-        <div class="facing-grid">
-          <div></div>
-          <button class="btn-facing" data-facing="N" id="facing-N"><span>▲</span><span class="btn-hotkey">W</span></button>
-          <div></div>
-          <button class="btn-facing" data-facing="W" id="facing-W"><span>◀</span><span class="btn-hotkey">A</span></button>
-          <div class="facing-center">FACE</div>
-          <button class="btn-facing" data-facing="E" id="facing-E"><span>▶</span><span class="btn-hotkey">D</span></button>
-          <div></div>
-          <button class="btn-facing" data-facing="S" id="facing-S"><span>▼</span><span class="btn-hotkey">S</span></button>
-          <div></div>
+        <div class="facing-row">
+          <div class="facing-display" id="facing-display">
+            <div class="facing-arrow" id="facing-arrow">▲</div>
+            <div class="facing-name" id="facing-name">North</div>
+          </div>
+          <button class="btn-rotate" id="btn-rotate" title="Rotate clockwise">
+            <span class="rotate-icon">⟳</span>
+            <span class="rotate-label">Rotate</span>
+            <span class="btn-hotkey">R</span>
+          </button>
         </div>
 
         <div class="panel-title">Energy</div>
@@ -101,10 +101,10 @@
 
     <footer class="footer">
       <span><kbd>1</kbd>/<kbd>2</kbd> select pet</span>
-      <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> facing</span>
-      <span><kbd>Click</kbd> deploy in home zone</span>
+      <span><kbd>R</kbd> or <kbd>right-click</kbd> rotate</span>
+      <span><kbd>Left-click</kbd> deploy in home zone</span>
+      <span><kbd>Left-click</kbd> on pet to undeploy</span>
       <span><kbd>Space</kbd> start round</span>
-      <span><kbd>R</kbd> reset</span>
     </footer>
   </div>
 

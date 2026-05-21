@@ -57,3 +57,27 @@ export function tryDeploy(
   state.pets.push(pet);
   return { ok: true, pet };
 }
+
+// Find the pet whose footprint includes the given tile, if any (only valid during planning).
+export function petAtTile(state: MatchState, tile: Vec2): import('../types/pet').Pet | null {
+  for (const p of state.pets) {
+    const def = getPetDef(p.defId);
+    for (const ft of footprintTiles(p.anchor, def.size)) {
+      if (ft.x === tile.x && ft.y === tile.y) return p;
+    }
+  }
+  return null;
+}
+
+// Remove a pet from the match and refund its energy cost (no-op refund in sandbox).
+export function undeploy(state: MatchState, petId: number): boolean {
+  const idx = state.pets.findIndex((p) => p.petId === petId);
+  if (idx < 0) return false;
+  const pet = state.pets[idx];
+  const def = getPetDef(pet.defId);
+  state.pets.splice(idx, 1);
+  if (!state.sandbox) {
+    state.energy[pet.owner] = Math.min(state.energy[pet.owner] + def.cost, Number.MAX_SAFE_INTEGER);
+  }
+  return true;
+}
