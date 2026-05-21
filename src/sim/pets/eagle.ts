@@ -7,11 +7,11 @@ import { getPetDef } from '../pet-defs';
 import { pushFlutter, pushHit, pushDamage } from '../../render/effects';
 
 const STATS = {
-  cost: 3,
+  cost: 2,
   speedTilesPerSec: 1,            // one tuple-fire per second
   weight: 1,
   maxHp: 3,
-  atk: 2,                         // base damage vs any enemy (doubled vs 1×1 targets)
+  atk: 1,                         // base damage vs any enemy (doubled vs 1×1 targets)
   atkSpeedPerSec: 1,
   order: 2,
 } as const;
@@ -64,7 +64,7 @@ export const EAGLE: PetDefinition = {
     hotkey: '9',
     short: 'Flies 2 tiles, +2× dmg vs small',
     ability:
-      'Once a second, the eagle flies 2 tiles forward, ignoring any pet in between. Paints only the landing tile. Deals 2 damage per strike to any enemy in front, doubled to 4 damage against 1×1 pets.',
+      'Once a second, the eagle flies 2 tiles forward, ignoring any pet in between. Paints only the landing tile. Deals 1 damage per strike to any enemy in front, doubled to 2 damage against 1×1 pets.',
   },
   tuples: [
     { intervalSec: 1 / STATS.speedTilesPerSec, trigger: () => true, action: eagleFly },

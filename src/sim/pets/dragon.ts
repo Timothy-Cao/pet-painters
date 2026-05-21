@@ -4,31 +4,33 @@ import { anyPetAt, tileInBounds, walkOrTurnAtWall } from '../behaviors';
 import { pushDamage, pushFlame, pushHit } from '../../render/effects';
 
 const STATS = {
-  cost: 9,
+  cost: 11,
   speedTilesPerSec: 0.5,
-  weight: 9,                      // just under Elephant — still pushable by an elephant
-  maxHp: 20,
+  weight: 14,                     // heavier than elephant — can push full tank chains
+  maxHp: 28,
   atk: 3,                         // damage per affected tile in the cone
   atkSpeedPerSec: 0.75,           // breathes every ~1.33s (was every 2s)
   order: 1,
   breathRange: 3,                 // tiles ahead of the front edge to scorch
 } as const;
 
-/** All tiles in the dragon's forward "cone": its 2-wide front edge, extended
+/** All tiles in the dragon's forward "cone": its 3-wide front edge, extended
  *  `breathRange` tiles in the facing direction. */
 function coneTiles(pet: Pet, range: number): Vec2[] {
   const tiles: Vec2[] = [];
   // For each depth (1..range) and each lateral position on the front edge.
   for (let depth = 1; depth <= range; depth++) {
     if (pet.facing === 'N' || pet.facing === 'S') {
-      const y = pet.anchor.y + (pet.facing === 'N' ? 2 + (depth - 1) : -depth);
-      // Footprint is 2 wide along x, so two cone columns.
+      const y = pet.anchor.y + (pet.facing === 'N' ? 3 + (depth - 1) : -depth);
+      // Footprint is 3 wide along x, so three cone columns.
       tiles.push({ x: pet.anchor.x, y });
       tiles.push({ x: pet.anchor.x + 1, y });
+      tiles.push({ x: pet.anchor.x + 2, y });
     } else {
-      const x = pet.anchor.x + (pet.facing === 'E' ? 2 + (depth - 1) : -depth);
+      const x = pet.anchor.x + (pet.facing === 'E' ? 3 + (depth - 1) : -depth);
       tiles.push({ x, y: pet.anchor.y });
       tiles.push({ x, y: pet.anchor.y + 1 });
+      tiles.push({ x, y: pet.anchor.y + 2 });
     }
   }
   return tiles;
@@ -59,7 +61,7 @@ export const DRAGON: PetDefinition = {
   displayName: 'Dragon',
   emoji: '🐉',
   cost: STATS.cost,
-  size: { w: 2, h: 2 },
+  size: { w: 3, h: 3 },
   weight: STATS.weight,
   maxHp: STATS.maxHp,
   atk: STATS.atk,
@@ -68,9 +70,9 @@ export const DRAGON: PetDefinition = {
   role: 'predator',
   ui: {
     hotkey: 'w',
-    short: 'Breathes fire ahead',
+    short: 'Breathes fire ahead (3×3)',
     ability:
-      '2×2 caster. Walks slowly forward, but every 2 seconds exhales a 2×3 cone of fire that hits every enemy in the six tiles directly ahead for 3 damage each.',
+      '3×3 premium caster. Walks slowly forward, but every ~1.3 seconds exhales a 3×3 cone of fire that hits every enemy in the nine tiles directly ahead for 3 damage each.',
   },
   tuples: [
     // Slow patrol.
