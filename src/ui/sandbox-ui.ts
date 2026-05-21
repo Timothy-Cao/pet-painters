@@ -149,6 +149,9 @@ function bindActions(state: MatchState, bindings: SandboxUIBindings): void {
   document.getElementById('btn-reset')!.addEventListener('click', () => {
     bindings.onReset();
   });
+  document.getElementById('rs-close')?.addEventListener('click', () => {
+    state.lastRoundSummary = null;
+  });
 }
 
 export function refreshAll(state: MatchState, ui: SandboxUIState): void {
@@ -158,6 +161,7 @@ export function refreshAll(state: MatchState, ui: SandboxUIState): void {
   refreshEnergy(state);
   refreshPhase(state);
   refreshExecBar(state);
+  refreshRoundSummary(state);
 }
 
 function refreshRoster(ui: SandboxUIState): void {
@@ -214,6 +218,49 @@ function refreshPhase(state: MatchState): void {
 
   const startBtn = document.getElementById('btn-start') as HTMLButtonElement;
   startBtn.disabled = state.phase !== 'planning';
+}
+
+function refreshRoundSummary(state: MatchState): void {
+  const card = document.getElementById('round-summary') as HTMLElement | null;
+  if (!card) return;
+  const summary = state.lastRoundSummary;
+  const shouldShow = !!summary && state.phase === 'planning';
+  if (!shouldShow) {
+    card.hidden = true;
+    return;
+  }
+  card.hidden = false;
+  if (!summary) return;
+  setText('rs-round', String(summary.round));
+  setDelta('rs-a-delta', summary.aTilesDelta);
+  setDelta('rs-b-delta', summary.bTilesDelta);
+  setText('rs-a-total', String(summary.aTilesEnd));
+  setText('rs-b-total', String(summary.bTilesEnd));
+  setText('rs-a-lost', String(summary.aLost));
+  setText('rs-b-lost', String(summary.bLost));
+
+  const arrow = document.getElementById('rs-momentum-arrow') as HTMLElement | null;
+  const label = document.getElementById('rs-momentum-label');
+  if (arrow && label) {
+    arrow.classList.remove('to-a', 'to-b', 'even');
+    const swing = summary.aTilesDelta - summary.bTilesDelta;
+    if (swing > 0) { arrow.classList.add('to-a'); label.textContent = 'Momentum A'; }
+    else if (swing < 0) { arrow.classList.add('to-b'); label.textContent = 'Momentum B'; }
+    else { arrow.classList.add('even'); label.textContent = 'Even'; }
+  }
+}
+
+function setText(id: string, value: string): void {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+function setDelta(id: string, value: number): void {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = value > 0 ? `+${value}` : `${value}`;
+  el.classList.toggle('positive', value > 0);
+  el.classList.toggle('negative', value < 0);
 }
 
 function refreshExecBar(state: MatchState): void {

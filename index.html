@@ -58,6 +58,34 @@
           <div class="player-tag player-tag-b">Player B (top)</div>
           <canvas id="game" width="600" height="600"></canvas>
           <div class="player-tag player-tag-a">Player A (bottom)</div>
+          <div class="round-summary" id="round-summary" hidden>
+            <div class="rs-head">
+              <span class="rs-title">Round <span id="rs-round">1</span> complete</span>
+              <button class="rs-close" id="rs-close" aria-label="Dismiss">×</button>
+            </div>
+            <div class="rs-cols">
+              <div class="rs-col rs-col-a">
+                <div class="rs-col-tag">A</div>
+                <div class="rs-stats">
+                  <div class="rs-stat"><span>Tiles</span><span class="rs-delta" id="rs-a-delta">+0</span></div>
+                  <div class="rs-stat"><span>Total</span><span class="rs-total" id="rs-a-total">0</span></div>
+                  <div class="rs-stat"><span>Pets lost</span><span class="rs-lost" id="rs-a-lost">0</span></div>
+                </div>
+              </div>
+              <div class="rs-momentum">
+                <div class="rs-momentum-arrow" id="rs-momentum-arrow"></div>
+                <div class="rs-momentum-label" id="rs-momentum-label">Even</div>
+              </div>
+              <div class="rs-col rs-col-b">
+                <div class="rs-col-tag">B</div>
+                <div class="rs-stats">
+                  <div class="rs-stat"><span>Tiles</span><span class="rs-delta" id="rs-b-delta">+0</span></div>
+                  <div class="rs-stat"><span>Total</span><span class="rs-total" id="rs-b-total">0</span></div>
+                  <div class="rs-stat"><span>Pets lost</span><span class="rs-lost" id="rs-b-lost">0</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="exec-bar" id="exec-bar">
           <div class="exec-fill" id="exec-fill"></div>

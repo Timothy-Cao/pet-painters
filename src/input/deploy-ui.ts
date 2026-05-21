@@ -98,6 +98,9 @@ export function attachDeployUI(
     const result = tryDeploy(state, player, ui.selectedDefId, ui.hoverTile, ui.facing);
     if (!result.ok) {
       showBanner(`Cannot deploy: ${result.reason}`);
+    } else if (state.lastRoundSummary) {
+      // The first action of the next planning phase dismisses the summary.
+      state.lastRoundSummary = null;
     }
     refreshAll(state, ui);
   });
