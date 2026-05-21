@@ -5,7 +5,7 @@ import { paintTile } from '../board';
 import { pushWeb } from '../../render/effects';
 
 const STATS = {
-  cost: 2,
+  cost: 1,                         // reduced from 2 — allows deploying many spiders for area-denial coverage
   speedTilesPerSec: 0,            // stationary
   weight: 2,
   maxHp: 12,

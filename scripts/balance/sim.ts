@@ -37,14 +37,21 @@ export interface MatchOptions {
 }
 
 /**
- * Deploys pets of `comp` for `player` in their home zone until energy is exhausted.
- * Greedy scan: for A, scan rows 0..HOME_ROWS-1 from left to right; for B, rows BOARD_SIZE-HOME_ROWS..BOARD_SIZE-1 from left to right.
- * Cycles through petIds. Skips pets that can't fit at the current scan position; tries next position.
+ * Deploys pets of `comp` for `player` in their home zone using random-affordable picking.
+ *
+ * Each placement attempt:
+ * 1. Build the set of comp pets whose cost ≤ remaining energy.
+ * 2. If empty, stop.
+ * 3. Pick one randomly using the match RNG (falls back to Math.random if null).
+ * 4. Find a placement spot using the existing scan-all-anchors-in-zone approach.
+ *    If no spot works for this pet, REMOVE it from the affordable set for this attempt
+ *    and retry with the smaller set. If the set empties, stop.
+ * 5. Deploy and continue.
+ *
  * Returns count of pets deployed.
  */
 function deployComp(state: MatchState, player: PlayerId, comp: Comp): number {
   let deployed = 0;
-  let cycleIdx = 0;
   // Build the scan order over home zone anchors.
   const anchors: Vec2[] = [];
   if (player === 'A') {
@@ -58,26 +65,43 @@ function deployComp(state: MatchState, player: PlayerId, comp: Comp): number {
   }
   const facing: Direction = player === 'A' ? 'N' : 'S';
 
-  // Outer loop: keep cycling petIds while we still have budget
+  // Unique pet ids in comp
+  const uniquePetIds = [...new Set(comp.petIds)];
+
+  // Helper: use match RNG if available, else Math.random
+  const rand = (): number => state.rng ? state.rng.next() : Math.random();
+
   let safetyIterations = 0;
   while (safetyIterations++ < 2000) {
-    const defId = comp.petIds[cycleIdx % comp.petIds.length];
-    const def = getPetDef(defId);
-    if (state.energy[player] < def.cost) break;
+    // Build affordable set: unique pet ids whose cost <= remaining energy
+    let affordable = uniquePetIds.filter(id => getPetDef(id).cost <= state.energy[player]);
+    if (affordable.length === 0) break;
 
-    // Find first anchor where this pet fits
+    // Placement attempt: try randomly picked pets from affordable set until one places
     let placed = false;
-    for (const a of anchors) {
-      const result = tryDeploy(state, player, defId, a, facing);
-      if (result.ok) {
-        deployed++;
-        placed = true;
-        break;
-      }
-    }
-    if (!placed) break; // no more room
+    while (affordable.length > 0) {
+      // Pick one randomly
+      const idx = Math.floor(rand() * affordable.length);
+      const defId = affordable[idx];
 
-    cycleIdx++;
+      // Try to find an anchor for this pet
+      let foundAnchor = false;
+      for (const a of anchors) {
+        const result = tryDeploy(state, player, defId, a, facing);
+        if (result.ok) {
+          deployed++;
+          foundAnchor = true;
+          placed = true;
+          break;
+        }
+      }
+
+      if (foundAnchor) break;
+      // No anchor worked for this pet — remove it from affordable for this attempt
+      affordable.splice(idx, 1);
+    }
+
+    if (!placed) break; // No pet could be placed anywhere — board is full
   }
   return deployed;
 }

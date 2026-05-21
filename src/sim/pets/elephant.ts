@@ -3,7 +3,7 @@ import { enemiesInFront, applyAttack } from '../combat';
 import { walkOrTurnAtWall } from '../behaviors';
 
 const STATS = {
-  cost: 6,
+  cost: 5,                          // reduced from 6 — opens up more combo slots without breaking solo power
   speedTilesPerSec: 0.5,
   weight: 10,
   maxHp: 25,

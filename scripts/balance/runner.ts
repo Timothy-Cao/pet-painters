@@ -262,7 +262,7 @@ function computeSynergies(comps: CompDef[], results: CompResult[], teamWrs: Map<
 }
 
 // ---------------------------------------------------------------------------
-// Tier label
+// Tier label (legacy WR-based)
 // ---------------------------------------------------------------------------
 
 function tierOf(wr: number): string {
@@ -274,6 +274,163 @@ function tierOf(wr: number): string {
 }
 
 // ---------------------------------------------------------------------------
+// Meta-tier label (appearance-rate based)
+// ---------------------------------------------------------------------------
+
+function metaTierOf(appearance: number): string {
+  if (appearance >= 0.30) return 'Core';
+  if (appearance >= 0.10) return 'Niche';
+  if (appearance > 0) return 'Fringe';
+  return 'Dead';
+}
+
+// ---------------------------------------------------------------------------
+// Counter-comp pass
+// ---------------------------------------------------------------------------
+
+interface CounterPassResult {
+  /** compIdx -> avg WR when facing the top-20 comps */
+  counterScore: Map<number, number>;
+}
+
+/**
+ * For each of the 20 top comps T, run T vs all 455 comps as opponent
+ * (10 samples each, 5 each side). Returns counter scores per comp index.
+ */
+function runCounterPass(
+  comps: CompDef[],
+  top20Indices: number[],
+): CounterPassResult {
+  const totalMatches = top20Indices.length * comps.length * TEAM_SAMPLES;
+  console.log(`[counter] ${top20Indices.length} top comps × ${comps.length} opponents × ${TEAM_SAMPLES} samples = ${totalMatches} matches...`);
+
+  // For each comp C, accumulate its WR when playing against a top-20 comp
+  // "C's WR vs T" means: C is the opponent of T, so we want C's perspective
+  // i.e. how well C does against T. We track: for each C, sum of (C's WR vs each T), count.
+  const counterWr = new Map<number, { wrSum: number; count: number }>();
+  for (let ci = 0; ci < comps.length; ci++) {
+    counterWr.set(ci, { wrSum: 0, count: 0 });
+  }
+
+  let matchSeed = 9_000_000; // distinct seed range from team sweep
+  let progress = 0;
+
+  for (const tIdx of top20Indices) {
+    const topComp = comps[tIdx];
+    for (let ci = 0; ci < comps.length; ci++) {
+      if (ci === tIdx) {
+        progress++;
+        continue; // skip mirror
+      }
+      const opp = comps[ci];
+      const agg = emptyAgg();
+
+      const halfA = Math.floor(TEAM_SAMPLES / 2);
+      const halfB = TEAM_SAMPLES - halfA;
+
+      // Side-A samples: topComp=A, opp=B — opp's perspective is B
+      for (let s = 0; s < halfA; s++) {
+        const raw = runHeadlessMatch(
+          { petIds: topComp },
+          { petIds: opp },
+          { energyBudget: ENERGY_BUDGET, winThreshold: WIN_THRESHOLD, maxSeconds: MAX_SECONDS, seed: matchSeed++ },
+        );
+        // Reframe to opp's (C's) perspective: A=topComp, B=opp
+        const reframed = {
+          ...raw,
+          winner: raw.winner === 'A' ? 'B' as const : raw.winner === 'B' ? 'A' as const : 'draw' as const,
+          scoreA: raw.scoreB,
+          scoreB: raw.scoreA,
+          petsDeployedA: raw.petsDeployedB,
+          petsDeployedB: raw.petsDeployedA,
+        };
+        add(agg, reframed);
+      }
+
+      // Side-B samples: opp=A, topComp=B — opp's perspective is A
+      for (let s = 0; s < halfB; s++) {
+        const raw = runHeadlessMatch(
+          { petIds: opp },
+          { petIds: topComp },
+          { energyBudget: ENERGY_BUDGET, winThreshold: WIN_THRESHOLD, maxSeconds: MAX_SECONDS, seed: matchSeed++ },
+        );
+        add(agg, raw); // opp is already A, no reframe needed
+      }
+
+      const wr = winRate(finalize(agg));
+      const entry = counterWr.get(ci)!;
+      entry.wrSum += wr;
+      entry.count++;
+      progress++;
+    }
+
+    const done = top20Indices.indexOf(tIdx) + 1;
+    process.stdout.write(`  top-comp ${done}/${top20Indices.length}\r`);
+  }
+  process.stdout.write('\n');
+
+  // Compute average counter WR per comp
+  const counterScore = new Map<number, number>();
+  for (const [ci, entry] of counterWr) {
+    counterScore.set(ci, entry.count > 0 ? entry.wrSum / entry.count : 0.5);
+  }
+
+  return { counterScore };
+}
+
+// ---------------------------------------------------------------------------
+// Meta pool + appearance rate
+// ---------------------------------------------------------------------------
+
+interface MetaResult {
+  top20Indices: number[];
+  counter20Indices: number[];
+  metaPoolIndices: number[];
+  /** pet id -> appearance rate (count of meta comps containing pet / meta pool size) */
+  appearanceRate: Map<string, number>;
+}
+
+function computeMetaPool(
+  comps: CompDef[],
+  results: CompResult[],
+): MetaResult {
+  // Step 1: top 20 comps by WR
+  const sorted = [...results].sort((a, b) => winRate(b.agg) - winRate(a.agg));
+  const top20Indices = sorted.slice(0, 20).map(cr => cr.compIdx);
+
+  // Step 2: counter pass
+  const { counterScore } = runCounterPass(comps, top20Indices);
+
+  // Step 3: top 20 counter comps by avg counter-WR (excluding top-20 members for clarity, but spec says union after)
+  const counterSorted = [...counterScore.entries()]
+    .sort((a, b) => b[1] - a[1]);
+  const counter20Indices = counterSorted.slice(0, 20).map(([ci]) => ci);
+
+  // Step 4: meta pool = union
+  const metaPoolSet = new Set([...top20Indices, ...counter20Indices]);
+  const metaPoolIndices = [...metaPoolSet];
+
+  // Step 5: per-pet appearance rate
+  const appearanceCount = new Map<string, number>();
+  for (const p of ALL_PETS) appearanceCount.set(p.id, 0);
+
+  for (const ci of metaPoolIndices) {
+    const uniqueInComp = new Set(comps[ci]);
+    for (const petId of uniqueInComp) {
+      appearanceCount.set(petId, (appearanceCount.get(petId) ?? 0) + 1);
+    }
+  }
+
+  const poolSize = metaPoolIndices.length;
+  const appearanceRate = new Map<string, number>();
+  for (const [petId, count] of appearanceCount) {
+    appearanceRate.set(petId, poolSize > 0 ? count / poolSize : 0);
+  }
+
+  return { top20Indices, counter20Indices, metaPoolIndices, appearanceRate };
+}
+
+// ---------------------------------------------------------------------------
 // Report
 // ---------------------------------------------------------------------------
 
@@ -282,6 +439,7 @@ function writeReport(
   results: CompResult[],
   teamWrs: Map<string, PetTeamScore>,
   synergies: PairSynergy[],
+  meta: MetaResult,
 ): { json: string; md: string } {
   const sortedPets = [...teamWrs.values()].sort((a, b) => b.teamWr - a.teamWr);
 
@@ -346,6 +504,80 @@ function writeReport(
   }
   lines.push('');
 
+  // ---------------------------------------------------------------------------
+  // NEW: Meta-comp sections
+  // ---------------------------------------------------------------------------
+
+  // Meta tier list
+  lines.push(`## Meta tier list — pet by meta appearance rate`);
+  lines.push('');
+  lines.push(`*Meta appearance = count of comps in the meta pool (top-20 WR ∪ top-20 counter) that contain the pet, divided by meta pool size (${meta.metaPoolIndices.length} comps).*`);
+  lines.push('');
+  lines.push(`| Meta Tier | Pet | Appearance | Comps in pool |`);
+  lines.push(`|---|---|---|---|`);
+  const sortedByAppearance = ALL_PETS.map(p => ({
+    pet: p,
+    rate: meta.appearanceRate.get(p.id) ?? 0,
+    count: meta.metaPoolIndices.filter(ci => new Set(comps[ci]).has(p.id)).length,
+  })).sort((a, b) => b.rate - a.rate);
+  for (const { pet, rate, count } of sortedByAppearance) {
+    lines.push(`| ${metaTierOf(rate)} | ${pet.emoji} ${pet.displayName} | ${(rate * 100).toFixed(1)}% | ${count} |`);
+  }
+  lines.push('');
+
+  // The meta pool comps
+  lines.push(`## The ${meta.metaPoolIndices.length} meta pool comps`);
+  lines.push('');
+  lines.push(`*Source: T = top-WR comp, C = top-counter comp, TC = both.*`);
+  lines.push('');
+  lines.push(`| Comp | WR | Counter Score | Source |`);
+  lines.push(`|---|---|---|---|`);
+  const top20Set = new Set(meta.top20Indices);
+  const counter20Set = new Set(meta.counter20Indices);
+  // Sort meta pool: top-WR first, then counter-only
+  const sortedMeta = [...meta.metaPoolIndices].sort((a, b) => {
+    const aWr = winRate(results[a].agg);
+    const bWr = winRate(results[b].agg);
+    return bWr - aWr;
+  });
+  for (const ci of sortedMeta) {
+    const cr = results[ci];
+    const emojis = cr.comp.map(id => ALL_PETS.find(d => d.id === id)!.emoji).join('+');
+    const ids = cr.comp.join('+');
+    const wr = winRate(cr.agg);
+    // Counter score: need to look up from meta computation; pass it through
+    const inTop = top20Set.has(ci);
+    const inCounter = counter20Set.has(ci);
+    const source = inTop && inCounter ? 'TC' : inTop ? 'T' : 'C';
+    lines.push(`| ${emojis} (${ids}) | ${(wr * 100).toFixed(1)}% | — | ${source} |`);
+  }
+  lines.push('');
+
+  // Dead pets
+  const deadPets = sortedByAppearance.filter(({ rate }) => rate === 0);
+  lines.push(`## Dead pets (0% meta appearance)`);
+  lines.push('');
+  if (deadPets.length === 0) {
+    lines.push('*No dead pets — all pets appear in at least one meta comp!*');
+  } else {
+    lines.push(`*These pets don't appear in any of the ${meta.metaPoolIndices.length} meta comps. They are the primary balance targets.*`);
+    lines.push('');
+    lines.push(`| Pet | Cost | Solo Team WR | Best Comp WR | Diagnosis |`);
+    lines.push(`|---|---|---|---|---|`);
+    for (const { pet } of deadPets) {
+      const teamScore = teamWrs.get(pet.id)!;
+      // Find best comp WR for this pet
+      const petComps = results.filter(cr => cr.comp.includes(pet.id));
+      const bestCompWr = petComps.length > 0 ? Math.max(...petComps.map(cr => winRate(cr.agg))) : 0;
+      const def = ALL_PETS.find(d => d.id === pet.id)!;
+      const diagnosis = bestCompWr < 0.45
+        ? `Low peak WR (${(bestCompWr * 100).toFixed(0)}%) — fundamentally undertuned`
+        : `Decent peak (${(bestCompWr * 100).toFixed(0)}%) but inconsistent — needs reliability buff`;
+      lines.push(`| ${pet.emoji} ${pet.displayName} | ${def.cost} | ${(teamScore.teamWr * 100).toFixed(1)}% | ${(bestCompWr * 100).toFixed(1)}% | ${diagnosis} |`);
+    }
+  }
+  lines.push('');
+
   // Methodology
   lines.push(`## Methodology`);
   lines.push('');
@@ -364,6 +596,13 @@ function writeReport(
       topComps: sortedComps.slice(0, 30).map(cr => ({ comp: cr.comp, wr: winRate(cr.agg), samples: cr.agg.samples })),
       bottomComps: sortedComps.slice(-30).map(cr => ({ comp: cr.comp, wr: winRate(cr.agg), samples: cr.agg.samples })),
       synergies: synergies.slice(0, 20),
+      metaPool: meta.metaPoolIndices.map(ci => ({
+        comp: comps[ci],
+        wr: winRate(results[ci].agg),
+        isTop20: meta.top20Indices.includes(ci),
+        isCounter20: meta.counter20Indices.includes(ci),
+      })),
+      metaAppearanceRates: Object.fromEntries([...meta.appearanceRate.entries()]),
     }, null, 2),
   };
 }
@@ -381,10 +620,14 @@ async function main() {
   const teamWrs = computeTeamWr(comps, results);
   const synergies = computeSynergies(comps, results, teamWrs);
 
+  console.log('\nRunning meta-comp counter pass...');
+  const meta = computeMetaPool(comps, results);
+  console.log(`Meta pool: ${meta.metaPoolIndices.length} comps (${meta.top20Indices.length} top-WR + ${meta.counter20Indices.length} top-counter, ${meta.metaPoolIndices.length - meta.top20Indices.length - meta.counter20Indices.length + meta.metaPoolIndices.filter(ci => meta.top20Indices.includes(ci) && meta.counter20Indices.includes(ci)).length} overlap).`);
+
   const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
   console.log(`Total wall time: ${elapsed}s`);
 
-  const { md, json } = writeReport(comps, results, teamWrs, synergies);
+  const { md, json } = writeReport(comps, results, teamWrs, synergies, meta);
 
   const dir = join(process.cwd(), 'docs', 'balance-reports');
   mkdirSync(dir, { recursive: true });

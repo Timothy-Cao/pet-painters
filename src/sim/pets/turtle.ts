@@ -4,7 +4,7 @@ import { paintTile } from '../board';
 import { tileInBounds, walkOrRotateCW, ORTHO_DELTAS } from '../behaviors';
 
 const STATS = {
-  cost: 4,
+  cost: 3,                         // reduced from 4 — brings it into the same cost bracket as cat/rabbit/mouse
   speedTilesPerSec: 0.5,
   weight: 3,
   maxHp: 8,
