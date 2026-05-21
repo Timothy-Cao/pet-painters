@@ -1450,3 +1450,29 @@ kbd {
   padding: 2px 6px;
   border-radius: 3px;
 }
+
+.room-waiting-screen {
+  max-width: 480px;
+  margin: 120px auto;
+  text-align: center;
+  color: var(--text, #eee);
+  padding: 20px;
+}
+.room-code-label {
+  color: var(--text-dim, #aaa);
+  margin-top: 24px;
+  margin-bottom: 4px;
+}
+.room-code {
+  font-size: 56px;
+  font-family: 'SF Mono', Consolas, monospace;
+  letter-spacing: 8px;
+  margin: 8px 0 16px;
+  color: #ffeb99;
+}
+.copy-feedback {
+  color: #6f6;
+  height: 16px;
+  margin: 8px 0 24px;
+  font-size: 13px;
+}

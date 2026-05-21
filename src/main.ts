@@ -3,12 +3,14 @@ import { HomeScreen } from './app/screens/home';
 import { SandboxScreen } from './app/screens/sandbox';
 import { SignInScreen } from './app/screens/sign-in';
 import { LobbyScreen } from './app/screens/lobby';
+import { RoomWaitingScreen } from './app/screens/room-waiting';
 // Other screens will be registered in later tasks.
 
 registerScreen(HomeScreen);
 registerScreen(SandboxScreen);
 registerScreen(SignInScreen);
 registerScreen(LobbyScreen);
+registerScreen(RoomWaitingScreen);
 
 const root = document.getElementById('screen-root') as HTMLElement;
 startRouter(root, screenFromUrl());
