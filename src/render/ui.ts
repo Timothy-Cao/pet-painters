@@ -12,4 +12,18 @@ export function renderHUD(state: MatchState): void {
     `B: ${bScore}/${WIN_PAINT_THRESHOLD} (energy ${state.energy.B})` +
     (state.phase === 'planning' ? `  |  active: ${state.activePlanningPlayer}` : '') +
     (state.winner ? `  |  WINNER: ${state.winner}` : '');
+
+  const help = document.getElementById('help');
+  if (!help) {
+    const div = document.createElement('div');
+    div.id = 'help';
+    div.style.textAlign = 'center';
+    div.style.color = '#aaa';
+    div.style.fontSize = '12px';
+    div.style.margin = '6px';
+    div.textContent =
+      '1=Mouse  2=Elephant  |  WASD sets facing  |  Click to deploy  ' +
+      '|  Tab switches player  |  Space readies current player';
+    document.body.appendChild(div);
+  }
 }
