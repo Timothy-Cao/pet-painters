@@ -24,6 +24,7 @@ export function createCrossingGame(difficulty: AIDifficulty = 'normal'): CGameSt
       owner: 'A',
       pos: { x: placements[i], y: 0 },
       scored: false,
+      cooldown: 0,
     });
   }
 
@@ -36,6 +37,7 @@ export function createCrossingGame(difficulty: AIDifficulty = 'normal'): CGameSt
       owner: 'B',
       pos: { x: placementsB[i], y: 7 },
       scored: false,
+      cooldown: 0,
     });
   }
 
@@ -149,14 +151,25 @@ export function performMove(state: CGameState, unitId: number, to: Vec2): boolea
     });
   }
 
+  // Apply scoring cooldown: unit just scored = exhausted for 1 turn
+  if (result.scored && unit.scored) {
+    unit.cooldown = 1;
+  }
+
   // Check win
   if (state.scored[unit.owner] >= state.scoreToWin) {
     state.winner = unit.owner;
     state.phase = 'ended';
   }
 
-  // Advance turn
+  // Advance turn — tick down cooldowns for the player whose turn is ending
   if (state.phase !== 'ended') {
+    // Tick cooldowns for all units of the current player (whose turn just ended)
+    for (const u of state.units) {
+      if (u.owner === state.currentPlayer && u.cooldown > 0) {
+        u.cooldown--;
+      }
+    }
     state.currentPlayer = state.currentPlayer === 'A' ? 'B' : 'A';
     state.turn++;
   }

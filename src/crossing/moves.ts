@@ -59,6 +59,8 @@ export interface MoveOption {
 // ── Valid move computation ─────────────────────────────────────────────
 
 export function getValidMoves(state: CGameState, unit: CUnit): MoveOption[] {
+  // Units on cooldown cannot move
+  if (unit.cooldown > 0) return [];
   const def = getUnitDef(unit.defId);
   switch (def.id) {
     case 'mouse': return getMouseMoves(state, unit);
@@ -258,6 +260,7 @@ export function executeMove(state: CGameState, unitId: number, move: MoveOption)
     const wasScored = target.scored;
     target.pos = { x: respawnX, y: row };
     target.scored = false;
+    target.cooldown = 0; // reset cooldown on capture
     target.animFrom = captureFrom;
     target.animStart = performance.now();
     captured = { unitId: target.unitId, sentTo: { ...target.pos } };

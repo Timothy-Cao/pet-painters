@@ -36,6 +36,8 @@ export interface CUnit {
   pos: Vec2;
   /** True if the unit is on the opponent's back row (scored but stays on board). */
   scored: boolean;
+  /** Turns remaining where this unit cannot move (e.g., after scoring). 0 = can move. */
+  cooldown: number;
 
   // ── Animation state ──
   animFrom?: Vec2;

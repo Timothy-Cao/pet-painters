@@ -65,7 +65,14 @@ function evaluateMove(
   score += (progressAfter - progressBefore) * 5;
 
   // ── Scoring bonus ──
-  if (to.y === goal) score += 30;
+  if (to.y === goal) {
+    score += 30;
+    // Hard AI considers cooldown risk: scoring makes you vulnerable for 1 turn
+    if (difficulty === 'hard') {
+      const threatsAtGoal = countThreats(state, to, player);
+      if (threatsAtGoal > 0) score -= 8; // risky to score if enemies can reach you
+    }
+  }
   if (Math.abs(to.y - goal) <= 1) score += 10;
 
   // ── Capture bonus ──
@@ -79,6 +86,8 @@ function evaluateMove(
       const enemyDistToGoal = Math.abs(capturedUnit.pos.y - enemyGoal);
       score += 15 + (7 - enemyDistToGoal) * 3;
       if (capturedUnit.scored) score += 25;
+      // Capturing a unit on cooldown is easy pickings — bonus
+      if (capturedUnit.cooldown > 0) score += 10;
 
       // Hard AI also considers which unit type is most dangerous
       if (difficulty === 'hard') {

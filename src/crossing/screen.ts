@@ -83,6 +83,7 @@ export const CrossingScreen: Screen = {
           <p>Score <strong>3 units</strong> on the enemy's back row to win!</p>
           <p><strong>Click</strong> a unit, then <strong>click</strong> a highlighted tile.</p>
           <p>Captured units respawn on their home row.</p>
+          <p>\u{1F4A4} Units are <strong>exhausted</strong> for 1 turn after scoring — vulnerable!</p>
         </div>
         <div class="panel-title" style="margin-top:12px">Event Log</div>
         <div class="cx-event-log" id="cx-event-log">
@@ -98,6 +99,15 @@ export const CrossingScreen: Screen = {
       <span><kbd>Click</kbd> highlighted tile to move</span>
       <span><kbd>Esc</kbd> deselect</span>
     </footer>
+  </div>
+
+  <div class="cx-tutorial-overlay" id="cx-tutorial" hidden>
+    <div class="cx-tutorial-card" id="cx-tutorial-card">
+      <div class="cx-tutorial-step" id="cx-tut-step">Step 1</div>
+      <div class="cx-tutorial-text" id="cx-tut-text">Click one of your units at the bottom to select it.</div>
+      <div class="cx-tutorial-hint" id="cx-tut-hint">Try clicking the Rabbit!</div>
+      <button class="cx-tutorial-skip" id="cx-tut-skip">Skip tutorial</button>
+    </div>
   </div>
 
   <div class="win-overlay" id="cx-win-overlay" hidden>
@@ -134,6 +144,58 @@ export const CrossingScreen: Screen = {
     let cancelAI: (() => void) | null = null;
     let rafId: number | null = null;
     let lastEventCount = 0;
+
+    // ── Tutorial system ──
+    const TUTORIAL_KEY = 'cx-tutorial-done';
+    let tutorialStep = 0; // 0=select, 1=move, 2=ai-responds, 3=done
+    const tutorialDone = localStorage.getItem(TUTORIAL_KEY) === '1';
+    const tutorialEl = container.querySelector('#cx-tutorial') as HTMLElement;
+    const tutStepEl = container.querySelector('#cx-tut-step') as HTMLElement;
+    const tutTextEl = container.querySelector('#cx-tut-text') as HTMLElement;
+    const tutHintEl = container.querySelector('#cx-tut-hint') as HTMLElement;
+
+    if (!tutorialDone) {
+      tutorialEl.hidden = false;
+      updateTutorialUI();
+    }
+
+    container.querySelector('#cx-tut-skip')?.addEventListener('click', () => {
+      dismissTutorial();
+    });
+
+    function updateTutorialUI() {
+      if (tutorialStep === 0) {
+        tutStepEl.textContent = 'Step 1 of 3';
+        tutTextEl.textContent = 'Click one of your units at the bottom to select it.';
+        tutHintEl.textContent = '\u{1F430} Try clicking the Rabbit!';
+      } else if (tutorialStep === 1) {
+        tutStepEl.textContent = 'Step 2 of 3';
+        tutTextEl.textContent = 'Now click a green highlighted tile to move there.';
+        tutHintEl.textContent = '\u{1F7E2} Green = move, Red = capture, Orange = push';
+      } else if (tutorialStep === 2) {
+        tutStepEl.textContent = 'Step 3 of 3';
+        tutTextEl.textContent = 'The AI will respond. Score 3 units on the top row to win!';
+        tutHintEl.textContent = '\u{2B50} Captured units respawn — they are never eliminated.';
+        setTimeout(() => dismissTutorial(), 3500);
+      }
+    }
+
+    function advanceTutorial(step: number) {
+      if (tutorialDone || tutorialStep >= 3) return;
+      if (step <= tutorialStep) return;
+      tutorialStep = step;
+      if (step >= 3) {
+        dismissTutorial();
+      } else {
+        updateTutorialUI();
+      }
+    }
+
+    function dismissTutorial() {
+      tutorialStep = 3;
+      tutorialEl.hidden = true;
+      localStorage.setItem(TUTORIAL_KEY, '1');
+    }
 
     // Build ability list
     buildAbilityList(container);
@@ -213,6 +275,7 @@ export const CrossingScreen: Screen = {
           if (valid.some(m => m.to.x === tile.x && m.to.y === tile.y)) {
             performMove(state, state.selectedUnitId, tile);
             state.selectedUnitId = null;
+            advanceTutorial(2); // Step 2 complete: made a move
             maybeAITurn();
             return;
           }
@@ -238,6 +301,7 @@ export const CrossingScreen: Screen = {
         if (u.owner !== 'A') continue;
         if (u.pos.x === tile.x && u.pos.y === tile.y) {
           state.selectedUnitId = u.unitId;
+          advanceTutorial(1); // Step 1 complete: selected a unit
           return;
         }
       }
@@ -391,7 +455,7 @@ function refreshHUD(container: HTMLElement, state: CGameState): void {
           </div>
           <div class="cx-sel-move">${def.moveDesc}</div>
           <div class="cx-sel-ability">${def.abilityDesc}</div>
-          <div class="cx-sel-moves">${moves.length} valid move${moves.length !== 1 ? 's' : ''}${unit.scored ? ' \u{2714} Scored' : ''}</div>
+          <div class="cx-sel-moves">${moves.length} valid move${moves.length !== 1 ? 's' : ''}${unit.scored ? ' \u{2714} Scored' : ''}${unit.cooldown > 0 ? ' \u{1F4A4} Exhausted' : ''}</div>
         `;
       } else {
         infoEl.innerHTML = '<div class="cx-no-selection">Click one of your units to see moves</div>';

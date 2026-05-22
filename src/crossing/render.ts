@@ -481,6 +481,22 @@ function renderUnit(rc: CrossingRenderContext, state: CGameState, unit: CUnit, n
     ctx.fillText('\u{1F6E1}', px + 2, py + 2);
   }
 
+  // Cooldown indicator (exhausted after scoring)
+  if (unit.cooldown > 0) {
+    // Dim overlay
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+    roundRect(ctx, px + 3, py + 3, tileSize - 6, tileSize - 6, 4);
+    ctx.fill();
+
+    // Zzz icon
+    ctx.font = `bold ${Math.floor(tileSize * 0.22)}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillStyle = 'rgba(200, 200, 255, 0.8)';
+    const zzzBob = Math.sin(now / 300) * 2;
+    ctx.fillText('\u{1F4A4}', px + tileSize / 2, py + 14 + zzzBob);
+  }
+
   ctx.restore();
 }
 
