@@ -73,11 +73,19 @@ export const CrossingScreen: Screen = {
       <aside class="crossing-sidebar crossing-sidebar-right">
         <div class="panel-title">How to Play</div>
         <div class="cx-help">
-          <p>Get all your units across the center line.</p>
-          <p><strong>Click</strong> a unit to select it, then <strong>click</strong> a green tile to move.</p>
-          <p>Each unit has a unique ability!</p>
+          <p>Get <strong>all your units</strong> across the center line to win.</p>
+          <p><strong>Click</strong> a unit, then <strong>click</strong> a green tile to move.</p>
+          <p>Units have unique abilities that <strong>work together</strong>!</p>
         </div>
-        <div class="panel-title" style="margin-top:16px">Unit Abilities</div>
+        <div class="panel-title" style="margin-top:12px">\u{1F4A1} Combos</div>
+        <div class="cx-combos">
+          <div class="cx-combo-tip">\u{1F422}\u{2192}\u{1F30A} \u{2192} \u{1F431} Turtle in water = hop bridge for Cat</div>
+          <div class="cx-combo-tip">\u{1F418}\u{2192}\u{1F42D}\u{1F430} Elephant pushes allies forward!</div>
+          <div class="cx-combo-tip">\u{1F42D}\u{1F42D}\u{1F42D}\u{2192}\u{1F42D} Mouse slides through ally lines</div>
+          <div class="cx-combo-tip">\u{1F430}\u{2197}\u{1F430}\u{2197}\u{1F430} Rabbit chains over packed units</div>
+          <div class="cx-combo-tip">\u{1F985}\u{21E9} Eagle bumps enemies on landing</div>
+        </div>
+        <div class="panel-title" style="margin-top:12px">Unit Abilities</div>
         <div class="cx-ability-list" id="cx-ability-list"></div>
       </aside>
     </main>

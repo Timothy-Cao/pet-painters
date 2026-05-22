@@ -3,6 +3,9 @@
  *
  * Each unit has unique movement and ability rules.
  * Movement computation lives in moves.ts; this file defines the roster.
+ *
+ * SYNERGY DESIGN: Units are intentionally designed to work together.
+ * See moves.ts header for the full synergy map.
  */
 
 import type { UnitDef } from './types';
@@ -13,7 +16,7 @@ export const MOUSE: UnitDef = {
   emoji: '\u{1F42D}', // 🐭
   size: 1,
   terrain: 'land',
-  abilityDesc: 'Scurry: Can move through friendly units.',
+  abilityDesc: 'Scurry: Slides through friendly units in a line.',
 };
 
 export const CAT: UnitDef = {
@@ -22,7 +25,7 @@ export const CAT: UnitDef = {
   emoji: '\u{1F431}', // 🐱
   size: 1,
   terrain: 'land',
-  abilityDesc: 'Pounce: Can leap over 1 adjacent unit.',
+  abilityDesc: 'Pounce: Leaps over any adjacent unit to land behind it.',
 };
 
 export const RABBIT: UnitDef = {
@@ -31,7 +34,7 @@ export const RABBIT: UnitDef = {
   emoji: '\u{1F430}', // 🐰
   size: 1,
   terrain: 'land',
-  abilityDesc: 'Chain Hop: Jumps over consecutive units in a line.',
+  abilityDesc: 'Chain Hop: Bounces over consecutive units in a line.',
 };
 
 export const TURTLE: UnitDef = {
@@ -40,7 +43,7 @@ export const TURTLE: UnitDef = {
   emoji: '\u{1F422}', // 🐢
   size: 1,
   terrain: 'amphibious',
-  abilityDesc: 'Shell: Cannot be pushed. Blocks push chains.',
+  abilityDesc: 'Shell: Swims anywhere. Cannot be pushed. Hoppers use it as a bridge.',
 };
 
 export const EAGLE: UnitDef = {
@@ -49,7 +52,7 @@ export const EAGLE: UnitDef = {
   emoji: '\u{1F985}', // 🦅
   size: 1,
   terrain: 'flying',
-  abilityDesc: 'Soar: Flies over all units and terrain (2 tiles any direction).',
+  abilityDesc: 'Dive-bomb: Flies 2 tiles any direction. Bumps 1 enemy on landing.',
 };
 
 export const FROG: UnitDef = {
@@ -58,7 +61,7 @@ export const FROG: UnitDef = {
   emoji: '\u{1F438}', // 🐸
   size: 1,
   terrain: 'amphibious',
-  abilityDesc: 'Leap: From water, can jump 3 tiles forward.',
+  abilityDesc: 'Dive & Leap: In water, dives under units. From water, leaps 3 forward.',
 };
 
 export const ELEPHANT: UnitDef = {
@@ -67,7 +70,7 @@ export const ELEPHANT: UnitDef = {
   emoji: '\u{1F418}', // 🐘
   size: 2,
   terrain: 'land',
-  abilityDesc: 'Trample: Pushes small units in move direction back 2 tiles.',
+  abilityDesc: 'Trample: Pushes ALL small units in its path — friend or foe!',
 };
 
 export const WHALE: UnitDef = {
@@ -76,7 +79,7 @@ export const WHALE: UnitDef = {
   emoji: '\u{1F40B}', // 🐋
   size: 2,
   terrain: 'water',
-  abilityDesc: 'Splash: After moving, pushes adjacent small units 1 tile away.',
+  abilityDesc: 'Splash: Pushes ALL adjacent small units outward — friend or foe!',
 };
 
 /** All unit definitions, ordered for the roster display. */

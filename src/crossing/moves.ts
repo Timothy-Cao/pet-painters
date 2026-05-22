@@ -2,7 +2,16 @@
  * moves.ts — Movement engine for Critter Crossing.
  *
  * Computes valid moves for each unit type and resolves side-effects
- * (pushes, hops, splashes) when a move is executed.
+ * (pushes, hops, splashes, bumps) when a move is executed.
+ *
+ * SYNERGY DESIGN: Units are designed to interact with each other.
+ * - Mouse slides through friendly formations
+ * - Cat/Rabbit use ANY unit as a stepping stone (friend or foe)
+ * - Turtle enables water crossings as a hop target
+ * - Elephant pushes friendlies AND foes (boost your own units!)
+ * - Whale splashes everyone outward (launch allies from water)
+ * - Eagle bumps enemies on landing (clear the path for allies)
+ * - Frog dives under water units (unique water traversal)
  */
 
 import type { CGameState, CUnit, Vec2, PlayerId } from './types';
@@ -49,6 +58,12 @@ function canOccupyFootprint(state: CGameState, pos: Vec2, size: number, unitTerr
     if (!canOccupyTerrain(unitTerrain, getTerrain(state.board, t))) return false;
   }
   return true;
+}
+
+/** Check if a unit can be pushed (small, not a turtle). */
+function isPushable(unit: CUnit): boolean {
+  const def = getUnitDef(unit.defId);
+  return def.size === 1 && def.id !== 'turtle';
 }
 
 /** Direction vector: +1 toward the goal for the given player. */
@@ -115,87 +130,102 @@ function getBasicMoves(state: CGameState, unit: CUnit, range: number): Vec2[] {
   return moves;
 }
 
-// ── Mouse: 1 step any dir, can pass through friendly units ──
+// ═══════════════════════════════════════════════════════════════════════
+// MOUSE — Scurry: slides through ALL friendly units in a line
+// ═══════════════════════════════════════════════════════════════════════
+// Synergy: Line up your units → mouse slides through the entire formation.
+// More allies in a row = further the mouse travels.
 
 function getMouseMoves(state: CGameState, unit: CUnit): Vec2[] {
   const def = getUnitDef(unit.defId);
   const moves: Vec2[] = [];
+
   for (const d of DIRS_4) {
-    const to = { x: unit.pos.x + d.x, y: unit.pos.y + d.y };
-    if (!inBounds(to)) continue;
-    if (!canOccupyTerrain(def.terrain, getTerrain(state.board, to))) continue;
-    const occ = occupiedBy(state, to, unit.unitId);
-    // Mouse can move through friendlies but not enemies; can't stop on occupied tile
-    if (occ) {
-      // Check one tile further (pass through friendly)
-      if (occ.owner === unit.owner) {
-        const beyond = { x: to.x + d.x, y: to.y + d.y };
-        if (inBounds(beyond) && canOccupyTerrain(def.terrain, getTerrain(state.board, beyond))
-            && !occupiedBy(state, beyond, unit.unitId)) {
-          moves.push(beyond);
+    const first = { x: unit.pos.x + d.x, y: unit.pos.y + d.y };
+    if (!inBounds(first)) continue;
+    if (!canOccupyTerrain(def.terrain, getTerrain(state.board, first))) continue;
+
+    const occ = occupiedBy(state, first, unit.unitId);
+    if (!occ) {
+      // Empty tile — normal 1-step move
+      moves.push(first);
+    } else if (occ.owner === unit.owner) {
+      // Friendly unit — chain-slide through ALL consecutive friendlies
+      let cx = first.x + d.x;
+      let cy = first.y + d.y;
+      while (inBounds({ x: cx, y: cy })) {
+        if (!canOccupyTerrain(def.terrain, getTerrain(state.board, { x: cx, y: cy }))) break;
+        const nextOcc = occupiedBy(state, { x: cx, y: cy }, unit.unitId);
+        if (nextOcc) {
+          if (nextOcc.owner === unit.owner) {
+            // Keep sliding through friendlies
+            cx += d.x;
+            cy += d.y;
+            continue;
+          }
+          break; // Blocked by enemy
         }
+        // Empty tile — this is where mouse stops
+        moves.push({ x: cx, y: cy });
+        break;
       }
-      continue;
     }
-    moves.push(to);
+    // Blocked by enemy in first tile — can't move this direction
   }
+
   return moves;
 }
 
-// ── Cat: 1 step any dir, OR 2 forward, OR pounce over 1 adjacent unit ──
+// ═══════════════════════════════════════════════════════════════════════
+// CAT — Pounce: leaps over 1 adjacent unit (friend or foe) to land behind
+// ═══════════════════════════════════════════════════════════════════════
+// Synergy: Any unit works as a stepping stone. Position a turtle in water
+// → cat pounces over it to cross. Use allies as launch pads.
 
 function getCatMoves(state: CGameState, unit: CUnit): Vec2[] {
   const def = getUnitDef(unit.defId);
   const moves: Vec2[] = [];
-  const fwd = forwardDir(unit.owner);
 
-  // Basic 1-step in any direction
   for (const d of DIRS_4) {
     const to = { x: unit.pos.x + d.x, y: unit.pos.y + d.y };
     if (!inBounds(to)) continue;
     if (!canOccupyTerrain(def.terrain, getTerrain(state.board, to))) continue;
-    if (occupiedBy(state, to, unit.unitId)) {
-      // Pounce: leap over 1 adjacent unit (friend or foe) to land 1 beyond
+
+    const occ = occupiedBy(state, to, unit.unitId);
+    if (!occ) {
+      // Normal 1-step move
+      moves.push(to);
+    } else {
+      // Pounce: leap over any adjacent unit to land 1 beyond
       const beyond = { x: to.x + d.x, y: to.y + d.y };
-      if (inBounds(beyond) && canOccupyTerrain(def.terrain, getTerrain(state.board, beyond))
+      if (inBounds(beyond)
+          && canOccupyTerrain(def.terrain, getTerrain(state.board, beyond))
           && !occupiedBy(state, beyond, unit.unitId)) {
         moves.push(beyond);
       }
-      continue;
-    }
-    moves.push(to);
-  }
-
-  // 2 steps forward (if path is clear)
-  const twoFwd = { x: unit.pos.x, y: unit.pos.y + fwd * 2 };
-  const oneFwd = { x: unit.pos.x, y: unit.pos.y + fwd };
-  if (inBounds(twoFwd) && inBounds(oneFwd)
-      && canOccupyTerrain(def.terrain, getTerrain(state.board, oneFwd))
-      && canOccupyTerrain(def.terrain, getTerrain(state.board, twoFwd))
-      && !occupiedBy(state, oneFwd, unit.unitId)
-      && !occupiedBy(state, twoFwd, unit.unitId)) {
-    // Only add if not already in the list
-    if (!moves.some(m => m.x === twoFwd.x && m.y === twoFwd.y)) {
-      moves.push(twoFwd);
     }
   }
 
   return moves;
 }
 
-// ── Rabbit: Chain hop — jump over consecutive units until empty tile ──
+// ═══════════════════════════════════════════════════════════════════════
+// RABBIT — Chain Hop: bounces over consecutive units in a line
+// ═══════════════════════════════════════════════════════════════════════
+// Synergy: THE combo unit. Pack units together in a line and rabbit
+// chain-hops over all of them. 3 allies in a row = rabbit crosses half
+// the board. Works with ANY unit — friend or foe.
 
 function getRabbitMoves(state: CGameState, unit: CUnit): Vec2[] {
   const def = getUnitDef(unit.defId);
   const moves: Vec2[] = [];
 
   for (const d of DIRS_4) {
-    // Walk along the direction. Must start by hopping over at least 1 unit.
+    // Walk along the direction — skip over consecutive occupied tiles
     let cx = unit.pos.x + d.x;
     let cy = unit.pos.y + d.y;
     let hoppedAny = false;
 
-    // Skip over consecutive occupied tiles
     while (inBounds({ x: cx, y: cy })) {
       const occ = occupiedBy(state, { x: cx, y: cy }, unit.unitId);
       if (!occ) break;
@@ -204,14 +234,14 @@ function getRabbitMoves(state: CGameState, unit: CUnit): Vec2[] {
       cy += d.y;
     }
 
-    // Landing tile
+    // Landing tile — must be valid terrain and in bounds
     if (hoppedAny && inBounds({ x: cx, y: cy })
         && canOccupyTerrain(def.terrain, getTerrain(state.board, { x: cx, y: cy }))) {
       moves.push({ x: cx, y: cy });
     }
   }
 
-  // Also allow basic 1-step move if no hop available (so rabbit isn't stuck)
+  // Also allow basic 1-step moves (so rabbit isn't stuck with no adjacent units)
   for (const d of DIRS_4) {
     const to = { x: unit.pos.x + d.x, y: unit.pos.y + d.y };
     if (!inBounds(to)) continue;
@@ -225,17 +255,27 @@ function getRabbitMoves(state: CGameState, unit: CUnit): Vec2[] {
   return moves;
 }
 
-// ── Turtle: 1 step any dir, amphibious ──
+// ═══════════════════════════════════════════════════════════════════════
+// TURTLE — Shell: amphibious, cannot be pushed, acts as hop bridge
+// ═══════════════════════════════════════════════════════════════════════
+// Synergy: Move turtle into water → cats and rabbits can JUMP OVER the
+// turtle to cross water. Turtle is the water enabler for your land army.
+// Also blocks push chains (elephant/whale can't move turtle).
 
 function getTurtleMoves(state: CGameState, unit: CUnit): Vec2[] {
   return getBasicMoves(state, unit, 1);
 }
 
-// ── Eagle: 2 steps any dir (including diagonals), flies over everything ──
+// ═══════════════════════════════════════════════════════════════════════
+// EAGLE — Soar: flies 2 tiles any direction + bumps 1 enemy on landing
+// ═══════════════════════════════════════════════════════════════════════
+// Synergy: Eagle dive-bombs into position, bumping an enemy out of the
+// way. Creates openings for allies to advance through. Pairs well with
+// mouse (eagle clears path → mouse slides through).
 
 function getEagleMoves(state: CGameState, unit: CUnit): Vec2[] {
   const moves: Vec2[] = [];
-  // Eagle can move 1 or 2 tiles in any of 8 directions, ignoring units/terrain in between
+  // Eagle can move 1 or 2 tiles in any of 8 directions, ignoring everything
   for (const d of DIRS_8) {
     for (let r = 1; r <= 2; r++) {
       const to = { x: unit.pos.x + d.x * r, y: unit.pos.y + d.y * r };
@@ -248,7 +288,12 @@ function getEagleMoves(state: CGameState, unit: CUnit): Vec2[] {
   return moves;
 }
 
-// ── Frog: 1 step on land; from water, can leap 3 tiles forward ──
+// ═══════════════════════════════════════════════════════════════════════
+// FROG — Leap & Dive: from water, leaps forward; dives under water units
+// ═══════════════════════════════════════════════════════════════════════
+// Synergy: Frog enters water → leaps 3 tiles forward across the channel.
+// While in water, frog can dive under whales/turtles/other frogs to
+// navigate the water zone. Pair with turtle to create water pathways.
 
 function getFrogMoves(state: CGameState, unit: CUnit): Vec2[] {
   const moves = getBasicMoves(state, unit, 1);
@@ -256,19 +301,49 @@ function getFrogMoves(state: CGameState, unit: CUnit): Vec2[] {
   const currentTerrain = getTerrain(state.board, unit.pos);
 
   if (currentTerrain === 'water') {
-    // Leap: 3 tiles forward from water (ignoring units in between)
-    const leapTo = { x: unit.pos.x, y: unit.pos.y + fwd * 3 };
-    if (inBounds(leapTo) && !occupiedBy(state, leapTo, unit.unitId)) {
-      // Frog is amphibious so can land on anything
-      if (!moves.some(m => m.x === leapTo.x && m.y === leapTo.y)) {
-        moves.push(leapTo);
+    // Leap: 2 or 3 tiles forward from water (ignoring units in between)
+    for (const range of [2, 3]) {
+      const leapTo = { x: unit.pos.x, y: unit.pos.y + fwd * range };
+      if (inBounds(leapTo) && !occupiedBy(state, leapTo, unit.unitId)) {
+        if (!moves.some(m => m.x === leapTo.x && m.y === leapTo.y)) {
+          moves.push(leapTo);
+        }
       }
     }
-    // Also allow 2-tile leap
-    const leap2 = { x: unit.pos.x, y: unit.pos.y + fwd * 2 };
-    if (inBounds(leap2) && !occupiedBy(state, leap2, unit.unitId)) {
-      if (!moves.some(m => m.x === leap2.x && m.y === leap2.y)) {
-        moves.push(leap2);
+
+    // Dive: move through occupied water tiles (go UNDER other units)
+    for (const d of DIRS_4) {
+      let cx = unit.pos.x + d.x;
+      let cy = unit.pos.y + d.y;
+      let dived = false;
+
+      while (inBounds({ x: cx, y: cy })) {
+        const terrain = getTerrain(state.board, { x: cx, y: cy });
+        // Can only dive through water tiles
+        if (terrain !== 'water') {
+          // Surfaced onto land — can land here if empty (and frog is amphibious)
+          if (dived && !occupiedBy(state, { x: cx, y: cy }, unit.unitId)) {
+            if (!moves.some(m => m.x === cx && m.y === cy)) {
+              moves.push({ x: cx, y: cy });
+            }
+          }
+          break;
+        }
+        const occ = occupiedBy(state, { x: cx, y: cy }, unit.unitId);
+        if (occ) {
+          // Dive under this unit — keep going
+          dived = true;
+          cx += d.x;
+          cy += d.y;
+          continue;
+        }
+        // Empty water tile — can surface here
+        if (dived) {
+          if (!moves.some(m => m.x === cx && m.y === cy)) {
+            moves.push({ x: cx, y: cy });
+          }
+        }
+        break;
       }
     }
   }
@@ -276,7 +351,13 @@ function getFrogMoves(state: CGameState, unit: CUnit): Vec2[] {
   return moves;
 }
 
-// ── Elephant: 2×2, 1 step any dir, pushes small units in move direction ──
+// ═══════════════════════════════════════════════════════════════════════
+// ELEPHANT — Trample: pushes ALL small units in path 1 tile (friend+foe)
+// ═══════════════════════════════════════════════════════════════════════
+// Synergy: THE support unit. Move elephant forward → it pushes your own
+// small units forward too! Line up mice and rabbits in front, then
+// elephant tramples them all 1 tile closer to the goal. Risk: also
+// pushes enemies in the same direction.
 
 function getElephantMoves(state: CGameState, unit: CUnit): Vec2[] {
   const def = getUnitDef(unit.defId);
@@ -293,16 +374,20 @@ function getElephantMoves(state: CGameState, unit: CUnit): Vec2[] {
     for (const t of newFp) {
       const occ = occupiedBy(state, t, unit.unitId);
       if (occ) {
-        const occDef = getUnitDef(occ.defId);
-        // Can push small units but not other large units or turtles (shell)
-        if (occDef.size > 1 || occDef.id === 'turtle') {
+        if (!isPushable(occ)) {
           canMove = false;
           break;
         }
-        // Check if the push destination is valid
-        const pushTo = { x: occ.pos.x + d.x * 2, y: occ.pos.y + d.y * 2 };
+        // Check if the push destination is valid (1 tile in move direction)
+        const pushTo = { x: occ.pos.x + d.x, y: occ.pos.y + d.y };
         if (!inBounds(pushTo)) { canMove = false; break; }
-        if (!canOccupyTerrain(occDef.terrain, getTerrain(state.board, pushTo))) { canMove = false; break; }
+        if (!canOccupyTerrain(getUnitDef(occ.defId).terrain, getTerrain(state.board, pushTo))) { canMove = false; break; }
+        // Can't push into another unit (unless that unit would also be pushed,
+        // but we keep it simple: push blocked if destination is occupied)
+        if (occupiedBy(state, pushTo, occ.unitId) && !newFp.some(fp => fp.x === pushTo.x && fp.y === pushTo.y)) {
+          canMove = false;
+          break;
+        }
       }
     }
     if (canMove) moves.push(to);
@@ -311,18 +396,21 @@ function getElephantMoves(state: CGameState, unit: CUnit): Vec2[] {
   return moves;
 }
 
-// ── Whale: 2×2, water only, 1 step, splashes adjacent small units away ──
+// ═══════════════════════════════════════════════════════════════════════
+// WHALE — Splash: pushes ALL adjacent small units 1 tile outward (friend+foe)
+// ═══════════════════════════════════════════════════════════════════════
+// Synergy: Position allies around whale in water → splash pushes them
+// outward, potentially onto land near the goal! Whale can launch frogs,
+// mice, cats out of water. Also pushes away enemy blockers.
 
 function getWhaleMoves(state: CGameState, unit: CUnit): Vec2[] {
   return getBasicMoves(state, unit, 1);
 }
 
-// ── Move execution ────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+// MOVE EXECUTION — resolves pushes, bumps, splashes
+// ═══════════════════════════════════════════════════════════════════════
 
-/**
- * Execute a move: move the unit, resolve pushes/abilities, check scoring.
- * Mutates state in place. Returns a MoveResult describing what happened.
- */
 export function executeMove(state: CGameState, unitId: number, to: Vec2): MoveResult {
   const unit = state.units.find(u => u.unitId === unitId);
   if (!unit || unit.scored) throw new Error(`Unit ${unitId} not found or scored`);
@@ -331,45 +419,95 @@ export function executeMove(state: CGameState, unitId: number, to: Vec2): MoveRe
   const from = { ...unit.pos };
   const pushes: MoveResult['pushes'] = [];
 
-  // Resolve pre-move abilities based on unit type
+  // ── Pre-move abilities ──
+
   if (def.id === 'elephant') {
-    // Trample: push small units in the move direction
+    // Trample: push ALL small pushable units in the new footprint 1 tile
     const dx = Math.sign(to.x - from.x);
     const dy = Math.sign(to.y - from.y);
     const newFp = footprint(to, def.size);
+
+    // Collect units to push (to avoid modifying while iterating)
+    const toPush: CUnit[] = [];
     for (const t of newFp) {
       const occ = occupiedBy(state, t, unit.unitId);
-      if (occ && getUnitDef(occ.defId).size === 1 && occ.defId !== 'turtle') {
-        const pushFrom = { ...occ.pos };
-        occ.pos = { x: occ.pos.x + dx * 2, y: occ.pos.y + dy * 2 };
-        // Clamp to bounds
-        occ.pos.x = Math.max(0, Math.min(BOARD_SIZE - 1, occ.pos.x));
-        occ.pos.y = Math.max(0, Math.min(BOARD_SIZE - 1, occ.pos.y));
-        pushes.push({ unitId: occ.unitId, from: pushFrom, to: { ...occ.pos } });
+      if (occ && isPushable(occ) && !toPush.includes(occ)) {
+        toPush.push(occ);
       }
+    }
+
+    for (const target of toPush) {
+      const pushFrom = { ...target.pos };
+      const pushTo = {
+        x: target.pos.x + dx,
+        y: target.pos.y + dy,
+      };
+      // Clamp to bounds
+      pushTo.x = Math.max(0, Math.min(BOARD_SIZE - 1, pushTo.x));
+      pushTo.y = Math.max(0, Math.min(BOARD_SIZE - 1, pushTo.y));
+      target.pos = pushTo;
+      pushes.push({ unitId: target.unitId, from: pushFrom, to: { ...pushTo } });
     }
   }
 
-  // Move the unit
+  // ── Move the unit ──
   unit.pos = { ...to };
 
-  // Post-move abilities
+  // ── Post-move abilities ──
+
+  if (def.id === 'eagle') {
+    // Dive-bomb: bump 1 adjacent small enemy 1 tile away from eagle
+    let bestTarget: CUnit | null = null;
+    let bestDir: Vec2 | null = null;
+
+    for (const d of DIRS_4) {
+      const adj = { x: to.x + d.x, y: to.y + d.y };
+      if (!inBounds(adj)) continue;
+      const target = occupiedBy(state, adj, unit.unitId);
+      if (!target || target.owner === unit.owner) continue;
+      if (!isPushable(target)) continue;
+
+      const bumpTo = { x: adj.x + d.x, y: adj.y + d.y };
+      if (!inBounds(bumpTo)) continue;
+      const targetDef = getUnitDef(target.defId);
+      if (!canOccupyTerrain(targetDef.terrain, getTerrain(state.board, bumpTo))) continue;
+      if (occupiedBy(state, bumpTo, target.unitId)) continue;
+
+      // Prefer bumping enemies backward (away from their goal)
+      if (!bestTarget || d.y === -forwardDir(target.owner)) {
+        bestTarget = target;
+        bestDir = d;
+      }
+    }
+
+    if (bestTarget && bestDir) {
+      const pushFrom = { ...bestTarget.pos };
+      bestTarget.pos = {
+        x: bestTarget.pos.x + bestDir.x,
+        y: bestTarget.pos.y + bestDir.y,
+      };
+      pushes.push({ unitId: bestTarget.unitId, from: pushFrom, to: { ...bestTarget.pos } });
+    }
+  }
+
   if (def.id === 'whale') {
-    // Splash: push adjacent small units 1 tile away from whale center
+    // Splash: push ALL adjacent small units 1 tile outward (friend AND foe)
     const cx = to.x + 0.5; // center of 2×2
     const cy = to.y + 0.5;
     const whaleFp = new Set(footprint(to, def.size).map(t => `${t.x},${t.y}`));
 
+    const toSplash: { unit: CUnit; dx: number; dy: number }[] = [];
+
     for (const u of state.units) {
       if (u.scored || u.unitId === unitId) continue;
-      const uDef = getUnitDef(u.defId);
-      if (uDef.size > 1 || uDef.id === 'turtle') continue;
+      if (!isPushable(u)) continue;
 
       // Check if adjacent to any whale tile
       let adjacent = false;
       for (const wt of footprint(to, def.size)) {
         for (const d of DIRS_4) {
-          if (u.pos.x === wt.x + d.x && u.pos.y === wt.y + d.y && !whaleFp.has(`${u.pos.x},${u.pos.y}`)) {
+          if (u.pos.x === wt.x + d.x && u.pos.y === wt.y + d.y
+              && !whaleFp.has(`${u.pos.x},${u.pos.y}`)) {
             adjacent = true;
           }
         }
@@ -377,29 +515,34 @@ export function executeMove(state: CGameState, unitId: number, to: Vec2): MoveRe
       if (!adjacent) continue;
 
       // Push away from whale center
-      const pdx = Math.sign(u.pos.x - cx);
-      const pdy = Math.sign(u.pos.y - cy);
-      const pushTo = { x: u.pos.x + (pdx || 0), y: u.pos.y + (pdy || 0) };
-      if (inBounds(pushTo) && canOccupyTerrain(uDef.terrain, getTerrain(state.board, pushTo))
-          && !occupiedBy(state, pushTo, u.unitId)) {
-        const pushFrom = { ...u.pos };
-        u.pos = pushTo;
-        pushes.push({ unitId: u.unitId, from: pushFrom, to: pushTo });
+      const pdx = Math.sign(u.pos.x - cx) || 0;
+      const pdy = Math.sign(u.pos.y - cy) || 0;
+      toSplash.push({ unit: u, dx: pdx, dy: pdy });
+    }
+
+    for (const { unit: target, dx, dy } of toSplash) {
+      const pushTo = { x: target.pos.x + dx, y: target.pos.y + dy };
+      const targetDef = getUnitDef(target.defId);
+      if (inBounds(pushTo)
+          && canOccupyTerrain(targetDef.terrain, getTerrain(state.board, pushTo))
+          && !occupiedBy(state, pushTo, target.unitId)) {
+        const pushFrom = { ...target.pos };
+        target.pos = pushTo;
+        pushes.push({ unitId: target.unitId, from: pushFrom, to: pushTo });
       }
     }
   }
 
   // Check if the moved unit scored
-  const scored = hasCrossedGoal(unit, state);
+  const scored = hasCrossedGoal(unit);
 
   return { to, pushes, scored };
 }
 
 /** Check if a unit has crossed its owner's goal. */
-function hasCrossedGoal(unit: CUnit, _state: CGameState): boolean {
+function hasCrossedGoal(unit: CUnit): boolean {
   const def = getUnitDef(unit.defId);
   if (unit.owner === 'A') {
-    // All tiles of the footprint must be at row >= GOAL_ROW_A
     return footprint(unit.pos, def.size).every(t => t.y >= 6);
   } else {
     return footprint(unit.pos, def.size).every(t => t.y <= 5);

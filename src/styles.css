@@ -2150,6 +2150,18 @@ kbd {
 /* ── Help panel ─────────────────────────────────────────────────────────── */
 
 .cx-help { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
+/* Combo tips */
+.cx-combos {
+  display: flex; flex-direction: column; gap: 5px;
+}
+.cx-combo-tip {
+  font-size: 11px; color: var(--text-dim); line-height: 1.4;
+  padding: 4px 6px;
+  background: rgba(79, 209, 165, 0.06);
+  border-left: 2px solid rgba(79, 209, 165, 0.3);
+  border-radius: 0 4px 4px 0;
+}
 .cx-help p { margin: 0 0 6px; }
 .cx-help strong { color: var(--text); }
 
