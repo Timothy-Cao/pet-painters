@@ -61,7 +61,7 @@ export function mountSandboxUI(
   ui: SandboxUIState,
   bindings: SandboxUIBindings,
 ): void {
-  buildPetRoster(ui);
+  buildPetRoster(state, ui);
   bindFacing(ui);
   bindActions(state, bindings);
   bindInspector(state, ui);
@@ -81,7 +81,7 @@ function bindInspector(state: MatchState, ui: SandboxUIState): void {
   });
 }
 
-function buildPetRoster(ui: SandboxUIState): void {
+function buildPetRoster(state: MatchState, ui: SandboxUIState): void {
   const root = q('pet-roster')!;
   root.innerHTML = '';
   ensurePopup();
@@ -89,7 +89,7 @@ function buildPetRoster(ui: SandboxUIState): void {
     const card = renderPetCard(def);
     card.addEventListener('click', () => {
       ui.selectedDefId = def.id;
-      refreshRoster(ui);
+      refreshRoster(state, ui);
       // One-shot pop animation so the click feels confirmed.
       card.classList.remove('just-picked');
       // Force reflow so the animation restarts on rapid re-clicks.
@@ -116,6 +116,7 @@ function renderPetCard(def: PetDefinition): HTMLButtonElement {
       <div class="pet-name">${def.displayName}<span class="pet-hotkey">${def.ui.hotkey}</span></div>
       <div class="pet-short">${def.ui.short}</div>
       <div class="pet-quick-stats">
+        <span class="quick-pill quick-pill-cost">\u{26A1}${def.stats.cost}</span>
         <span class="quick-pill quick-pill-${spd.toLowerCase()}">${spd}</span>
         <span class="quick-stat"><span class="quick-key">HP</span> ${def.stats.maxHp}</span>
         <span class="quick-stat"><span class="quick-key">ATK</span> ${def.stats.atk}</span>
@@ -149,6 +150,7 @@ function showPopup(anchor: HTMLElement, def: PetDefinition): void {
       <span class="popup-size">${def.size.w}×${def.size.h}</span>
     </div>
     <div class="popup-stats">
+      <div class="popup-row popup-row-cost"><span>\u{26A1} Cost</span><span>${stats.cost} energy</span></div>
       <div class="popup-row"><span>Health</span><span>${stats.maxHp}</span></div>
       <div class="popup-row"><span>Attack</span><span>${stats.atk}</span></div>
       <div class="popup-row"><span>Move speed</span><span>${speedText}</span></div>
@@ -216,7 +218,7 @@ function bindActions(state: MatchState, bindings: SandboxUIBindings): void {
 }
 
 export function refreshAll(state: MatchState, ui: SandboxUIState): void {
-  refreshRoster(ui);
+  refreshRoster(state, ui);
   refreshFacing(ui);
   refreshScores(state);
   refreshEnergy(state);
@@ -227,9 +229,15 @@ export function refreshAll(state: MatchState, ui: SandboxUIState): void {
   refreshRoundSummary(state);
 }
 
-function refreshRoster(ui: SandboxUIState): void {
+function refreshRoster(state: MatchState, ui: SandboxUIState): void {
+  // Player A's energy (the human player in AI mode)
+  const energy = state.sandbox ? Infinity : state.energy.A;
   _root.querySelectorAll<HTMLElement>('.pet-card').forEach((el) => {
     el.classList.toggle('active', el.dataset.defId === ui.selectedDefId);
+    // Dim cards the player can't afford
+    const def = el.dataset.defId ? getPetDef(el.dataset.defId) : null;
+    const canAfford = !def || energy >= def.cost;
+    el.classList.toggle('unaffordable', !canAfford && state.phase === 'planning');
   });
 }
 

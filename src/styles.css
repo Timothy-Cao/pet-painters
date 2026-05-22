@@ -399,6 +399,13 @@ html, body {
   background: var(--accent);
   border-radius: 4px 0 0 4px;
 }
+.pet-card.unaffordable {
+  opacity: 0.45;
+  filter: grayscale(0.4);
+}
+.pet-card.unaffordable:hover {
+  opacity: 0.6;
+}
 .pet-emoji {
   font-size: 28px;
   text-align: center;
@@ -449,6 +456,7 @@ html, body {
   border-radius: 999px;
   border: 1px solid currentColor;
 }
+.quick-pill-cost { color: #f5a623; background: rgba(245, 166, 35, 0.12); }
 .quick-pill-slow { color: #7892b8; }
 .quick-pill-normal { color: var(--text-dim); }
 .quick-pill-fast { color: #ffd166; }
@@ -526,6 +534,10 @@ html, body {
 .popup-row > span:last-child {
   color: var(--text);
   font-variant-numeric: tabular-nums;
+}
+.popup-row-cost > span:last-child {
+  color: #f5a623;
+  font-weight: 600;
 }
 .popup-ability {
   padding-top: 10px;

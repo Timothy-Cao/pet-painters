@@ -57,6 +57,14 @@ function pruneCombatAnims(): void {
   for (const [id, a] of attackAnims) if (t - a.startMs > ATTACK_BUMP_MS) attackAnims.delete(id);
 }
 
+/** Clear all combat animation state. Call on match reset to prevent stale
+ *  animations from affecting newly-deployed pets that reuse petId values. */
+export function clearCombatAnims(): void {
+  hitAnims.clear();
+  deathAnims.clear();
+  attackAnims.clear();
+}
+
 /**
  * Render all pets.
  * @param viewer  When set, enemy pets whose footprint is entirely in fog are skipped.

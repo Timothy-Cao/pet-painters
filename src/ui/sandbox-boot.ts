@@ -11,7 +11,7 @@ import { createInitialMatch, resetMatchInPlace } from '../sim/match';
 import { createRenderContext, clearCanvas, tileToPixel } from '../render/canvas';
 import type { RenderContext } from '../render/canvas';
 import { renderBoard } from '../render/board';
-import { renderPets } from '../render/pets';
+import { renderPets, clearCombatAnims } from '../render/pets';
 import {
   createDeployUIState,
   attachDeployUI,
@@ -183,6 +183,7 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
     cancelAI?.();
     resetMatchInPlace(state, { sandbox: state.sandbox });
     clearEffects();
+    clearCombatAnims();
     clearRenderHistory();
     clearEvents();
     ui.hoverTile = null;
