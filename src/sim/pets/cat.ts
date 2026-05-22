@@ -6,7 +6,7 @@ import { pushPounce, pushDamage } from '../../render/effects';
 import { MOUSE } from './mouse';
 
 const STATS = {
-  cost: 5,                           // corner-zones r3: 4→5 — still 68.8% post-r2; pounce + wander too efficient on 20×20
+  cost: 4,                           // reworks r4: 3→4 — overcorrected to 93.5%; landing between r3's collapse and r4's dominance
   speedTilesPerSec: 2,
   weight: 2,
   maxHp: 4,

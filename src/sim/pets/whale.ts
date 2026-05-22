@@ -5,7 +5,7 @@ import { walkOrTurnAtWall, tileInBounds } from '../behaviors';
 import { pushSplat } from '../../render/effects';
 
 const STATS = {
-  cost: 8,                        // raised from 6 — artillery is powerful, must cost more budget
+  cost: 10,                       // reworks r3: 8→10 — at 82.8% dominance, must cost a true budget commitment
   speedTilesPerSec: 0.4,          // slowest — even a touch slower than elephant
   weight: 15,                     // 50% heavier than elephant; pushes everything except itself
   maxHp: 35,                      // largest HP pool of any pet
@@ -13,7 +13,7 @@ const STATS = {
   atkSpeedPerSec: 0,
   order: 1,                       // acts early, but only walks
   // bespoke
-  spoutIntervalSec: 5.0,          // raised from 3s — less frequent to reduce dominance
+  spoutIntervalSec: 7.0,          // reworks r3: 5→7 — less frequent spouts reduce raw paint output
   spoutRadius: 1,                 // 3×3 splash
 } as const;
 
