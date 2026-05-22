@@ -6,6 +6,41 @@ import {
 } from '../config/constants';
 import { pushSplat } from '../render/effects';
 
+/** Encodes a Vec2 as a single integer key for use in a Set. */
+function tileKey(x: number, y: number): number {
+  return y * BOARD_SIZE + x;
+}
+
+/**
+ * Compute which tiles are visible to the given player.
+ * A tile is visible if it is within Chebyshev distance ≤2 of any tile painted
+ * in the player's color (including their pre-painted home zone).
+ * Returns a Set of encoded tile keys (tileKey(x, y)).
+ */
+export function computeVisibility(board: Board, player: PlayerId): Set<number> {
+  const visible = new Set<number>();
+  const size = board.size;
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      if (board.tiles[y * size + x] === player) {
+        // Expand by Chebyshev distance 2
+        for (let dy = -2; dy <= 2; dy++) {
+          for (let dx = -2; dx <= 2; dx++) {
+            const nx = x + dx;
+            const ny = y + dy;
+            if (nx >= 0 && nx < size && ny >= 0 && ny < size) {
+              visible.add(tileKey(nx, ny));
+            }
+          }
+        }
+      }
+    }
+  }
+  return visible;
+}
+
+export { tileKey };
+
 function inBounds(board: Board, p: Vec2): boolean {
   return p.x >= 0 && p.x < board.size && p.y >= 0 && p.y < board.size;
 }

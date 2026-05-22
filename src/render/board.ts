@@ -1,5 +1,5 @@
 import { RenderContext, tileToPixel } from './canvas';
-import type { Board } from '../types/game';
+import type { Board, PlayerId } from '../types/game';
 import {
   BOARD_SIZE,
   HOME_A_MIN_X, HOME_A_MAX_X, HOME_A_MIN_Y, HOME_A_MAX_Y,
@@ -7,7 +7,10 @@ import {
 } from '../config/constants';
 
 import { getPalette } from './palette';
+import { computeVisibility, tileKey } from '../sim/board';
+
 const GRID_LINE = 'rgba(255, 255, 255, 0.07)';
+const FOG_FILL = 'rgba(0, 0, 0, 0.52)';
 
 function isHomeCorner(x: number, y: number): 'A' | 'B' | null {
   if (x >= HOME_A_MIN_X && x <= HOME_A_MAX_X && y >= HOME_A_MIN_Y && y <= HOME_A_MAX_Y) return 'A';
@@ -15,7 +18,12 @@ function isHomeCorner(x: number, y: number): 'A' | 'B' | null {
   return null;
 }
 
-export function renderBoard(rc: RenderContext, board: Board): void {
+/**
+ * Render the board tiles.
+ * @param viewer  When set, apply fog of war for that player.
+ *                Pass null (or omit) for sandbox/spectator — no fog.
+ */
+export function renderBoard(rc: RenderContext, board: Board, viewer?: PlayerId | null): void {
   const { ctx, tileSize } = rc;
   const inset = 1;
   const palette = getPalette();
@@ -25,11 +33,19 @@ export function renderBoard(rc: RenderContext, board: Board): void {
     neutral: palette.neutral,
   };
 
+  // Pre-compute visibility set when fog of war is active.
+  const visSet: Set<number> | null = viewer ? computeVisibility(board, viewer) : null;
+
   for (let y = 0; y < BOARD_SIZE; y++) {
     for (let x = 0; x < BOARD_SIZE; x++) {
-      const color = board.tiles[y * BOARD_SIZE + x];
+      const rawColor = board.tiles[y * BOARD_SIZE + x];
       const { px, py } = tileToPixel(rc, x, y);
       const homeOwner = isHomeCorner(x, y);
+
+      // Fog of war: if a viewer is set and this tile is outside their visibility,
+      // render it as neutral (opponent paint is hidden) and add fog overlay below.
+      const isVisible = !visSet || visSet.has(tileKey(x, y));
+      const color: typeof rawColor = isVisible ? rawColor : 'neutral';
 
       ctx.fillStyle = fill[color];
       ctx.fillRect(px, py, tileSize, tileSize);
@@ -76,6 +92,12 @@ export function renderBoard(rc: RenderContext, board: Board): void {
         ctx.lineTo(px + tileSize - 3, py + m - 3);
         ctx.stroke();
         ctx.restore();
+      }
+
+      // Fog overlay — drawn on top of the tile after all details.
+      if (!isVisible) {
+        ctx.fillStyle = FOG_FILL;
+        ctx.fillRect(px, py, tileSize, tileSize);
       }
     }
   }

@@ -1,10 +1,12 @@
 import { RenderContext } from './canvas';
 import type { Pet } from '../types/pet';
+import type { PlayerId } from '../types/game';
 import { getPetDef } from '../sim/pet-defs';
 import { BOARD_SIZE } from '../config/constants';
 import { getRenderPosition, getSpawnAgeMs, pruneRenderHistory, SPAWN_MS } from './interpolation';
 import { side } from './palette';
 import type { PetRole } from '../types/pet';
+import { computeVisibility, tileKey } from '../sim/board';
 
 export const ROLE_TINT: Record<PetRole, string> = {
   painter:    'rgba(79, 209, 165, 0.65)',   // teal
@@ -18,10 +20,33 @@ function now(): number {
   return typeof performance !== 'undefined' ? performance.now() : Date.now();
 }
 
-export function renderPets(rc: RenderContext, pets: Pet[]): void {
+/**
+ * Render all pets.
+ * @param viewer  When set, enemy pets whose footprint is entirely in fog are skipped.
+ *                The viewer's own pets are always rendered.
+ *                Pass null (or omit) for sandbox/spectator — no fog filtering.
+ *
+ * NOTE: The board reference is only needed when viewer is set (fog of war).
+ */
+export function renderPets(
+  rc: RenderContext,
+  pets: Pet[],
+  viewer?: PlayerId | null,
+  board?: import('../types/game').Board | null,
+): void {
   const { ctx, tileSize } = rc;
+
+  // Pre-compute visibility once per frame when fog is active.
+  const visSet: Set<number> | null = (viewer && board) ? computeVisibility(board, viewer) : null;
+
   for (const pet of pets) {
     const def = getPetDef(pet.defId);
+
+    // Fog of war: skip enemy pets whose anchor tile is in fog.
+    // We check the anchor tile as a quick proxy for the full footprint.
+    if (visSet && pet.owner !== viewer) {
+      if (!visSet.has(tileKey(pet.anchor.x, pet.anchor.y))) continue;
+    }
     const { x: fx, y: fy, rad } = getRenderPosition(pet);
 
     // Convert fractional board coords → screen pixel top-left of the sprite.

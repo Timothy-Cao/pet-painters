@@ -260,6 +260,10 @@ export const OnlineMatchScreen: Screen = {
       // Boot sandbox inside our container, injecting online bindings.
       bootHandle = bootSandbox(container, {
         initialRound: room.current_round,
+        viewer: mySlot,
+        getPendingDeployments() {
+          return controller ? controller.getPendingDeployments() : [];
+        },
         onDeploy(defId, anchor, facing) {
           if (controller) {
             const ok = controller.queueLocalDeployment({ defId, anchor, facing });

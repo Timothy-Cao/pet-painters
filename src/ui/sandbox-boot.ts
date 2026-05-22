@@ -8,7 +8,8 @@
 
 import type { Vec2, Direction } from '../types/game';
 import { createInitialMatch, resetMatchInPlace } from '../sim/match';
-import { createRenderContext, clearCanvas } from '../render/canvas';
+import { createRenderContext, clearCanvas, tileToPixel } from '../render/canvas';
+import type { RenderContext } from '../render/canvas';
 import { renderBoard } from '../render/board';
 import { renderPets } from '../render/pets';
 import {
@@ -23,6 +24,40 @@ import { clearRenderHistory } from '../render/interpolation';
 import { clearEvents } from './event-log';
 import { loadPalette, applyPalette, getPaletteName } from '../render/palette';
 import { setWinOverlayRoot, bindWinOverlay, refreshWinOverlay } from './win-overlay';
+import type { DeploymentDTO } from '../online/submissions';
+import { getPetDef } from '../sim/pet-defs';
+
+/**
+ * Draw ghost/preview overlays for deployments the local player has queued this round
+ * but that haven't yet been applied to state.pets (they're pending server confirmation).
+ */
+function renderPendingGhosts(rc: RenderContext, pending: readonly DeploymentDTO[]): void {
+  if (pending.length === 0) return;
+  const { ctx, tileSize } = rc;
+  for (const d of pending) {
+    const def = getPetDef(d.defId);
+    const { px, py } = tileToPixel(rc, d.anchor.x, d.anchor.y + def.size.h - 1);
+    const w = def.size.w * tileSize;
+    const h = def.size.h * tileSize;
+    // Semi-transparent fill + dashed outline so the player knows "this is queued."
+    ctx.save();
+    ctx.globalAlpha = 0.45;
+    ctx.fillStyle = 'rgba(100, 200, 255, 0.25)';
+    ctx.fillRect(px, py, w, h);
+    ctx.strokeStyle = 'rgba(100, 200, 255, 0.85)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 4]);
+    ctx.strokeRect(px + 1, py + 1, w - 2, h - 2);
+    ctx.setLineDash([]);
+    // Emoji centered
+    ctx.font = `${Math.floor(h * 0.55)}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(def.emoji, px + w / 2, py + h / 2 + 2);
+    ctx.restore();
+  }
+}
 
 /** Optional bindings for online mode.  All fields are optional so sandbox mode is unaffected. */
 export interface SandboxBootBindings {
@@ -40,6 +75,16 @@ export interface SandboxBootBindings {
   onReady?: () => void;
   /** If provided, called each time the local execution phase ends. */
   onExecutionEnd?: () => void;
+  /**
+   * The local player's slot ('A' or 'B') — enables fog of war in render so only
+   * tiles/pets visible to this player are shown.  Omit (or null) for sandbox.
+   */
+  viewer?: import('../types/game').PlayerId | null;
+  /**
+   * Getter that returns the current pending deployments queued this round.
+   * When set, ghost overlays of queued pets are shown to the local player.
+   */
+  getPendingDeployments?: () => readonly import('../online/submissions').DeploymentDTO[];
 }
 
 export interface SandboxBootHandle {
@@ -125,12 +170,19 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
     }
   });
 
+  // Fog of war: undefined/null means sandbox (no fog).
+  const viewer = bindings?.viewer ?? null;
+
   function render() {
     clearCanvas(rc);
-    renderBoard(rc, state.board);
-    renderPets(rc, state.pets);
+    renderBoard(rc, state.board, viewer);
+    renderPets(rc, state.pets, viewer, viewer ? state.board : null);
     renderEffects(rc);
     renderDeployPreview(rc, state, ui);
+    // Ghost overlay for pending deployments (online planning phase feedback).
+    if (bindings?.getPendingDeployments) {
+      renderPendingGhosts(rc, bindings.getPendingDeployments());
+    }
     refreshAll(state, ui);
     refreshWinOverlay(state);
   }
