@@ -240,6 +240,20 @@ function refreshFacing(ui: SandboxUIState): void {
   if (name) name.textContent = FACING_NAME[ui.facing];
 }
 
+// ── Execution drama state ───────────────────────────────────────────
+let _execStartA = 0;
+let _execStartB = 0;
+let _lastLeader: 'A' | 'B' | 'tie' = 'tie';
+let _leadChangeBannerAt = 0;
+
+/** Call when execution begins to snapshot the starting scores. */
+export function snapshotExecStart(state: MatchState): void {
+  _execStartA = scoreFor(state.board, 'A');
+  _execStartB = scoreFor(state.board, 'B');
+  _lastLeader = _execStartA > _execStartB ? 'A' : _execStartA < _execStartB ? 'B' : 'tie';
+  _leadChangeBannerAt = 0;
+}
+
 function refreshScores(state: MatchState): void {
   const total = BOARD_SIZE * BOARD_SIZE;
   const a = scoreFor(state.board, 'A');
@@ -248,8 +262,43 @@ function refreshScores(state: MatchState): void {
   const aPct = (a / total) * 100;
   const bPct = (b / total) * 100;
   const nPct = (n / total) * 100;
-  const pctA = q('pct-a'); if (pctA) pctA.textContent = `${aPct.toFixed(0)}%`;
-  const pctB = q('pct-b'); if (pctB) pctB.textContent = `${bPct.toFixed(0)}%`;
+
+  const pctA = q('pct-a');
+  const pctB = q('pct-b');
+
+  if (state.phase === 'execution') {
+    // Live territory deltas during execution.
+    const aDelta = a - _execStartA;
+    const bDelta = b - _execStartB;
+    const aDeltaStr = aDelta > 0 ? `+${aDelta}` : aDelta < 0 ? `${aDelta}` : '';
+    const bDeltaStr = bDelta > 0 ? `+${bDelta}` : bDelta < 0 ? `${bDelta}` : '';
+    if (pctA) pctA.innerHTML = `${aPct.toFixed(0)}% ${aDeltaStr ? `<span class="score-delta ${aDelta > 0 ? 'delta-up' : 'delta-down'}">${aDeltaStr}</span>` : ''}`;
+    if (pctB) pctB.innerHTML = `${bPct.toFixed(0)}% ${bDeltaStr ? `<span class="score-delta ${bDelta > 0 ? 'delta-up' : 'delta-down'}">${bDeltaStr}</span>` : ''}`;
+
+    // Lead change detection — show brief banner.
+    const now = performance.now();
+    const currentLeader = a > b ? 'A' : a < b ? 'B' : 'tie';
+    if (currentLeader !== _lastLeader && currentLeader !== 'tie' && _lastLeader !== 'tie') {
+      if (now - _leadChangeBannerAt > 2000) { // rate-limit
+        _leadChangeBannerAt = now;
+        showBanner(`Lead change! Player ${currentLeader} takes the lead!`, 'info');
+      }
+    }
+    _lastLeader = currentLeader;
+
+    // Close game pulse — add CSS class when gap < 5%.
+    const gap = Math.abs(aPct - bPct);
+    const bar = _root.querySelector('.territory-bar');
+    bar?.classList.toggle('territory-close', gap < 5);
+    bar?.classList.toggle('territory-danger', aPct >= 55 || bPct >= 55);
+  } else {
+    if (pctA) pctA.textContent = `${aPct.toFixed(0)}%`;
+    if (pctB) pctB.textContent = `${bPct.toFixed(0)}%`;
+    // Remove drama classes when not executing.
+    const bar = _root.querySelector('.territory-bar');
+    bar?.classList.remove('territory-close', 'territory-danger');
+  }
+
   const fillA = q('fill-a'); if (fillA) fillA.style.width = `${aPct}%`;
   const fillN = q('fill-n'); if (fillN) fillN.style.width = `${nPct}%`;
   const fillB = q('fill-b'); if (fillB) fillB.style.width = `${bPct}%`;

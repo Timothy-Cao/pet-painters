@@ -278,6 +278,39 @@ html, body {
 }
 .threshold-a { left: 60%; }
 .threshold-b { left: 40%; }
+
+/* ── Execution drama ─────────────────────────────────── */
+.score-delta {
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 3px;
+  animation: delta-pop 0.3s ease-out;
+}
+.score-delta.delta-up { color: var(--good); }
+.score-delta.delta-down { color: var(--player-b); }
+@keyframes delta-pop {
+  0% { transform: scale(1.4); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Close game: territory within 5% — bar pulses gently */
+.territory-bar.territory-close {
+  animation: bar-pulse 1.2s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(255, 209, 102, 0.35);
+}
+@keyframes bar-pulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(255, 209, 102, 0.2); }
+  50% { box-shadow: 0 0 14px rgba(255, 209, 102, 0.55); }
+}
+
+/* Danger: someone is nearing win threshold — stronger glow */
+.territory-bar.territory-danger {
+  animation: bar-danger 0.8s ease-in-out infinite;
+}
+@keyframes bar-danger {
+  0%, 100% { box-shadow: 0 0 6px rgba(242, 95, 92, 0.3); }
+  50% { box-shadow: 0 0 18px rgba(242, 95, 92, 0.6); }
+}
 .threshold-a::after { background: var(--player-a); }
 .threshold-b::after { background: var(--player-b); }
 

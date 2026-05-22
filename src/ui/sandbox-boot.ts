@@ -17,7 +17,7 @@ import {
   attachDeployUI,
   renderDeployPreview,
 } from '../input/deploy-ui';
-import { setSandboxRoot, mountSandboxUI, refreshAll, showBanner } from './sandbox-ui';
+import { setSandboxRoot, mountSandboxUI, refreshAll, showBanner, snapshotExecStart } from './sandbox-ui';
 import { GameLoop } from '../loop';
 import { renderEffects, clearEffects } from '../render/effects';
 import { clearRenderHistory } from '../render/interpolation';
@@ -289,6 +289,7 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
     if (state.phase === 'execution' && lastPhase === 'planning') {
       countdownStartMs = now;
       playCountdownTick();           // "3"
+      snapshotExecStart(state);
     }
     lastPhase = state.phase;
 
