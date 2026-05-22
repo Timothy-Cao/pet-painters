@@ -1364,6 +1364,14 @@ kbd {
   font-family: inherit;
 }
 .big-btn:hover { background: var(--btn-bg-hover, #3a3a3a); }
+.big-btn-primary {
+  background: linear-gradient(135deg, #4fd1a5 0%, #3db58e 100%);
+  color: #0e1014;
+  border-color: #4fd1a5;
+  font-weight: 700;
+}
+.big-btn-primary:hover { background: linear-gradient(135deg, #5ee0b5 0%, #4fd1a5 100%); }
+.big-btn-primary .btn-sub { color: rgba(0,0,0,0.55); }
 .big-btn .btn-sub { color: var(--text-dim, #888); font-size: 13px; display: block; margin-top: 4px; font-weight: normal; }
 .home-footer {
   margin-top: 40px;

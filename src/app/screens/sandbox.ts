@@ -3,7 +3,8 @@ import { navigate } from '../router';
 
 export const SandboxScreen: Screen = {
   name: 'sandbox',
-  mount(root) {
+  mount(root, params) {
+    const isAI = params?.mode === 'ai';
     root.innerHTML = `
 <div class="sandbox-screen" id="sandbox-container">
   <div class="app">
@@ -11,7 +12,7 @@ export const SandboxScreen: Screen = {
       <div class="brand">
         <span class="brand-mark">🎨</span>
         <span class="brand-name">Pet Painters</span>
-        <span class="brand-mode">Sandbox</span>
+        <span class="brand-mode">${isAI ? 'vs AI' : 'Sandbox'}</span>
       </div>
       <div class="phase-pill" id="phase-pill">
         <span class="phase-dot"></span>
@@ -19,7 +20,7 @@ export const SandboxScreen: Screen = {
       </div>
       <div class="territory">
         <div class="territory-side territory-side-a">
-          <div class="territory-tag">A</div>
+          <div class="territory-tag">${isAI ? 'You' : 'A'}</div>
           <div class="territory-pct" id="pct-a">0%</div>
         </div>
         <div class="territory-bar">
@@ -31,7 +32,7 @@ export const SandboxScreen: Screen = {
         </div>
         <div class="territory-side territory-side-b">
           <div class="territory-pct" id="pct-b">0%</div>
-          <div class="territory-tag">B</div>
+          <div class="territory-tag">${isAI ? 'AI' : 'B'}</div>
         </div>
       </div>
       <div class="settings-wrap">
@@ -61,8 +62,8 @@ export const SandboxScreen: Screen = {
 
         <div class="panel-title panel-title-sm">Legend</div>
         <div class="legend">
-          <div class="legend-item"><span class="swatch swatch-a"></span> Player A territory</div>
-          <div class="legend-item"><span class="swatch swatch-b"></span> Player B territory</div>
+          <div class="legend-item"><span class="swatch swatch-a"></span> ${isAI ? 'Your' : 'Player A'} territory</div>
+          <div class="legend-item"><span class="swatch swatch-b"></span> ${isAI ? 'AI' : 'Player B'} territory</div>
           <div class="legend-item"><span class="swatch swatch-n"></span> Neutral tile</div>
           <div class="legend-item"><span class="swatch swatch-home swatch-home-a">⫽</span> A home (locked)</div>
           <div class="legend-item"><span class="swatch swatch-home swatch-home-b">⫽</span> B home (locked)</div>
@@ -71,9 +72,9 @@ export const SandboxScreen: Screen = {
 
       <section class="stage">
         <div class="canvas-frame">
-          <div class="player-tag player-tag-b">Player B (top)</div>
+          <div class="player-tag player-tag-b">${isAI ? '🤖 AI (top)' : 'Player B (top)'}</div>
           <canvas id="game" width="640" height="640"></canvas>
-          <div class="player-tag player-tag-a">Player A (bottom)</div>
+          <div class="player-tag player-tag-a">${isAI ? '🎮 You (bottom)' : 'Player A (bottom)'}</div>
           <div class="pet-inspect" id="pet-inspect" hidden>
             <div class="inspect-head">
               <span class="inspect-emoji" id="inspect-emoji">🐭</span>
@@ -172,12 +173,12 @@ export const SandboxScreen: Screen = {
         <div class="panel-title">Energy</div>
         <div class="energy-row">
           <div class="energy-cell energy-a">
-            <div class="energy-label">A</div>
-            <div class="energy-val" id="energy-a">∞</div>
+            <div class="energy-label">${isAI ? 'You' : 'A'}</div>
+            <div class="energy-val" id="energy-a">${isAI ? '3' : '∞'}</div>
           </div>
           <div class="energy-cell energy-b">
-            <div class="energy-label">B</div>
-            <div class="energy-val" id="energy-b">∞</div>
+            <div class="energy-label">${isAI ? 'AI' : 'B'}</div>
+            <div class="energy-val" id="energy-b">${isAI ? '3' : '∞'}</div>
           </div>
         </div>
 
@@ -207,17 +208,17 @@ export const SandboxScreen: Screen = {
     <div class="win-confetti" id="win-confetti"></div>
     <div class="win-card">
       <div class="win-eyebrow">Match complete</div>
-      <div class="win-headline">
+      <div class="win-headline" id="win-headline">
         Player <span id="win-winner">A</span> wins
       </div>
       <div class="win-recap">
         <div class="win-recap-side">
-          <span class="win-recap-tag win-recap-tag-a">A</span>
+          <span class="win-recap-tag win-recap-tag-a">${isAI ? 'You' : 'A'}</span>
           <span class="win-recap-val" id="win-recap-a">0%</span>
         </div>
         <div class="win-recap-vs">vs</div>
         <div class="win-recap-side">
-          <span class="win-recap-tag win-recap-tag-b">B</span>
+          <span class="win-recap-tag win-recap-tag-b">${isAI ? 'AI' : 'B'}</span>
           <span class="win-recap-val" id="win-recap-b">0%</span>
         </div>
       </div>
@@ -245,7 +246,7 @@ export const SandboxScreen: Screen = {
 
     // Boot the full sandbox within the container.
     import('../../ui/sandbox-boot').then(({ bootSandbox }) => {
-      bootSandbox(container);
+      bootSandbox(container, isAI ? { withAI: true } : undefined);
     });
 
     // Back button overlay.

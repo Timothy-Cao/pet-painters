@@ -18,6 +18,7 @@ export const HomeScreen: Screen = {
           <span class="showcase-pet" style="--delay:1.5s">🦅</span>
         </div>
         <div class="home-buttons">
+          <button class="big-btn big-btn-primary" id="btn-ai">Play vs AI <span class="btn-sub">(solo — challenge the computer)</span></button>
           <button class="big-btn" id="btn-sandbox">Local Play <span class="btn-sub">(2 players, same screen)</span></button>
           <button class="big-btn" id="btn-online">Online Play <span class="btn-sub">(play with a friend online)</span></button>
         </div>
@@ -25,6 +26,7 @@ export const HomeScreen: Screen = {
         <div class="home-footer">Pet Painters v0.1 · Made with 🎨</div>
       </div>
     `;
+    root.querySelector('#btn-ai')!.addEventListener('click', () => navigate('sandbox', { mode: 'ai' }));
     root.querySelector('#btn-sandbox')!.addEventListener('click', () => navigate('sandbox'));
     root.querySelector('#btn-online')!.addEventListener('click', () => navigate('sign-in'));
     root.querySelector('#btn-how-to-play')!.addEventListener('click', () => {

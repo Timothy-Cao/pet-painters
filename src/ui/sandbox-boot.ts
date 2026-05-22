@@ -23,11 +23,12 @@ import { renderEffects, clearEffects } from '../render/effects';
 import { clearRenderHistory } from '../render/interpolation';
 import { clearEvents } from './event-log';
 import { loadPalette, applyPalette, getPaletteName } from '../render/palette';
-import { setWinOverlayRoot, bindWinOverlay, refreshWinOverlay } from './win-overlay';
+import { setWinOverlayRoot, setWinOverlayLabels, bindWinOverlay, refreshWinOverlay } from './win-overlay';
 import type { DeploymentDTO } from '../online/submissions';
 import { getPetDef } from '../sim/pet-defs';
 import { loadSoundPref, isSoundEnabled, setSoundEnabled, playRoundStart, playCountdownTick, playCountdownGo } from '../render/sfx';
 import { maybeShowTutorial } from './tutorial';
+import { scheduleAIDeploy } from '../sim/ai';
 
 /**
  * Draw the 3-2-1-GO countdown overlay on the canvas.
@@ -121,8 +122,10 @@ function renderPendingGhosts(rc: RenderContext, pending: readonly DeploymentDTO[
   }
 }
 
-/** Optional bindings for online mode.  All fields are optional so sandbox mode is unaffected. */
+/** Optional bindings for online mode and AI.  All fields are optional so sandbox mode is unaffected. */
 export interface SandboxBootBindings {
+  /** If true, Player B is controlled by the AI. Player A is the human. */
+  withAI?: boolean;
   /** If set, override the starting round number (for online reconnect). */
   initialRound?: number;
   /**
@@ -162,32 +165,39 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
   // Scope all sandbox-ui and win-overlay DOM queries to this container.
   setSandboxRoot(container);
   setWinOverlayRoot(container);
+  setWinOverlayLabels(bindings?.withAI ? { A: 'You', B: 'AI' } : null);
 
   const canvas = container.querySelector('#game') as HTMLCanvasElement;
   const rc = createRenderContext(canvas);
 
   const isOnline = !!bindings?.onReady;
-  const state = createInitialMatch({ sandbox: !isOnline });
+  const aiMode = !!bindings?.withAI && !isOnline;
+  // AI mode uses finite energy for real strategy; pure sandbox is infinite.
+  const state = createInitialMatch({ sandbox: !isOnline && !aiMode });
   if (bindings?.initialRound !== undefined) {
     state.round = bindings.initialRound;
   }
   const ui = createDeployUIState();
 
   function resetMatch(): void {
+    cancelAI?.();
     resetMatchInPlace(state, { sandbox: state.sandbox });
     clearEffects();
     clearRenderHistory();
     clearEvents();
     ui.hoverTile = null;
+    winFired = false;
     refreshAll(state, ui);
     showBanner('Match reset');
+    triggerAIDeploy();
   }
 
   attachDeployUI(canvas, rc, state, ui, {
     onReset: resetMatch,
     onDeploy: bindings?.onDeploy,
     onReady: bindings?.onReady,
-    viewer: bindings?.viewer ?? null,
+    // In AI mode, restrict the human player to their own territory (A).
+    viewer: aiMode ? 'A' : (bindings?.viewer ?? null),
   });
   mountSandboxUI(state, ui, {
     onReset: resetMatch,
@@ -244,6 +254,25 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
 
   // Fog of war: undefined/null means sandbox (no fog).
   const viewer = bindings?.viewer ?? null;
+
+  // ── AI opponent ──────────────────────────────────────────────────────
+  const aiEnabled = !!bindings?.withAI && !isOnline;
+  let cancelAI: (() => void) | null = null;
+
+  function triggerAIDeploy(): void {
+    if (!aiEnabled) return;
+    if (state.phase !== 'planning') return;
+    cancelAI?.();
+    cancelAI = scheduleAIDeploy(state, () => {
+      refreshAll(state, ui);
+      showBanner('AI deployed its pets', 'info');
+    });
+  }
+
+  // Kick off the first AI deploy at match start.
+  if (aiEnabled) {
+    triggerAIDeploy();
+  }
 
   // Phase-change tracking for round-start SFX and countdown overlay.
   let winFired = false;
@@ -312,7 +341,11 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
   }
 
   const loop = new GameLoop(state, render, {
-    onExecutionEnd: bindings?.onExecutionEnd,
+    onExecutionEnd: () => {
+      bindings?.onExecutionEnd?.();
+      // Schedule AI deploy for the next planning phase.
+      triggerAIDeploy();
+    },
   });
   loop.start();
 
@@ -322,6 +355,9 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
 
   return {
     state,
-    stop() { loop.stop(); },
+    stop() {
+      cancelAI?.();
+      loop.stop();
+    },
   };
 }

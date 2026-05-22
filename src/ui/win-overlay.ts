@@ -6,9 +6,16 @@ import { playWin } from '../render/sfx';
 let onRematch: (() => void) | null = null;
 let confettiSpawned = false;
 let _root: HTMLElement = document.documentElement;
+/** Optional label overrides for player names (e.g. { A: 'You', B: 'AI' }). */
+let _playerLabels: Record<string, string> | null = null;
 
 export function setWinOverlayRoot(el: HTMLElement): void {
   _root = el;
+}
+
+/** Set friendly names for players in the win overlay (e.g. { A: 'You', B: 'AI' }). */
+export function setWinOverlayLabels(labels: Record<string, string> | null): void {
+  _playerLabels = labels;
 }
 
 function q(id: string): HTMLElement | null {
@@ -43,7 +50,18 @@ export function refreshWinOverlay(state: MatchState): void {
   overlay.classList.add(state.winner === 'A' ? 'win-a' : 'win-b');
 
   const winnerEl = q('win-winner');
-  if (winnerEl) winnerEl.textContent = state.winner;
+  if (winnerEl) winnerEl.textContent = _playerLabels?.[state.winner] ?? state.winner;
+
+  // Update headline prefix when using custom labels.
+  const headlineEl = q('win-headline');
+  if (headlineEl && _playerLabels) {
+    // Replace "Player X wins" with just "X wins" when using labels like "You" / "AI".
+    headlineEl.childNodes.forEach((n) => {
+      if (n.nodeType === Node.TEXT_NODE && n.textContent?.includes('Player')) {
+        n.textContent = '';
+      }
+    });
+  }
 
   const total = BOARD_SIZE * BOARD_SIZE;
   const a = scoreFor(state.board, 'A');

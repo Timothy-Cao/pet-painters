@@ -131,6 +131,14 @@ export function renderPets(
     ctx.translate(-(px + w / 2), -(py + h / 2));
     ctx.globalAlpha = alpha * deathAlpha;
 
+    // ── Idle animation: gentle breathing bob ──────────────────────────
+    // Each pet gets a unique phase offset so they don't all bob in sync.
+    // Cycle: 2.0s period, vertical bob ±2px, subtle scale pulse ±2%.
+    const idlePhase = ((now() + pet.petId * 211) % 2000) / 2000;
+    const idleSin = Math.sin(idlePhase * Math.PI * 2);
+    const idleBobY = idleSin * 2;                       // ±2px vertical
+    const idleScalePulse = 1 + idleSin * 0.018;         // ±1.8% scale
+
     // Role aura — a slow-pulsing radial glow behind the pet so each archetype
     // is recognizable at a glance. 2.4s sine cycle, alpha 0.55→0.95 of the
     // role tint. Pets can override the color (e.g. Bear shifts red when raged).
@@ -151,13 +159,28 @@ export function renderPets(
       ctx.fill();
     }
 
-    // Soft glow background
+    // Soft glow background + ground shadow that compresses as pet bobs up
     ctx.save();
     ctx.shadowColor = ring.glow;
     ctx.shadowBlur = 8;
     ctx.fillStyle = 'rgba(0,0,0,0.25)';
     ctx.fillRect(px + 4, py + 4, w - 8, h - 8);
     ctx.restore();
+
+    // Ground shadow — ellipse at the pet's feet, squashes when pet bobs up
+    {
+      const shadowCx = px + w / 2;
+      const shadowCy = py + h - 4;
+      const shadowRx = w * 0.32;
+      const shadowRy = 2.5 + idleSin * 0.5; // taller when pet is lower
+      ctx.save();
+      ctx.globalAlpha = 0.18 + idleSin * 0.04;
+      ctx.fillStyle = '#000';
+      ctx.beginPath();
+      ctx.ellipse(shadowCx, shadowCy, shadowRx, shadowRy, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
 
     // Owner ring (rounded, axis-aligned — does not rotate)
     ctx.strokeStyle = ring.color;
@@ -181,7 +204,8 @@ export function renderPets(
 
     // Emoji rotates with facing direction
     ctx.save();
-    ctx.translate(px + w / 2 + shakeX, py + h / 2 + shakeY);
+    ctx.translate(px + w / 2 + shakeX, py + h / 2 + shakeY + idleBobY);
+    ctx.scale(idleScalePulse, idleScalePulse);
     ctx.rotate(rad);
     ctx.font = `${Math.floor(h * 0.65)}px sans-serif`;
     ctx.textAlign = 'center';
