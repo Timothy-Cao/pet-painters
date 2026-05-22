@@ -1,6 +1,14 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { SUPABASE_URL, SUPABASE_ANON_KEY, isSupabaseConfigured } from '../config/env';
 
+/** All Pet Painters tables live in this schema so we can share a Supabase
+ *  project with other apps without colliding on `public` table names. */
+export const PET_PAINTERS_SCHEMA = 'pet_painters';
+
+// We type the client as the generic SupabaseClient (untyped DB) because the
+// schema-aware generic gets unwieldy. PostgREST calls go through `pet_painters`
+// by default per the `db.schema` option below; Realtime channels specify the
+// schema explicitly in their `postgres_changes` filter.
 let client: SupabaseClient | null = null;
 
 export function getSupabase(): SupabaseClient {
@@ -12,7 +20,8 @@ export function getSupabase(): SupabaseClient {
   if (!client) {
     client = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
-    });
+      db: { schema: PET_PAINTERS_SCHEMA },
+    }) as unknown as SupabaseClient;
   }
   return client;
 }

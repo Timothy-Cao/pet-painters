@@ -93,7 +93,7 @@ export function subscribeToRoom(roomId: string, onChange: (room: Room) => void):
     .channel(`room:${roomId}`)
     .on(
       'postgres_changes',
-      { event: 'UPDATE', schema: 'public', table: 'rooms', filter: `id=eq.${roomId}` },
+      { event: 'UPDATE', schema: 'pet_painters', table: 'rooms', filter: `id=eq.${roomId}` },
       (payload) => onChange(payload.new as Room),
     )
     .subscribe();

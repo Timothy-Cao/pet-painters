@@ -58,7 +58,7 @@ export function subscribeToSubmissions(
     .channel(`subs:${roomId}`)
     .on(
       'postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'round_submissions', filter: `room_id=eq.${roomId}` },
+      { event: 'INSERT', schema: 'pet_painters', table: 'round_submissions', filter: `room_id=eq.${roomId}` },
       (payload) => onInsert(payload.new as RoundSubmission),
     )
     .subscribe();

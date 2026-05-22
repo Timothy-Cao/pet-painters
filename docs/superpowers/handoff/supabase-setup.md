@@ -3,8 +3,15 @@
 Step-by-step guide to wire up the backend after the code is in place. Estimated time: **20–30 minutes**.
 
 **Last verified: 2026-05-22.** Schema, env var names, and OAuth steps confirmed against current code.
-This pattern (Supabase + Google OAuth via `@supabase/supabase-js`) is well-established and used in at
-least two sibling projects (`misconfigured` and `timi-and-jam`) with the same SDK version.
+
+> **Sharing with an existing Supabase project?** Pet Painters' SQL puts all tables in a dedicated
+> `pet_painters` schema, so you can run it inside an existing Supabase project (e.g., your
+> `timi-and-jam` one) without colliding with that project's `public` tables. If you do this:
+> - Run the same SQL file as below — it creates `pet_painters` schema.
+> - In Supabase Dashboard → Settings → API → "Exposed schemas", add `pet_painters` to the comma-list.
+> - Skip Step 1 (project creation) and skip Step 3a-3b (use the existing project's Google OAuth client
+>   — just add Pet Painters' redirect URI to it).
+> - Everything else (env vars, admin promotion, smoke test) works the same.
 
 You'll do four things:
 
