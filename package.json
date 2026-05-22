@@ -9,6 +9,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "balance": "tsx scripts/balance/runner.ts",
+    "balance:quick": "tsx scripts/balance/quick-sweep.ts",
     "balance:multi": "tsx scripts/balance/multi-round-runner.ts",
     "balance:ga": "tsx scripts/balance/ga.ts"
   },

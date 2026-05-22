@@ -2,7 +2,9 @@ import type { PetDefinition, Pet } from '../../types/pet';
 import type { MatchState } from '../../types/game';
 import { enemiesInFront, applyAttack } from '../combat';
 import { walkOrTurnAtWall } from '../behaviors';
-import { pushDamage, pushHit } from '../../render/effects';
+import { getPetDef } from '../pet-defs';
+import { footprintTiles } from '../geometry';
+import { pushHit, pushDamage } from '../../render/effects';
 
 const STATS = {
   cost: 3,                          // final final: 4→3 — Elephant stayed Dead at cost 4; aggressive cut
@@ -12,6 +14,8 @@ const STATS = {
   atk: 2,
   rageAtk: 6,                       // final balance: tusks rage — atk doubles at half HP
   atkSpeedPerSec: 0.5,
+  stompDamage: 5,                   // stomp rework: kills any 1×1 pet (mouse=3hp, cat=4hp, rabbit=...)
+  stompIntervalSec: 1,
   order: 1,
 } as const;
 
@@ -31,6 +35,64 @@ function elephantAttack(pet: Pet, state: MatchState): void {
   }
 }
 
+/**
+ * Stomp trigger: returns true if any enemy 1×1 pet is within Chebyshev
+ * distance 1 of Elephant's footprint (i.e. adjacent or overlapping).
+ */
+function hasAdjacentSmallEnemy(pet: Pet, state: MatchState): boolean {
+  const myDef = getPetDef(pet.defId);
+  // Collect all tiles in and around the elephant's footprint (Chebyshev 1)
+  const expandedTiles = new Set<string>();
+  for (let dy = -1; dy <= myDef.size.h; dy++) {
+    for (let dx = -1; dx <= myDef.size.w; dx++) {
+      expandedTiles.add(`${pet.anchor.x + dx},${pet.anchor.y + dy}`);
+    }
+  }
+
+  for (const other of state.pets) {
+    if (other.owner === pet.owner) continue;
+    const oDef = getPetDef(other.defId);
+    if (oDef.size.w !== 1 || oDef.size.h !== 1) continue;
+    const oFoot = footprintTiles(other.anchor, oDef.size);
+    for (const tile of oFoot) {
+      if (expandedTiles.has(`${tile.x},${tile.y}`)) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Stomp action: deal stompDamage to each adjacent 1×1 enemy pet.
+ * Each pet is hit at most once per stomp (dedup by petId).
+ */
+function elephantStomp(pet: Pet, state: MatchState): void {
+  const myDef = getPetDef(pet.defId);
+  const expandedTiles = new Set<string>();
+  for (let dy = -1; dy <= myDef.size.h; dy++) {
+    for (let dx = -1; dx <= myDef.size.w; dx++) {
+      expandedTiles.add(`${pet.anchor.x + dx},${pet.anchor.y + dy}`);
+    }
+  }
+
+  const hit = new Set<number>();
+  for (const other of state.pets) {
+    if (other.owner === pet.owner) continue;
+    if (hit.has(other.petId)) continue;
+    const oDef = getPetDef(other.defId);
+    if (oDef.size.w !== 1 || oDef.size.h !== 1) continue;
+    const oFoot = footprintTiles(other.anchor, oDef.size);
+    for (const tile of oFoot) {
+      if (expandedTiles.has(`${tile.x},${tile.y}`)) {
+        other.hp -= STATS.stompDamage;
+        hit.add(other.petId);
+        pushHit(other.anchor.x, other.anchor.y, pet.owner);
+        pushDamage(other.anchor.x, other.anchor.y, pet.owner, STATS.stompDamage);
+        break;
+      }
+    }
+  }
+}
+
 export const ELEPHANT: PetDefinition = {
   id: 'elephant',
   displayName: 'Elephant',
@@ -46,9 +108,9 @@ export const ELEPHANT: PetDefinition = {
   role: 'tank',
   ui: {
     hotkey: '2',
-    short: 'Unmovable; tusks rage at half HP',
+    short: 'Stomps small enemies; tusks rage at half HP',
     ability:
-      'Cannot be pushed by anything. Trudges in straight lines and only about-faces at walls. At half HP or below, tusks rage kicks in and attack damage doubles (2→6).',
+      '2×2 pachyderm. Walks slowly forward, painting and pushing. Every second, STOMPS adjacent 1×1 pets for 5 damage — one-shots mice, cats, rabbits, skunks, and spiders. At half HP, basic attack damage doubles.',
   },
   tuples: [
     // Walk forward; about-face only at walls. Pets in front are handled by the
@@ -63,6 +125,12 @@ export const ELEPHANT: PetDefinition = {
       intervalSec: 1 / STATS.atkSpeedPerSec,
       trigger: (pet, state) => enemiesInFront(pet, state).length > 0,
       action: elephantAttack,
+    },
+    // Stomp: every second, one-shot any adjacent 1×1 enemy pet.
+    {
+      intervalSec: STATS.stompIntervalSec,
+      trigger: hasAdjacentSmallEnemy,
+      action: elephantStomp,
     },
   ],
 };
