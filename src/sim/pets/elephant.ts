@@ -7,14 +7,14 @@ import { footprintTiles } from '../geometry';
 import { pushHit, pushDamage } from '../../render/effects';
 
 const STATS = {
-  cost: 3,                          // final final: 4→3 — Elephant stayed Dead at cost 4; aggressive cut
+  cost: 5,                          // stomp r2: 3→5 — at 3 Elephant dominated at 84.8%; cost forces real tradeoff
   speedTilesPerSec: 0.75,           // final balance r2: 0.5→0.75 — needs to reach combat sooner
   weight: 10,
   maxHp: 25,
   atk: 2,
   rageAtk: 6,                       // final balance: tusks rage — atk doubles at half HP
   atkSpeedPerSec: 0.5,
-  stompDamage: 5,                   // stomp rework: kills any 1×1 pet (mouse=3hp, cat=4hp, rabbit=...)
+  stompDamage: 3,                   // stomp r2: 5→3 — still one-shots Mouse/Rabbit/Spider (3hp); leaves Cat/Lion/Eagle (4hp) alive
   stompIntervalSec: 1,
   order: 1,
 } as const;
