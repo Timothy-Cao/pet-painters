@@ -30,11 +30,17 @@ export const SettingsScreen: Screen = {
       getCurrentUser().then((user) => {
         const sec = root.querySelector('#auth-section') as HTMLElement;
         if (user) {
-          sec.innerHTML = `<p>Signed in as ${user.email}</p><button class="big-btn" id="btn-signout">Sign out</button>`;
-          sec.querySelector('#btn-signout')!.addEventListener('click', async () => {
+          const p = document.createElement('p');
+          p.textContent = `Signed in as ${user.email ?? 'Guest'}`;
+          const btn = document.createElement('button');
+          btn.className = 'big-btn';
+          btn.textContent = 'Sign out';
+          btn.addEventListener('click', async () => {
             await signOut();
             navigate('home');
           });
+          sec.appendChild(p);
+          sec.appendChild(btn);
         }
       }).catch(() => { /* ignore */ });
     }

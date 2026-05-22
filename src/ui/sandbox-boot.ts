@@ -136,6 +136,8 @@ export interface SandboxBootBindings {
   onReady?: () => void;
   /** If provided, called each time the local execution phase ends. */
   onExecutionEnd?: () => void;
+  /** If provided, called once when the match ends (winner determined). */
+  onWin?: () => void;
   /**
    * The local player's slot ('A' or 'B') — enables fog of war in render so only
    * tiles/pets visible to this player are shown.  Omit (or null) for sandbox.
@@ -241,6 +243,7 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
   const viewer = bindings?.viewer ?? null;
 
   // Phase-change tracking for round-start SFX and countdown overlay.
+  let winFired = false;
   let lastPhase = state.phase;
   // countdownStartMs is set when execution begins; the 3s countdown runs from there.
   let countdownStartMs: number | null = null;
@@ -299,6 +302,10 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
 
     refreshAll(state, ui);
     refreshWinOverlay(state);
+    if (state.phase === 'ended' && state.winner && !winFired) {
+      winFired = true;
+      bindings?.onWin?.();
+    }
   }
 
   const loop = new GameLoop(state, render, {

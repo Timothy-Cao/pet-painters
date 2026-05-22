@@ -3,9 +3,13 @@ import type { Session, User } from '@supabase/supabase-js';
 
 export async function signInWithGoogle(): Promise<void> {
   const supabase = getSupabase();
+  // Preserve any ?room=CODE param through the OAuth redirect so deep links survive sign-in.
+  const params = new URLSearchParams(window.location.search);
+  params.set('screen', 'lobby');
+  const redirectTo = `${window.location.origin}/?${params.toString()}`;
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.origin + '/?screen=lobby' },
+    options: { redirectTo },
   });
   if (error) throw error;
 }
@@ -30,15 +34,11 @@ export async function signOut(): Promise<void> {
   await supabase.auth.signOut();
 }
 
-export async function getSession(): Promise<Session | null> {
-  const supabase = getSupabase();
-  const { data } = await supabase.auth.getSession();
-  return data.session;
-}
-
+/** Use getUser() (server-validated) instead of getSession() (cached local storage). */
 export async function getCurrentUser(): Promise<User | null> {
-  const session = await getSession();
-  return session?.user ?? null;
+  const supabase = getSupabase();
+  const { data } = await supabase.auth.getUser();
+  return data.user ?? null;
 }
 
 export interface Profile {
@@ -48,6 +48,11 @@ export interface Profile {
   is_admin: boolean;
 }
 
+/**
+ * Upsert profile for current user. For guests, only sets display_name on first
+ * creation (COALESCE keeps the existing name on subsequent calls so guests don't
+ * get a new random name every page load).
+ */
 export async function ensureProfile(): Promise<Profile> {
   const supabase = getSupabase();
   const user = await getCurrentUser();
@@ -57,13 +62,24 @@ export async function ensureProfile(): Promise<Profile> {
     ? (user.user_metadata?.display_name ?? randomGuestName())
     : (user.user_metadata?.full_name ?? null);
   const email = user.email ?? `guest-${user.id.slice(0, 8)}@anonymous`;
+
+  // Try to read existing profile first. If it exists, only update non-null fields
+  // so guest display names are stable across page reloads.
+  const { data: existing } = await supabase
+    .from('profiles')
+    .select('id, display_name')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  const nameToStore = existing?.display_name ?? displayName;
+
   const { error: upsertError } = await supabase
     .from('profiles')
     .upsert(
       {
         id: user.id,
         email,
-        display_name: displayName,
+        display_name: nameToStore,
       },
       { onConflict: 'id' },
     );

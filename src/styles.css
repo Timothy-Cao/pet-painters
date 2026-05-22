@@ -1478,14 +1478,19 @@ kbd {
 
 .room-waiting-screen {
   max-width: 480px;
-  margin: 120px auto;
+  margin: 80px auto;
   text-align: center;
   color: var(--text, #eee);
   padding: 20px;
 }
+.room-host-info {
+  color: var(--text-dim, #aaa);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
 .room-code-label {
   color: var(--text-dim, #aaa);
-  margin-top: 24px;
+  margin-top: 16px;
   margin-bottom: 4px;
 }
 .room-code {
@@ -1494,12 +1499,49 @@ kbd {
   letter-spacing: 8px;
   margin: 8px 0 16px;
   color: #ffeb99;
+  user-select: all;
+  cursor: pointer;
+}
+.room-waiting-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+.room-waiting-actions .big-btn {
+  flex: 0 1 auto;
+  min-width: 140px;
+  font-size: 14px;
+  padding: 10px 16px;
 }
 .copy-feedback {
   color: #6f6;
   height: 16px;
-  margin: 8px 0 24px;
+  margin: 8px 0 16px;
   font-size: 13px;
+}
+/* Pulsing dots spinner */
+.room-waiting-spinner {
+  margin: 24px 0;
+}
+.spinner-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+.spinner-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-dim, #888);
+  animation: pulse-dot 1.4s infinite ease-in-out both;
+}
+.spinner-dots span:nth-child(1) { animation-delay: 0s; }
+.spinner-dots span:nth-child(2) { animation-delay: 0.2s; }
+.spinner-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes pulse-dot {
+  0%, 80%, 100% { transform: scale(0.4); opacity: 0.3; }
+  40% { transform: scale(1); opacity: 1; }
 }
 
 /* ---------- Online match screen ---------- */

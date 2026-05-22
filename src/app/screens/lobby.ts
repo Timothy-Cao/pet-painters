@@ -14,7 +14,7 @@ export const LobbyScreen: Screen = {
         </div>
         <h2>Online Play</h2>
         <div class="lobby-actions">
-          <div class="action-card">
+          <div class="action-card" id="create-card">
             <h3>Create Room</h3>
             <input type="password" id="create-pw" placeholder="Optional password" />
             <button class="big-btn" id="btn-create">Create</button>
@@ -49,11 +49,11 @@ export const LobbyScreen: Screen = {
     ensureProfile()
       .then(async (profile) => {
         const guest = await isGuest();
-        (root.querySelector('#lobby-user') as HTMLElement).textContent =
+        const userEl = root.querySelector('#lobby-user') as HTMLElement;
+        userEl.textContent =
           `Playing as ${profile.display_name || profile.email}${profile.is_admin ? ' (admin)' : ''}${guest ? ' (guest)' : ''}`;
         if (guest) {
-          // Hide create-room for guests — they can only join.
-          const createCard = root.querySelector('.action-card:first-child') as HTMLElement;
+          const createCard = root.querySelector('#create-card') as HTMLElement;
           if (createCard) createCard.style.display = 'none';
         }
         if (profile.is_admin) {
@@ -66,30 +66,45 @@ export const LobbyScreen: Screen = {
         if (msg.includes('not signed in')) {
           navigate('sign-in');
         } else {
-          // DB/network error — show it instead of looping back to sign-in
           console.error('ensureProfile failed:', e);
           (root.querySelector('#lobby-user') as HTMLElement).textContent = 'Signed in';
           showErr('Profile sync failed: ' + msg);
         }
       });
 
-    root.querySelector('#btn-create')!.addEventListener('click', async () => {
+    const createBtn = root.querySelector('#btn-create') as HTMLButtonElement;
+    const joinBtn = root.querySelector('#btn-join') as HTMLButtonElement;
+
+    createBtn.addEventListener('click', async () => {
       showErr('');
+      createBtn.disabled = true;
+      createBtn.textContent = 'Creating…';
       try {
         const pw = (root.querySelector('#create-pw') as HTMLInputElement).value;
         const room = await createRoom(pw || null);
         navigate('room-waiting', { room: room.id });
-      } catch (e) { showErr((e as Error).message); }
+      } catch (e) {
+        showErr((e as Error).message);
+        createBtn.disabled = false;
+        createBtn.textContent = 'Create';
+      }
     });
 
-    root.querySelector('#btn-join')!.addEventListener('click', async () => {
+    joinBtn.addEventListener('click', async () => {
       showErr('');
+      const code = (root.querySelector('#join-code') as HTMLInputElement).value.trim();
+      if (!code) { showErr('Enter a 6-letter room code.'); return; }
+      joinBtn.disabled = true;
+      joinBtn.textContent = 'Joining…';
       try {
-        const code = (root.querySelector('#join-code') as HTMLInputElement).value;
         const pw = (root.querySelector('#join-pw') as HTMLInputElement).value;
         const room = await joinRoom(code, pw || null);
         navigate('online-match', { room: room.id });
-      } catch (e) { showErr((e as Error).message); }
+      } catch (e) {
+        showErr((e as Error).message);
+        joinBtn.disabled = false;
+        joinBtn.textContent = 'Join';
+      }
     });
 
     root.querySelector('#btn-back')!.addEventListener('click', () => navigate('home'));
@@ -103,18 +118,30 @@ export const LobbyScreen: Screen = {
         const rooms = await listAdminRooms();
         const ul = root.querySelector('#admin-rooms') as HTMLUListElement;
         ul.innerHTML = '';
+        if (rooms.length === 0) {
+          const li = document.createElement('li');
+          li.textContent = 'No active rooms.';
+          li.style.color = 'var(--text-dim, #888)';
+          ul.appendChild(li);
+          return;
+        }
         for (const r of rooms) {
           const li = document.createElement('li');
-          li.innerHTML = `<code>${r.code}</code> · ${r.status} · created ${new Date(r.created_at).toLocaleTimeString()} <button data-id="${r.id}" class="link-btn">Delete</button>`;
-          ul.appendChild(li);
-        }
-        ul.querySelectorAll<HTMLButtonElement>('button[data-id]').forEach((btn) => {
+          const code = document.createElement('code');
+          code.textContent = r.code;
+          li.appendChild(code);
+          li.appendChild(document.createTextNode(` · ${r.status} · created ${new Date(r.created_at).toLocaleTimeString()} `));
+          const btn = document.createElement('button');
+          btn.className = 'link-btn';
+          btn.textContent = 'Delete';
           btn.addEventListener('click', async () => {
             if (!confirm('Delete this room?')) return;
-            await adminDeleteRoom(btn.dataset.id!);
+            await adminDeleteRoom(r.id);
             refreshAdminRooms();
           });
-        });
+          li.appendChild(btn);
+          ul.appendChild(li);
+        }
       } catch (e) {
         showErr('Failed to list rooms: ' + (e as Error).message);
       }

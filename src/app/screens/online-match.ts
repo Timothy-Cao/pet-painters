@@ -1,7 +1,7 @@
 import type { Screen } from '../router';
 import { navigate } from '../router';
 import { OnlineMatchController } from '../../online/online-match';
-import { getRoom } from '../../online/rooms';
+import { getRoom, leaveRoom, endRoom } from '../../online/rooms';
 import { ensureProfile } from '../../online/auth';
 import { bootSandbox } from '../../ui/sandbox-boot';
 
@@ -238,7 +238,6 @@ export const OnlineMatchScreen: Screen = {
     const roomId = params?.room;
     if (!roomId) { navigate('lobby'); return; }
 
-    // Build the container element (mirrors sandbox structure but with online class).
     const container = document.createElement('div');
     container.className = 'online-match-screen';
     container.id = 'online-match-container';
@@ -249,11 +248,29 @@ export const OnlineMatchScreen: Screen = {
 
     let controller: OnlineMatchController | null = null;
     let bootHandle: ReturnType<typeof bootSandbox> | null = null;
+    let matchEnded = false;
 
-    // Wire the Leave room / win-rematch buttons before async boot resolves so they
-    // are always available regardless of connection state.
-    container.querySelector('#btn-leave-room')?.addEventListener('click', () => navigate('lobby'));
-    container.querySelector('#win-rematch')?.addEventListener('click', () => navigate('lobby'));
+    // Leave room on exit
+    const handleLeave = async () => {
+      if (matchEnded) {
+        await endRoom(roomId).catch(() => {});
+      } else {
+        await leaveRoom(roomId).catch(() => {});
+      }
+      navigate('lobby');
+    };
+
+    container.querySelector('#btn-leave-room')?.addEventListener('click', handleLeave);
+    container.querySelector('#win-rematch')?.addEventListener('click', async () => {
+      await endRoom(roomId).catch(() => {});
+      navigate('lobby');
+    });
+
+    // Clean up on tab close
+    const onBeforeUnload = () => {
+      if (!matchEnded) leaveRoom(roomId).catch(() => {});
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
 
     Promise.all([getRoom(roomId), ensureProfile()]).then(([room, profile]) => {
       if (!room) {
@@ -263,7 +280,6 @@ export const OnlineMatchScreen: Screen = {
       const mySlot: 'A' | 'B' = room.host_id === profile.id ? 'A' : 'B';
       statusEl.textContent = `Online · You are Player ${mySlot} · Room ${room.code}`;
 
-      // Boot sandbox inside our container, injecting online bindings.
       bootHandle = bootSandbox(container, {
         initialRound: room.current_round,
         viewer: mySlot,
@@ -274,24 +290,44 @@ export const OnlineMatchScreen: Screen = {
           if (controller) {
             const ok = controller.queueLocalDeployment({ defId, anchor, facing });
             if (!ok) {
-              // showBanner is called by deploy-ui; no additional action needed here.
               console.warn('queueLocalDeployment rejected — already readied?');
             }
           }
         },
         onReady() {
           if (controller) {
+            // Show waiting indicator
+            const readyBtn = container.querySelector('#btn-start') as HTMLButtonElement | null;
+            if (readyBtn) {
+              readyBtn.disabled = true;
+              readyBtn.textContent = '⏳ Waiting for opponent…';
+            }
             controller.submitMyReady().catch((e) => {
               console.error('submitMyReady failed', e);
+              // Re-enable on error
+              if (readyBtn) {
+                readyBtn.disabled = false;
+                readyBtn.innerHTML = '▶ Ready <span class="btn-hotkey-light">Space</span>';
+              }
             });
           }
         },
         onExecutionEnd() {
+          // Re-enable ready button for next round
+          const readyBtn = container.querySelector('#btn-start') as HTMLButtonElement | null;
+          if (readyBtn) {
+            readyBtn.disabled = false;
+            readyBtn.innerHTML = '▶ Ready <span class="btn-hotkey-light">Space</span>';
+          }
           if (controller) {
             controller.onExecutionEnd().catch((e) => {
               console.warn('onExecutionEnd persistence failed', e);
             });
           }
+        },
+        onWin() {
+          matchEnded = true;
+          endRoom(roomId).catch(() => {});
         },
       });
 
@@ -304,6 +340,7 @@ export const OnlineMatchScreen: Screen = {
     return () => {
       if (controller) controller.detach();
       if (bootHandle) bootHandle.stop();
+      window.removeEventListener('beforeunload', onBeforeUnload);
     };
   },
 };

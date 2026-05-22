@@ -1,3 +1,4 @@
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import { getSupabase } from './supabase';
 import { ensureProfile } from './auth';
 
@@ -62,6 +63,12 @@ export async function leaveRoom(roomId: string): Promise<void> {
   }
 }
 
+/** Mark room as ended (after match completes). */
+export async function endRoom(roomId: string): Promise<void> {
+  const supabase = getSupabase();
+  await supabase.from('rooms').update({ status: 'ended' }).eq('id', roomId);
+}
+
 export async function listAdminRooms(): Promise<Room[]> {
   const supabase = getSupabase();
   const { data, error } = await supabase
@@ -85,16 +92,21 @@ export async function getRoom(roomId: string): Promise<Room | null> {
   return data as Room | null;
 }
 
-import type { RealtimeChannel } from '@supabase/supabase-js';
-
 export function subscribeToRoom(roomId: string, onChange: (room: Room) => void): () => void {
   const supabase = getSupabase();
   const channel: RealtimeChannel = supabase
     .channel(`room:${roomId}`)
     .on(
       'postgres_changes',
-      { event: 'UPDATE', schema: 'pet_painters', table: 'rooms', filter: `id=eq.${roomId}` },
-      (payload) => onChange(payload.new as Room),
+      { event: '*', schema: 'pet_painters', table: 'rooms', filter: `id=eq.${roomId}` },
+      (payload) => {
+        if (payload.eventType === 'DELETE') {
+          // Room was deleted (host left) — notify with abandoned status.
+          onChange({ ...(payload.old as Room), status: 'abandoned' });
+        } else {
+          onChange(payload.new as Room);
+        }
+      },
     )
     .subscribe();
   return () => { supabase.removeChannel(channel); };

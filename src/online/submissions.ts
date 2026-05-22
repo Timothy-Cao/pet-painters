@@ -35,7 +35,9 @@ export async function submitRound(
     user_id: userId,
     deployments,
   });
-  if (error) throw error;
+  // 23505 = unique_violation — player already submitted for this round+slot.
+  // Silently ignore; the submission is already in the DB.
+  if (error && error.code !== '23505') throw error;
 }
 
 export async function fetchSubmissions(roomId: string, round: number): Promise<RoundSubmission[]> {

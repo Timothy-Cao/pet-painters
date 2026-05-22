@@ -1,6 +1,7 @@
 import type { Screen } from '../router';
 import { navigate } from '../router';
 import { getRoom, leaveRoom, subscribeToRoom, type Room } from '../../online/rooms';
+import { ensureProfile } from '../../online/auth';
 
 export const RoomWaitingScreen: Screen = {
   name: 'room-waiting',
@@ -11,16 +12,38 @@ export const RoomWaitingScreen: Screen = {
     root.innerHTML = `
       <div class="room-waiting-screen">
         <h2>Waiting for opponent…</h2>
-        <p class="room-code-label">Share this code:</p>
+        <p id="host-info" class="room-host-info"></p>
+        <p class="room-code-label">Share this code with a friend:</p>
         <div class="room-code" id="room-code">------</div>
-        <button class="link-btn" id="btn-copy">Copy invite link</button>
+        <div class="room-waiting-actions">
+          <button class="big-btn" id="btn-copy-code">📋 Copy Code</button>
+          <button class="big-btn" id="btn-copy-link">🔗 Copy Link</button>
+        </div>
         <p id="copy-feedback" class="copy-feedback"></p>
-        <button class="big-btn" id="btn-leave">Leave room</button>
+        <div class="room-waiting-spinner">
+          <div class="spinner-dots"><span></span><span></span><span></span></div>
+        </div>
+        <button class="back-btn" id="btn-leave">← Leave room</button>
       </div>
     `;
 
     let unmounted = false;
     let unsub: (() => void) | null = null;
+
+    // Show host display name
+    ensureProfile().then((profile) => {
+      if (unmounted) return;
+      const el = root.querySelector('#host-info') as HTMLElement;
+      el.textContent = `Hosted by ${profile.display_name || profile.email}`;
+    }).catch(() => {});
+
+    function showFeedback(msg: string) {
+      const fb = root.querySelector('#copy-feedback') as HTMLElement;
+      fb.textContent = msg;
+      setTimeout(() => {
+        if (!unmounted && fb) fb.textContent = '';
+      }, 2500);
+    }
 
     getRoom(roomId).then((room) => {
       if (!room || unmounted) return;
@@ -34,30 +57,47 @@ export const RoomWaitingScreen: Screen = {
       });
     });
 
-    root.querySelector('#btn-copy')!.addEventListener('click', async () => {
-      const code = (root.querySelector('#room-code') as HTMLElement).textContent;
-      const url = `${window.location.origin}/?room=${code}`;
+    // Copy just the code
+    root.querySelector('#btn-copy-code')!.addEventListener('click', async () => {
+      const code = (root.querySelector('#room-code') as HTMLElement).textContent ?? '';
       try {
-        await navigator.clipboard.writeText(url);
-        (root.querySelector('#copy-feedback') as HTMLElement).textContent = 'Copied!';
+        await navigator.clipboard.writeText(code);
+        showFeedback('Code copied!');
       } catch {
-        (root.querySelector('#copy-feedback') as HTMLElement).textContent = url;
+        showFeedback(code);
       }
-      setTimeout(() => {
-        if (unmounted) return;
-        const fb = root.querySelector('#copy-feedback') as HTMLElement | null;
-        if (fb) fb.textContent = '';
-      }, 2000);
     });
 
+    // Copy full invite link
+    root.querySelector('#btn-copy-link')!.addEventListener('click', async () => {
+      const code = (root.querySelector('#room-code') as HTMLElement).textContent ?? '';
+      const url = `${window.location.origin}/?room=${code}&screen=sign-in`;
+      try {
+        await navigator.clipboard.writeText(url);
+        showFeedback('Link copied!');
+      } catch {
+        showFeedback(url);
+      }
+    });
+
+    // Leave room button
     root.querySelector('#btn-leave')!.addEventListener('click', async () => {
       await leaveRoom(roomId);
       navigate('lobby');
     });
 
+    // Clean up room on tab close
+    const onBeforeUnload = () => {
+      // Use sendBeacon for reliability on tab close (fetch may be cancelled).
+      // Fall back to sync call via leaveRoom.
+      leaveRoom(roomId).catch(() => {});
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+
     return () => {
       unmounted = true;
       if (unsub) unsub();
+      window.removeEventListener('beforeunload', onBeforeUnload);
     };
   },
 };
