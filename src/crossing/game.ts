@@ -4,7 +4,7 @@
  * 8×8 board, 5 units per side, first to score 3 wins.
  */
 
-import type { CGameState, CUnit, PlayerId, Vec2, AIDifficulty } from './types';
+import type { CGameState, CGameStateSnapshot, CUnit, PlayerId, Vec2, AIDifficulty } from './types';
 import { DEFAULT_ARMY, getUnitDef } from './units';
 import { getValidMoves, executeMove } from './moves';
 
@@ -56,6 +56,8 @@ export function createCrossingGame(difficulty: AIDifficulty = 'normal'): CGameSt
     lastMove: null,
     events: [],
     difficulty,
+    undoSnapshot: null,
+    canUndo: false,
   };
 }
 
@@ -176,4 +178,55 @@ export function performMove(state: CGameState, unitId: number, to: Vec2): boolea
 
   state.selectedUnitId = null;
   return true;
+}
+
+// ── Undo system ──────────────────────────────────────────────────────
+
+/** Take a snapshot of the game state (before a player move). */
+export function takeSnapshot(state: CGameState): CGameStateSnapshot {
+  return {
+    units: state.units.map(u => ({
+      unitId: u.unitId,
+      defId: u.defId,
+      owner: u.owner,
+      pos: { ...u.pos },
+      scored: u.scored,
+      cooldown: u.cooldown,
+    })),
+    currentPlayer: state.currentPlayer,
+    scored: { ...state.scored },
+    turn: state.turn,
+    phase: state.phase,
+    winner: state.winner,
+    events: state.events.map(e => ({ ...e })),
+  };
+}
+
+/** Restore state from a snapshot (undo). Preserves visual/settings state. */
+export function restoreSnapshot(state: CGameState, snap: CGameStateSnapshot): void {
+  // Restore unit positions and game state
+  for (const su of snap.units) {
+    const unit = state.units.find(u => u.unitId === su.unitId);
+    if (unit) {
+      unit.pos = { ...su.pos };
+      unit.scored = su.scored;
+      unit.cooldown = su.cooldown;
+      // Clear animation state
+      delete unit.animFrom;
+      delete unit.animStart;
+    }
+  }
+  state.currentPlayer = snap.currentPlayer;
+  state.scored = { ...snap.scored };
+  state.turn = snap.turn;
+  state.phase = snap.phase;
+  state.winner = snap.winner;
+  state.events = snap.events.map(e => ({ ...e }));
+
+  // Clear visual state
+  state.selectedUnitId = null;
+  state.lastMove = null;
+  state.vfx = [];
+  state.undoSnapshot = null;
+  state.canUndo = false;
 }

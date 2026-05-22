@@ -2177,6 +2177,30 @@ kbd {
 .cx-diff-btn[data-diff="easy"].cx-diff-active { background: #4fd1a5; border-color: #4fd1a5; }
 .cx-diff-btn[data-diff="hard"].cx-diff-active { background: #f25f5c; border-color: #f25f5c; }
 
+/* ── Undo button ─────────────────────────────────────────────────────── */
+
+.cx-undo-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.06);
+  color: #ccc;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.cx-undo-btn:hover:not(:disabled) {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border-color: rgba(255,255,255,0.25);
+}
+.cx-undo-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 /* ── Event log ─────────────────────────────────────────────────────────── */
 
 .cx-event-log {

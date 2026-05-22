@@ -8,7 +8,7 @@
 import type { Screen } from '../app/router';
 import { navigate } from '../app/router';
 import type { CGameState, AIDifficulty } from './types';
-import { createCrossingGame, performMove, skipTurnIfNeeded } from './game';
+import { createCrossingGame, performMove, skipTurnIfNeeded, takeSnapshot, restoreSnapshot } from './game';
 import { createCrossingRC, renderCrossingGame, pixelToTile } from './render';
 import { getValidMoves } from './moves';
 import { getUnitDef, ALL_CROSSING_UNITS } from './units';
@@ -59,6 +59,8 @@ export const CrossingScreen: Screen = {
           <button class="cx-diff-btn" data-diff="hard">Hard</button>
         </div>
 
+        <button class="cx-undo-btn" id="cx-undo" disabled>\u{21A9} Undo Move</button>
+
         <div class="panel-title" style="margin-top:12px">Selected Unit</div>
         <div class="cx-unit-info" id="cx-unit-info">
           <div class="cx-no-selection">Click one of your units to see moves</div>
@@ -103,6 +105,7 @@ export const CrossingScreen: Screen = {
       <span><kbd>Click</kbd> select unit</span>
       <span><kbd>Click</kbd> highlighted tile to move</span>
       <span><kbd>Esc</kbd> deselect</span>
+      <span><kbd>Ctrl+Z</kbd> undo</span>
     </footer>
   </div>
 
@@ -218,6 +221,16 @@ export const CrossingScreen: Screen = {
       });
     });
 
+    // ── Undo button ──
+    const undoBtn = container.querySelector('#cx-undo') as HTMLButtonElement;
+    undoBtn.addEventListener('click', () => {
+      if (!state.canUndo || !state.undoSnapshot) return;
+      cancelAI?.();
+      restoreSnapshot(state, state.undoSnapshot);
+      lastEventCount = -1; // force event log refresh
+      cxPlayDeselect(); // subtle audio feedback
+    });
+
     // ── Hover tracking ──
     canvas.addEventListener('mousemove', (e) => {
       const tile = pixelToTile(rc, e.clientX, e.clientY);
@@ -279,6 +292,9 @@ export const CrossingScreen: Screen = {
           const valid = getValidMoves(state, unit);
           const move = valid.find(m => m.to.x === tile.x && m.to.y === tile.y);
           if (move) {
+            // Snapshot for undo before executing
+            state.undoSnapshot = takeSnapshot(state);
+            state.canUndo = false; // will be set true after AI responds
             // Play appropriate SFX based on move type
             const wasScored = unit.scored;
             playMoveSFX(move.captureId != null, move.push != null);
@@ -343,6 +359,16 @@ export const CrossingScreen: Screen = {
 
     // Escape to deselect
     const onKey = (e: KeyboardEvent) => {
+      if ((e.key === 'z' || e.key === 'Z') && (e.ctrlKey || e.metaKey)) {
+        if (state.canUndo && state.undoSnapshot) {
+          e.preventDefault();
+          cancelAI?.();
+          restoreSnapshot(state, state.undoSnapshot);
+          lastEventCount = -1;
+          cxPlayDeselect();
+        }
+        return;
+      }
       if (e.key === 'Escape') {
         if (state.selectedUnitId != null) {
           cxPlayDeselect();
@@ -380,6 +406,11 @@ export const CrossingScreen: Screen = {
           skipTurnIfNeeded(state);
           if (state.currentPlayer === 'B' && state.phase === 'playing') {
             maybeAITurn();
+          } else {
+            // AI turn done, player's turn again — enable undo
+            if (state.undoSnapshot && state.phase === 'playing') {
+              state.canUndo = true;
+            }
           }
         }, 300);
       });
@@ -389,7 +420,7 @@ export const CrossingScreen: Screen = {
     function resetGame() {
       cancelAI?.();
       state = createCrossingGame(currentDifficulty);
-      lastEventCount = 0;
+      lastEventCount = -1;
       const winOverlay = container.querySelector('#cx-win-overlay') as HTMLElement;
       if (winOverlay) winOverlay.hidden = true;
       cxPlayGameStart();
@@ -469,6 +500,12 @@ function refreshHUD(container: HTMLElement, state: CGameState): void {
   const progB = q('cx-prog-b') as HTMLElement | null;
   if (progA) progA.style.width = `${(state.scored.A / state.scoreToWin) * 100}%`;
   if (progB) progB.style.width = `${(state.scored.B / state.scoreToWin) * 100}%`;
+
+  // Update undo button
+  const undoEl = container.querySelector('#cx-undo') as HTMLButtonElement | null;
+  if (undoEl) {
+    undoEl.disabled = !state.canUndo;
+  }
 
   const turnCount = q('cx-turn-count');
   if (turnCount) turnCount.textContent = `Turn ${state.turn}`;

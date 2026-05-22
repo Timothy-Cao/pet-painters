@@ -88,4 +88,21 @@ export interface CGameState {
 
   // ── Settings ──
   difficulty: AIDifficulty;
+
+  // ── Undo ──
+  /** Snapshot of state before the last player move (for undo). */
+  undoSnapshot: CGameStateSnapshot | null;
+  /** Whether the player can currently undo. */
+  canUndo: boolean;
+}
+
+/** Serializable subset of CGameState for undo snapshots (no visual/anim state). */
+export interface CGameStateSnapshot {
+  units: Array<{ unitId: number; defId: string; owner: PlayerId; pos: Vec2; scored: boolean; cooldown: number }>;
+  currentPlayer: PlayerId;
+  scored: { A: number; B: number };
+  turn: number;
+  phase: GamePhase;
+  winner: PlayerId | null;
+  events: GameEvent[];
 }
