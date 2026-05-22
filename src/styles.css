@@ -1975,3 +1975,239 @@ kbd {
   .tutorial-card { animation: none; }
   .tutorial-dot { transition: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CRITTER CROSSING
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.crossing-screen {
+  width: 100%; min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  background: var(--bg); color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.crossing-app {
+  width: 100%; max-width: 1100px;
+  display: flex; flex-direction: column;
+  padding: 0 16px;
+}
+
+/* ── Top bar ────────────────────────────────────────────────────────────── */
+
+.crossing-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0; gap: 12px; flex-wrap: wrap;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 12px;
+}
+.crossing-topbar .brand {
+  display: flex; align-items: center; gap: 8px;
+}
+.crossing-topbar .brand-mark { font-size: 20px; }
+.crossing-topbar .brand-name {
+  font-weight: 700; font-size: 16px; letter-spacing: -0.02em;
+}
+.crossing-topbar .brand-mode {
+  font-size: 11px; color: var(--text-dim);
+  background: var(--bg-elev); border: 1px solid var(--border);
+  padding: 2px 8px; border-radius: 99px;
+}
+
+/* Turn indicator */
+.crossing-turn-indicator {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 600;
+}
+.cx-turn-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--text-dim); transition: background 0.3s;
+}
+.cx-turn-dot.turn-a { background: var(--player-a); box-shadow: 0 0 6px var(--player-a-glow); }
+.cx-turn-dot.turn-b { background: var(--player-b); box-shadow: 0 0 6px var(--player-b-glow); }
+.cx-turn-dot.ended  { background: var(--accent); }
+
+/* Scores */
+.crossing-scores {
+  display: flex; align-items: center; gap: 10px; font-size: 13px;
+}
+.cx-score { display: flex; align-items: center; gap: 4px; }
+.cx-score-tag {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text-dim); font-weight: 600;
+}
+.cx-score-a .cx-score-tag { color: var(--player-a); }
+.cx-score-b .cx-score-tag { color: var(--player-b); }
+.cx-score-val { font-weight: 700; font-variant-numeric: tabular-nums; }
+.cx-score-vs { color: var(--text-faint); font-size: 11px; }
+
+/* ── Main layout (sidebar – board – sidebar) ───────────────────────────── */
+
+.crossing-layout {
+  display: grid;
+  grid-template-columns: 180px 1fr 180px;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .crossing-layout {
+    grid-template-columns: 1fr;
+  }
+  .crossing-sidebar { display: none; }
+}
+
+.crossing-sidebar {
+  background: var(--bg-elev);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.panel-title {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-dim); font-weight: 700; margin-bottom: 8px;
+}
+
+/* Legend */
+.legend { display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+.legend-item { display: flex; align-items: center; gap: 8px; color: var(--text-dim); }
+.swatch {
+  width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;
+}
+
+/* Unit info panel */
+.cx-unit-info { font-size: 13px; }
+.cx-no-selection { color: var(--text-faint); font-size: 12px; font-style: italic; }
+.cx-selected-unit {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
+}
+.cx-sel-emoji { font-size: 22px; }
+.cx-sel-name { font-weight: 600; }
+.cx-sel-owner { font-size: 11px; color: var(--text-dim); }
+.cx-sel-ability { font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
+.cx-sel-moves { font-size: 12px; color: var(--good); font-weight: 600; }
+
+/* Turn count */
+.cx-turn-count {
+  font-size: 20px; font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+/* ── Canvas stage ───────────────────────────────────────────────────────── */
+
+.crossing-stage {
+  display: flex; flex-direction: column; align-items: center;
+}
+
+.crossing-canvas-frame {
+  position: relative;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #0e1014;
+}
+
+.crossing-canvas-frame canvas {
+  display: block; width: 100%; height: auto;
+}
+
+.player-tag {
+  text-align: center; padding: 4px 0;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+  color: var(--text-dim); background: var(--bg-elev);
+}
+.player-tag-a { border-top: 2px solid var(--player-a); }
+.player-tag-b { border-bottom: 2px solid var(--player-b); }
+
+/* ── Ability list (right sidebar) ───────────────────────────────────────── */
+
+.cx-ability-list {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.cx-ability-item {
+  display: flex; align-items: flex-start; gap: 8px; font-size: 12px;
+}
+.cx-ability-emoji { font-size: 18px; flex-shrink: 0; line-height: 1; }
+.cx-ability-name { font-weight: 600; margin-bottom: 1px; }
+.cx-ability-desc { color: var(--text-dim); font-size: 11px; line-height: 1.35; }
+
+/* ── Help panel ─────────────────────────────────────────────────────────── */
+
+.cx-help { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+.cx-help p { margin: 0 0 6px; }
+.cx-help strong { color: var(--text); }
+
+/* ── Footer (keyboard hints) ────────────────────────────────────────────── */
+
+.crossing-screen .footer {
+  display: flex; justify-content: center; gap: 20px;
+  padding: 10px 0 18px; font-size: 11px; color: var(--text-faint);
+}
+
+/* ── Win overlay ────────────────────────────────────────────────────────── */
+
+.crossing-screen .win-overlay {
+  position: fixed; inset: 0; z-index: 900;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  animation: cx-fade-in 0.3s ease;
+}
+@keyframes cx-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+.crossing-screen .win-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 40px; text-align: center;
+  box-shadow: var(--shadow);
+  min-width: 300px;
+}
+.crossing-screen .win-eyebrow {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-dim); margin-bottom: 6px;
+}
+.crossing-screen .win-headline {
+  font-size: 28px; font-weight: 800; margin-bottom: 16px;
+}
+.crossing-screen .win-recap {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  margin-bottom: 12px;
+}
+.crossing-screen .win-recap-side {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.win-recap-tag {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 700;
+}
+.win-recap-tag-a { color: var(--player-a); }
+.win-recap-tag-b { color: var(--player-b); }
+.win-recap-val { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.win-recap-vs { color: var(--text-faint); font-size: 12px; }
+.cx-win-turns {
+  font-size: 13px; color: var(--text-dim); margin-bottom: 16px;
+}
+
+.win-actions {
+  display: flex; gap: 10px; justify-content: center;
+}
+
+/* ── Crossing home button style ─────────────────────────────────────────── */
+
+.big-btn-crossing {
+  border-color: var(--good) !important;
+  background: linear-gradient(135deg, rgba(79,209,165,0.08), rgba(79,209,165,0.02)) !important;
+}
+.big-btn-crossing:hover {
+  border-color: var(--good) !important;
+  background: linear-gradient(135deg, rgba(79,209,165,0.18), rgba(79,209,165,0.06)) !important;
+}
+
+.home-badge {
+  display: inline-block; font-size: 9px; font-weight: 800;
+  background: var(--good); color: var(--bg);
+  padding: 1px 6px; border-radius: 99px;
+  vertical-align: middle; margin-left: 6px; letter-spacing: 0.04em;
+}

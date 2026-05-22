@@ -17,10 +17,15 @@ export const HomeScreen: Screen = {
           <span class="showcase-pet" style="--delay:1.2s">🐘</span>
           <span class="showcase-pet" style="--delay:1.5s">🦅</span>
         </div>
+        <div class="home-section-title">Pet Painters</div>
         <div class="home-buttons">
           <button class="big-btn big-btn-primary" id="btn-ai">Play vs AI <span class="btn-sub">(solo — challenge the computer)</span></button>
           <button class="big-btn" id="btn-sandbox">Local Play <span class="btn-sub">(2 players, same screen)</span></button>
           <button class="big-btn" id="btn-online">Online Play <span class="btn-sub">(play with a friend online)</span></button>
+        </div>
+        <div class="home-section-title" style="margin-top:20px">\u{1F3C1} Critter Crossing <span class="home-badge">NEW</span></div>
+        <div class="home-buttons">
+          <button class="big-btn big-btn-crossing" id="btn-crossing">Critter Crossing <span class="btn-sub">(turn-based strategy — get your units across!)</span></button>
         </div>
         <button class="how-to-play-btn" id="btn-how-to-play">? How to Play</button>
         <div class="home-footer">Pet Painters v0.1 · Made with 🎨</div>
@@ -29,6 +34,7 @@ export const HomeScreen: Screen = {
     root.querySelector('#btn-ai')!.addEventListener('click', () => navigate('sandbox', { mode: 'ai' }));
     root.querySelector('#btn-sandbox')!.addEventListener('click', () => navigate('sandbox'));
     root.querySelector('#btn-online')!.addEventListener('click', () => navigate('sign-in'));
+    root.querySelector('#btn-crossing')!.addEventListener('click', () => navigate('crossing'));
     root.querySelector('#btn-how-to-play')!.addEventListener('click', () => {
       showTutorial(root);
     });

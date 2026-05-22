@@ -6,10 +6,12 @@ import { LobbyScreen } from './app/screens/lobby';
 import { RoomWaitingScreen } from './app/screens/room-waiting';
 import { OnlineMatchScreen } from './app/screens/online-match';
 import { SettingsScreen } from './app/screens/settings';
+import { CrossingScreen } from './crossing/screen';
 import { mountGlobalSettings } from './ui/global-settings';
 
 registerScreen(HomeScreen);
 registerScreen(SandboxScreen);
+registerScreen(CrossingScreen);
 registerScreen(SignInScreen);
 registerScreen(LobbyScreen);
 registerScreen(RoomWaitingScreen);
