@@ -1,6 +1,6 @@
 import type { PetDefinition, Pet } from '../../types/pet';
 import type { MatchState } from '../../types/game';
-import { enemiesInFront, applyAttack } from '../combat';
+import { enemiesInFront } from '../combat';
 import { walkOrTurnAtWall } from '../behaviors';
 import { getPetDef } from '../pet-defs';
 import { footprintTiles } from '../geometry';

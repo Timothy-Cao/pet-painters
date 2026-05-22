@@ -1,0 +1,1173 @@
+{
+  "config": {
+    "energyBudget": 20,
+    "maxSeconds": 60,
+    "winThreshold": 240,
+    "winPct": 60,
+    "teamOpponents": 15,
+    "teamSamples": 6
+  },
+  "teamWrs": {
+    "mouse": {
+      "petId": "mouse",
+      "teamWr": 0.5681929181929182,
+      "samples": 8190,
+      "compCount": 91
+    },
+    "elephant": {
+      "petId": "elephant",
+      "teamWr": 0.455006105006105,
+      "samples": 8190,
+      "compCount": 91
+    },
+    "cat": {
+      "petId": "cat",
+      "teamWr": 0.5076923076923077,
+      "samples": 8190,
+      "compCount": 91
+    },
+    "rabbit": {
+      "petId": "rabbit",
+      "teamWr": 0.5843101343101343,
+      "samples": 8190,
+      "compCount": 91
+    },
+    "turtle": {
+      "petId": "turtle",
+      "teamWr": 0.6026251526251526,
+      "samples": 8190,
+      "compCount": 91
+    },
+    "skunk": {
+      "petId": "skunk",
+      "teamWr": 0.5319291819291819,
+      "samples": 8190,
+      "compCount": 91
+    },
+    "lion": {
+      "petId": "lion",
+      "teamWr": 0.47649572649572647,
+      "samples": 8190,
+      "compCount": 91
+    },
+    "spider": {
+      "petId": "spider",
+      "teamWr": 0.32814407814407814,
+      "samples": 8190,
+      "compCount": 91
+    },
+    "eagle": {
+      "petId": "eagle",
+      "teamWr": 0.5213064713064713,
+      "samples": 8190,
+      "compCount": 91
+    },
+    "bear": {
+      "petId": "bear",
+      "teamWr": 0.4579365079365079,
+      "samples": 8190,
+      "compCount": 91
+    },
+    "rhino": {
+      "petId": "rhino",
+      "teamWr": 0.4851037851037851,
+      "samples": 8190,
+      "compCount": 91
+    },
+    "dragon": {
+      "petId": "dragon",
+      "teamWr": 0.4894993894993895,
+      "samples": 8190,
+      "compCount": 91
+    },
+    "whale": {
+      "petId": "whale",
+      "teamWr": 0.5322344322344322,
+      "samples": 8190,
+      "compCount": 91
+    }
+  },
+  "topComps": [
+    {
+      "comp": [
+        "bear",
+        "rabbit",
+        "whale"
+      ],
+      "wr": 0.8277777777777777,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "dragon",
+        "rabbit",
+        "turtle"
+      ],
+      "wr": 0.7888888888888889,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "cat",
+        "skunk",
+        "turtle"
+      ],
+      "wr": 0.7777777777777778,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "mouse",
+        "mouse",
+        "turtle"
+      ],
+      "wr": 0.7611111111111111,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "turtle",
+        "turtle",
+        "skunk"
+      ],
+      "wr": 0.7555555555555555,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "eagle",
+        "eagle",
+        "mouse"
+      ],
+      "wr": 0.75,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "dragon",
+        "rabbit",
+        "spider"
+      ],
+      "wr": 0.75,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "dragon",
+        "dragon",
+        "mouse"
+      ],
+      "wr": 0.7444444444444445,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "mouse",
+        "skunk",
+        "turtle"
+      ],
+      "wr": 0.7444444444444445,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "mouse",
+        "rabbit",
+        "whale"
+      ],
+      "wr": 0.7333333333333333,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "dragon",
+        "skunk",
+        "whale"
+      ],
+      "wr": 0.7333333333333333,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "skunk",
+        "skunk",
+        "turtle"
+      ],
+      "wr": 0.7222222222222222,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "dragon",
+        "mouse",
+        "turtle"
+      ],
+      "wr": 0.7222222222222222,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "dragon",
+        "mouse",
+        "whale"
+      ],
+      "wr": 0.7222222222222222,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "turtle",
+        "turtle",
+        "eagle"
+      ],
+      "wr": 0.7111111111111111,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "eagle",
+        "mouse",
+        "turtle"
+      ],
+      "wr": 0.7111111111111111,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "bear",
+        "rabbit",
+        "turtle"
+      ],
+      "wr": 0.7111111111111111,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "elephant",
+        "mouse",
+        "turtle"
+      ],
+      "wr": 0.7055555555555556,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "cat",
+        "rabbit",
+        "rhino"
+      ],
+      "wr": 0.7055555555555556,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "rabbit",
+        "rabbit",
+        "bear"
+      ],
+      "wr": 0.6944444444444444,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "turtle",
+        "turtle",
+        "rabbit"
+      ],
+      "wr": 0.6944444444444444,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "cat",
+        "elephant",
+        "turtle"
+      ],
+      "wr": 0.6944444444444444,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "eagle",
+        "rabbit",
+        "turtle"
+      ],
+      "wr": 0.6944444444444444,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "lion",
+        "skunk",
+        "turtle"
+      ],
+      "wr": 0.6944444444444444,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "lion",
+        "turtle",
+        "whale"
+      ],
+      "wr": 0.6944444444444444,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "bear",
+        "turtle",
+        "whale"
+      ],
+      "wr": 0.6944444444444444,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "mouse",
+        "mouse",
+        "dragon"
+      ],
+      "wr": 0.6888888888888889,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "rhino",
+        "rhino",
+        "mouse"
+      ],
+      "wr": 0.6888888888888889,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "eagle",
+        "elephant",
+        "turtle"
+      ],
+      "wr": 0.6888888888888889,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "cat",
+        "eagle",
+        "rabbit"
+      ],
+      "wr": 0.6888888888888889,
+      "samples": 90
+    }
+  ],
+  "bottomComps": [
+    {
+      "comp": [
+        "bear",
+        "eagle",
+        "spider"
+      ],
+      "wr": 0.25555555555555554,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "dragon",
+        "dragon",
+        "rhino"
+      ],
+      "wr": 0.25,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "cat",
+        "cat",
+        "spider"
+      ],
+      "wr": 0.24444444444444444,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "dragon",
+        "dragon",
+        "elephant"
+      ],
+      "wr": 0.23333333333333334,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "rhino",
+        "rhino",
+        "bear"
+      ],
+      "wr": 0.2222222222222222,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "spider",
+        "spider",
+        "skunk"
+      ],
+      "wr": 0.21666666666666667,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "spider",
+        "spider",
+        "elephant"
+      ],
+      "wr": 0.2111111111111111,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "spider",
+        "spider",
+        "rhino"
+      ],
+      "wr": 0.2111111111111111,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "elephant",
+        "elephant",
+        "lion"
+      ],
+      "wr": 0.20555555555555555,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "elephant",
+        "elephant",
+        "bear"
+      ],
+      "wr": 0.2,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "cat",
+        "lion",
+        "spider"
+      ],
+      "wr": 0.19444444444444445,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "eagle",
+        "lion",
+        "spider"
+      ],
+      "wr": 0.18888888888888888,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "lion",
+        "lion",
+        "spider"
+      ],
+      "wr": 0.18333333333333332,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "eagle",
+        "eagle",
+        "spider"
+      ],
+      "wr": 0.17777777777777778,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "bear",
+        "elephant",
+        "spider"
+      ],
+      "wr": 0.17777777777777778,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "elephant",
+        "elephant",
+        "spider"
+      ],
+      "wr": 0.17222222222222222,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "spider",
+        "spider",
+        "whale"
+      ],
+      "wr": 0.17222222222222222,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "bear",
+        "rhino",
+        "spider"
+      ],
+      "wr": 0.17222222222222222,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "mouse",
+        "mouse",
+        "spider"
+      ],
+      "wr": 0.16666666666666666,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "eagle",
+        "skunk",
+        "spider"
+      ],
+      "wr": 0.16666666666666666,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "bear",
+        "dragon",
+        "spider"
+      ],
+      "wr": 0.15,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "spider",
+        "spider",
+        "eagle"
+      ],
+      "wr": 0.14444444444444443,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "dragon",
+        "dragon",
+        "bear"
+      ],
+      "wr": 0.14444444444444443,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "whale",
+        "whale",
+        "spider"
+      ],
+      "wr": 0.1388888888888889,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "whale",
+        "whale",
+        "whale"
+      ],
+      "wr": 0.12222222222222222,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "bear",
+        "bear",
+        "spider"
+      ],
+      "wr": 0.08888888888888889,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "rhino",
+        "rhino",
+        "spider"
+      ],
+      "wr": 0.07777777777777778,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "spider",
+        "spider",
+        "lion"
+      ],
+      "wr": 0.03333333333333333,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "spider",
+        "spider",
+        "spider"
+      ],
+      "wr": 0.011111111111111112,
+      "samples": 90
+    },
+    {
+      "comp": [
+        "spider",
+        "spider",
+        "bear"
+      ],
+      "wr": 0.011111111111111112,
+      "samples": 90
+    }
+  ],
+  "synergies": [
+    {
+      "petA": "dragon",
+      "petB": "mouse",
+      "avgWr": 0.7444444444444445,
+      "delta": 0.254945054945055,
+      "samples": 90
+    },
+    {
+      "petA": "eagle",
+      "petB": "mouse",
+      "avgWr": 0.75,
+      "delta": 0.22869352869352866,
+      "samples": 90
+    },
+    {
+      "petA": "rhino",
+      "petB": "mouse",
+      "avgWr": 0.6888888888888889,
+      "delta": 0.20378510378510378,
+      "samples": 90
+    },
+    {
+      "petA": "mouse",
+      "petB": "turtle",
+      "avgWr": 0.7611111111111111,
+      "delta": 0.1929181929181929,
+      "samples": 90
+    },
+    {
+      "petA": "skunk",
+      "petB": "turtle",
+      "avgWr": 0.7222222222222222,
+      "delta": 0.19029304029304028,
+      "samples": 90
+    },
+    {
+      "petA": "lion",
+      "petB": "turtle",
+      "avgWr": 0.6666666666666666,
+      "delta": 0.19017094017094016,
+      "samples": 90
+    },
+    {
+      "petA": "bear",
+      "petB": "rabbit",
+      "avgWr": 0.6444444444444445,
+      "delta": 0.18650793650793657,
+      "samples": 90
+    },
+    {
+      "petA": "dragon",
+      "petB": "rabbit",
+      "avgWr": 0.6666666666666666,
+      "delta": 0.17716727716727715,
+      "samples": 90
+    },
+    {
+      "petA": "elephant",
+      "petB": "rabbit",
+      "avgWr": 0.6111111111111112,
+      "delta": 0.15610500610500616,
+      "samples": 90
+    },
+    {
+      "petA": "elephant",
+      "petB": "turtle",
+      "avgWr": 0.6111111111111112,
+      "delta": 0.15610500610500616,
+      "samples": 90
+    },
+    {
+      "petA": "rhino",
+      "petB": "turtle",
+      "avgWr": 0.6388888888888888,
+      "delta": 0.15378510378510374,
+      "samples": 90
+    },
+    {
+      "petA": "bear",
+      "petB": "mouse",
+      "avgWr": 0.6111111111111112,
+      "delta": 0.15317460317460324,
+      "samples": 90
+    },
+    {
+      "petA": "turtle",
+      "petB": "skunk",
+      "avgWr": 0.7555555555555555,
+      "delta": 0.15293040293040294,
+      "samples": 90
+    },
+    {
+      "petA": "eagle",
+      "petB": "turtle",
+      "avgWr": 0.6722222222222223,
+      "delta": 0.15091575091575093,
+      "samples": 90
+    },
+    {
+      "petA": "rhino",
+      "petB": "rabbit",
+      "avgWr": 0.6333333333333333,
+      "delta": 0.1482295482295482,
+      "samples": 90
+    },
+    {
+      "petA": "bear",
+      "petB": "cat",
+      "avgWr": 0.6,
+      "delta": 0.14206349206349206,
+      "samples": 90
+    },
+    {
+      "petA": "whale",
+      "petB": "turtle",
+      "avgWr": 0.6666666666666666,
+      "delta": 0.1344322344322344,
+      "samples": 90
+    },
+    {
+      "petA": "skunk",
+      "petB": "rhino",
+      "avgWr": 0.6611111111111111,
+      "delta": 0.12918192918192917,
+      "samples": 90
+    },
+    {
+      "petA": "lion",
+      "petB": "mouse",
+      "avgWr": 0.6055555555555555,
+      "delta": 0.12905982905982905,
+      "samples": 90
+    },
+    {
+      "petA": "cat",
+      "petB": "whale",
+      "avgWr": 0.6333333333333333,
+      "delta": 0.12564102564102564,
+      "samples": 90
+    }
+  ],
+  "metaPool": [
+    {
+      "comp": [
+        "bear",
+        "rabbit",
+        "whale"
+      ],
+      "wr": 0.8277777777777777,
+      "isTop20": true,
+      "isCounter20": false
+    },
+    {
+      "comp": [
+        "dragon",
+        "rabbit",
+        "turtle"
+      ],
+      "wr": 0.7888888888888889,
+      "isTop20": true,
+      "isCounter20": false
+    },
+    {
+      "comp": [
+        "cat",
+        "skunk",
+        "turtle"
+      ],
+      "wr": 0.7777777777777778,
+      "isTop20": true,
+      "isCounter20": false
+    },
+    {
+      "comp": [
+        "mouse",
+        "mouse",
+        "turtle"
+      ],
+      "wr": 0.7611111111111111,
+      "isTop20": true,
+      "isCounter20": false
+    },
+    {
+      "comp": [
+        "turtle",
+        "turtle",
+        "skunk"
+      ],
+      "wr": 0.7555555555555555,
+      "isTop20": true,
+      "isCounter20": false
+    },
+    {
+      "comp": [
+        "eagle",
+        "eagle",
+        "mouse"
+      ],
+      "wr": 0.75,
+      "isTop20": true,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "dragon",
+        "rabbit",
+        "spider"
+      ],
+      "wr": 0.75,
+      "isTop20": true,
+      "isCounter20": false
+    },
+    {
+      "comp": [
+        "dragon",
+        "dragon",
+        "mouse"
+      ],
+      "wr": 0.7444444444444445,
+      "isTop20": true,
+      "isCounter20": false
+    },
+    {
+      "comp": [
+        "mouse",
+        "skunk",
+        "turtle"
+      ],
+      "wr": 0.7444444444444445,
+      "isTop20": true,
+      "isCounter20": false
+    },
+    {
+      "comp": [
+        "mouse",
+        "rabbit",
+        "whale"
+      ],
+      "wr": 0.7333333333333333,
+      "isTop20": true,
+      "isCounter20": false
+    },
+    {
+      "comp": [
+        "dragon",
+        "skunk",
+        "whale"
+      ],
+      "wr": 0.7333333333333333,
+      "isTop20": true,
+      "isCounter20": false
+    },
+    {
+      "comp": [
+        "skunk",
+        "skunk",
+        "turtle"
+      ],
+      "wr": 0.7222222222222222,
+      "isTop20": true,
+      "isCounter20": false
+    },
+    {
+      "comp": [
+        "dragon",
+        "mouse",
+        "turtle"
+      ],
+      "wr": 0.7222222222222222,
+      "isTop20": true,
+      "isCounter20": false
+    },
+    {
+      "comp": [
+        "dragon",
+        "mouse",
+        "whale"
+      ],
+      "wr": 0.7222222222222222,
+      "isTop20": true,
+      "isCounter20": false
+    },
+    {
+      "comp": [
+        "turtle",
+        "turtle",
+        "eagle"
+      ],
+      "wr": 0.7111111111111111,
+      "isTop20": true,
+      "isCounter20": false
+    },
+    {
+      "comp": [
+        "eagle",
+        "mouse",
+        "turtle"
+      ],
+      "wr": 0.7111111111111111,
+      "isTop20": true,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "bear",
+        "rabbit",
+        "turtle"
+      ],
+      "wr": 0.7111111111111111,
+      "isTop20": true,
+      "isCounter20": false
+    },
+    {
+      "comp": [
+        "elephant",
+        "mouse",
+        "turtle"
+      ],
+      "wr": 0.7055555555555556,
+      "isTop20": true,
+      "isCounter20": false
+    },
+    {
+      "comp": [
+        "cat",
+        "rabbit",
+        "rhino"
+      ],
+      "wr": 0.7055555555555556,
+      "isTop20": true,
+      "isCounter20": false
+    },
+    {
+      "comp": [
+        "rabbit",
+        "rabbit",
+        "bear"
+      ],
+      "wr": 0.6944444444444444,
+      "isTop20": true,
+      "isCounter20": false
+    },
+    {
+      "comp": [
+        "mouse",
+        "mouse",
+        "rhino"
+      ],
+      "wr": 0.6,
+      "isTop20": false,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "mouse",
+        "mouse",
+        "mouse"
+      ],
+      "wr": 0.6833333333333333,
+      "isTop20": false,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "cat",
+        "mouse",
+        "turtle"
+      ],
+      "wr": 0.6333333333333333,
+      "isTop20": false,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "lion",
+        "mouse",
+        "rhino"
+      ],
+      "wr": 0.5666666666666667,
+      "isTop20": false,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "mouse",
+        "mouse",
+        "lion"
+      ],
+      "wr": 0.5833333333333334,
+      "isTop20": false,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "lion",
+        "lion",
+        "mouse"
+      ],
+      "wr": 0.6055555555555555,
+      "isTop20": false,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "elephant",
+        "mouse",
+        "rabbit"
+      ],
+      "wr": 0.6722222222222223,
+      "isTop20": false,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "cat",
+        "eagle",
+        "mouse"
+      ],
+      "wr": 0.5944444444444444,
+      "isTop20": false,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "mouse",
+        "rabbit",
+        "rhino"
+      ],
+      "wr": 0.6055555555555555,
+      "isTop20": false,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "bear",
+        "mouse",
+        "rhino"
+      ],
+      "wr": 0.5555555555555556,
+      "isTop20": false,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "rhino",
+        "rhino",
+        "mouse"
+      ],
+      "wr": 0.6888888888888889,
+      "isTop20": false,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "bear",
+        "mouse",
+        "turtle"
+      ],
+      "wr": 0.6,
+      "isTop20": false,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "mouse",
+        "mouse",
+        "skunk"
+      ],
+      "wr": 0.6666666666666666,
+      "isTop20": false,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "mouse",
+        "rhino",
+        "turtle"
+      ],
+      "wr": 0.6444444444444445,
+      "isTop20": false,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "dragon",
+        "lion",
+        "mouse"
+      ],
+      "wr": 0.49444444444444446,
+      "isTop20": false,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "dragon",
+        "mouse",
+        "rhino"
+      ],
+      "wr": 0.5388888888888889,
+      "isTop20": false,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "mouse",
+        "mouse",
+        "bear"
+      ],
+      "wr": 0.5555555555555556,
+      "isTop20": false,
+      "isCounter20": true
+    },
+    {
+      "comp": [
+        "cat",
+        "cat",
+        "mouse"
+      ],
+      "wr": 0.4444444444444444,
+      "isTop20": false,
+      "isCounter20": true
+    }
+  ],
+  "metaAppearanceRates": {
+    "mouse": 0.7105263157894737,
+    "elephant": 0.05263157894736842,
+    "cat": 0.13157894736842105,
+    "rabbit": 0.23684210526315788,
+    "turtle": 0.3684210526315789,
+    "skunk": 0.15789473684210525,
+    "lion": 0.10526315789473684,
+    "spider": 0.02631578947368421,
+    "eagle": 0.10526315789473684,
+    "bear": 0.15789473684210525,
+    "rhino": 0.21052631578947367,
+    "dragon": 0.21052631578947367,
+    "whale": 0.10526315789473684
+  }
+}

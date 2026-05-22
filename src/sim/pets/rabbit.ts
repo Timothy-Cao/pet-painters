@@ -3,8 +3,7 @@ import type { MatchState, Vec2, Direction } from '../../types/game';
 import { paintTile } from '../board';
 import {
   anyPetAt, declareMove, facingDelta,
-  frontBlocked, frontIsWall, scurryTurn, tileInBounds,
-  CW_NEXT, CCW_NEXT, OPPOSITE,
+  frontBlocked, frontIsWall, tileInBounds,
 } from '../behaviors';
 import { pushSplat } from '../../render/effects';
 

@@ -17,13 +17,6 @@ const STATS = {
   spoutRadius: 1,                 // 3×3 splash
 } as const;
 
-/** Pick a random tile on the board using state.rng or Math.random. */
-function randTile(state: MatchState, size: number): Vec2 {
-  const r1 = state.rng ? state.rng.next() : Math.random();
-  const r2 = state.rng ? state.rng.next() : Math.random();
-  return { x: Math.floor(r1 * size), y: Math.floor(r2 * size) };
-}
-
 function whaleSpout(pet: Pet, state: MatchState): void {
   const size = state.board.size;
 
