@@ -13,6 +13,11 @@ import { createCrossingRC, renderCrossingGame, pixelToTile } from './render';
 import { getValidMoves } from './moves';
 import { getUnitDef, ALL_CROSSING_UNITS } from './units';
 import { scheduleAIMove } from './ai';
+import {
+  cxPlaySelect, cxPlayDeselect, cxPlayMove, cxPlayCapture,
+  cxPlayPush, cxPlayScore, cxPlayWin, cxPlayLose,
+  cxPlayInvalid, cxPlayGameStart,
+} from './sfx';
 
 export const CrossingScreen: Screen = {
   name: 'crossing',
@@ -272,8 +277,14 @@ export const CrossingScreen: Screen = {
         const unit = state.units.find(u => u.unitId === state.selectedUnitId);
         if (unit) {
           const valid = getValidMoves(state, unit);
-          if (valid.some(m => m.to.x === tile.x && m.to.y === tile.y)) {
+          const move = valid.find(m => m.to.x === tile.x && m.to.y === tile.y);
+          if (move) {
+            // Play appropriate SFX based on move type
+            const wasScored = unit.scored;
+            playMoveSFX(move.captureId != null, move.push != null);
             performMove(state, state.selectedUnitId, tile);
+            // Check if this move scored (newly)
+            if (unit.scored && !wasScored) cxPlayScore();
             state.selectedUnitId = null;
             advanceTutorial(2); // Step 2 complete: made a move
             maybeAITurn();
@@ -286,11 +297,13 @@ export const CrossingScreen: Screen = {
           u.owner === 'A' && u.pos.x === tile.x && u.pos.y === tile.y
         );
         if (clickedUnit) {
+          cxPlaySelect();
           state.selectedUnitId = clickedUnit.unitId;
           return;
         }
 
         // Invalid click with unit selected — show feedback
+        cxPlayInvalid();
         showInvalidMoveFeedback(tile);
         state.selectedUnitId = null;
         return;
@@ -300,12 +313,20 @@ export const CrossingScreen: Screen = {
       for (const u of state.units) {
         if (u.owner !== 'A') continue;
         if (u.pos.x === tile.x && u.pos.y === tile.y) {
+          cxPlaySelect();
           state.selectedUnitId = u.unitId;
           advanceTutorial(1); // Step 1 complete: selected a unit
           return;
         }
       }
     });
+
+    // Play SFX based on move type
+    function playMoveSFX(isCapture: boolean, isPush: boolean) {
+      if (isCapture) cxPlayCapture();
+      else if (isPush) cxPlayPush();
+      else cxPlayMove();
+    }
 
     // Invalid move: brief red flash VFX
     function showInvalidMoveFeedback(tile: { x: number; y: number }) {
@@ -324,6 +345,7 @@ export const CrossingScreen: Screen = {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         if (state.selectedUnitId != null) {
+          cxPlayDeselect();
           state.selectedUnitId = null;
           e.stopImmediatePropagation();
         } else {
@@ -343,7 +365,17 @@ export const CrossingScreen: Screen = {
       cancelAI = scheduleAIMove(state, (unitId, to) => {
         state.selectedUnitId = unitId;
         setTimeout(() => {
+          // Determine move type for SFX
+          const aiUnit = state.units.find(u => u.unitId === unitId);
+          const aiWasScored = aiUnit?.scored ?? false;
+          if (aiUnit) {
+            const aiMoves = getValidMoves(state, aiUnit);
+            const aiMove = aiMoves.find(m => m.to.x === to.x && m.to.y === to.y);
+            if (aiMove) playMoveSFX(aiMove.captureId != null, aiMove.push != null);
+          }
           performMove(state, unitId, to);
+          // Check if AI scored (newly)
+          if (aiUnit?.scored && !aiWasScored) cxPlayScore();
           state.selectedUnitId = null;
           skipTurnIfNeeded(state);
           if (state.currentPlayer === 'B' && state.phase === 'playing') {
@@ -360,6 +392,7 @@ export const CrossingScreen: Screen = {
       lastEventCount = 0;
       const winOverlay = container.querySelector('#cx-win-overlay') as HTMLElement;
       if (winOverlay) winOverlay.hidden = true;
+      cxPlayGameStart();
     }
 
     container.querySelector('#cx-win-rematch')?.addEventListener('click', resetGame);
@@ -470,6 +503,10 @@ function checkWin(container: HTMLElement, state: CGameState): void {
   if (state.phase !== 'ended') return;
   const overlay = container.querySelector('#cx-win-overlay') as HTMLElement;
   if (!overlay || !overlay.hidden) return;
+
+  // Play win or lose SFX
+  if (state.winner === 'A') cxPlayWin();
+  else cxPlayLose();
 
   overlay.hidden = false;
   const headline = container.querySelector('#cx-win-headline');
