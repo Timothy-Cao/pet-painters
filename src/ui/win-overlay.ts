@@ -1,6 +1,7 @@
 import type { MatchState, PlayerId } from '../types/game';
 import { scoreFor } from '../sim/board';
 import { BOARD_SIZE } from '../config/constants';
+import { playWin } from '../render/sfx';
 
 let onRematch: (() => void) | null = null;
 let confettiSpawned = false;
@@ -52,6 +53,7 @@ export function refreshWinOverlay(state: MatchState): void {
 
   if (!confettiSpawned) {
     spawnConfetti(state.winner);
+    playWin();
     confettiSpawned = true;
   }
 }

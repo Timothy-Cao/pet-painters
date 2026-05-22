@@ -27,6 +27,7 @@ const FLAME_MS = 520;
 const effects: Effect[] = [];
 
 import { side } from './palette';
+import { playHit, playDeath } from './sfx';
 
 function colorFor(owner: PlayerId): string {
   return side(owner).accent;
@@ -48,6 +49,7 @@ export function setEffectsEnabled(on: boolean): void { effectsEnabled = on; }
 export function pushHit(x: number, y: number, owner: PlayerId): void {
   if (!effectsEnabled) return;
   effects.push({ kind: 'hit', x, y, owner, born: now() });
+  playHit();
 }
 export function pushPounce(x: number, y: number, owner: PlayerId): void {
   if (!effectsEnabled) return;
@@ -65,6 +67,7 @@ export function pushSplat(x: number, y: number, owner: PlayerId): void {
 export function pushPoof(x: number, y: number, owner: PlayerId): void {
   if (!effectsEnabled) return;
   effects.push({ kind: 'poof', x, y, owner, born: now() });
+  playDeath();
 }
 export function pushDamage(x: number, y: number, owner: PlayerId, amount: number): void {
   if (!effectsEnabled) return;

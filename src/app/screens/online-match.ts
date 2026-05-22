@@ -45,6 +45,12 @@ const SANDBOX_MARKUP = `
           <input type="checkbox" id="settings-cb-palette" />
         </label>
         <div class="settings-hint">Swaps red → orange for deuteranopia / protanopia compatibility.</div>
+        <div class="settings-section-title">Audio</div>
+        <label class="settings-row">
+          <span>Sound effects</span>
+          <input type="checkbox" id="settings-cb-sound" />
+        </label>
+        <div class="settings-hint">Off by default. No audio files — all synthesized.</div>
       </div>
     </div>
   </header>

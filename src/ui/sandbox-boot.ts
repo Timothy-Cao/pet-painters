@@ -26,6 +26,67 @@ import { loadPalette, applyPalette, getPaletteName } from '../render/palette';
 import { setWinOverlayRoot, bindWinOverlay, refreshWinOverlay } from './win-overlay';
 import type { DeploymentDTO } from '../online/submissions';
 import { getPetDef } from '../sim/pet-defs';
+import { loadSoundPref, isSoundEnabled, setSoundEnabled, playRoundStart, playCountdownTick, playCountdownGo } from '../render/sfx';
+
+/**
+ * Draw the 3-2-1-GO countdown overlay on the canvas.
+ * elapsed: ms since execution started. duration: total countdown ms (3000).
+ */
+function renderCountdown(
+  rc: RenderContext,
+  elapsed: number,
+  duration: number,
+): void {
+  const { ctx, width, height } = rc;
+  // Determine which digit to show.
+  let label: string;
+  let t: number;               // 0..1 progress through this label's 1-second window
+  if (elapsed >= duration) {
+    // "GO" fade-out phase.
+    label = 'GO';
+    t = 1 - Math.min(1, (elapsed - duration) / 400);
+  } else {
+    const sec = Math.floor((duration - elapsed) / 1000) + 1; // 3, 2, 1
+    label = String(Math.min(sec, 3));
+    t = 1 - ((elapsed % 1000) / 1000);                       // 1→0 within each second
+  }
+  // Ease-out alpha + scale pulse.
+  const alpha = Math.max(0, t);
+  const scale = 1 + (1 - t) * 0.35;
+
+  if (alpha <= 0) return;
+
+  ctx.save();
+  ctx.globalAlpha = alpha * 0.88;
+
+  // Semi-transparent background pill.
+  const fontSize = Math.min(width, height) * 0.18;
+  ctx.font = `900 ${fontSize}px system-ui, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  const cx = width / 2;
+  const cy = height / 2;
+
+  ctx.translate(cx, cy);
+  ctx.scale(scale, scale);
+  ctx.translate(-cx, -cy);
+
+  // Shadow / glow.
+  ctx.shadowColor = label === 'GO' ? '#4fd1a5' : '#ffd166';
+  ctx.shadowBlur = 24;
+
+  // Outline.
+  ctx.strokeStyle = 'rgba(0,0,0,0.7)';
+  ctx.lineWidth = Math.max(4, fontSize * 0.07);
+  ctx.strokeText(label, cx, cy);
+
+  // Fill.
+  ctx.fillStyle = label === 'GO' ? '#4fd1a5' : '#ffffff';
+  ctx.fillText(label, cx, cy);
+
+  ctx.restore();
+}
 
 /**
  * Draw ghost/preview overlays for deployments the local player has queued this round
@@ -131,10 +192,13 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
 
   // Settings + accessibility wiring.
   loadPalette();
+  loadSoundPref();
   const settingsBtn = container.querySelector('#settings-btn') as HTMLElement | null;
   const settingsMenu = container.querySelector('#settings-menu') as HTMLElement | null;
   const cbCheckbox = container.querySelector('#settings-cb-palette') as HTMLInputElement | null;
+  const soundCheckbox = container.querySelector('#settings-cb-sound') as HTMLInputElement | null;
   if (cbCheckbox) cbCheckbox.checked = getPaletteName() === 'cb-blue-orange';
+  if (soundCheckbox) soundCheckbox.checked = isSoundEnabled();
   if (settingsBtn && settingsMenu) {
     settingsBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -151,6 +215,9 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
   }
   cbCheckbox?.addEventListener('change', () => {
     applyPalette(cbCheckbox.checked ? 'cb-blue-orange' : 'default');
+  });
+  soundCheckbox?.addEventListener('change', () => {
+    setSoundEnabled(soundCheckbox.checked);
   });
 
   // Esc closes the inspector first, then deselects the currently-armed pet.
@@ -173,7 +240,23 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
   // Fog of war: undefined/null means sandbox (no fog).
   const viewer = bindings?.viewer ?? null;
 
+  // Phase-change tracking for round-start SFX and countdown overlay.
+  let lastPhase = state.phase;
+  // countdownStartMs is set when execution begins; the 3s countdown runs from there.
+  let countdownStartMs: number | null = null;
+  let countdownSfxFired = { at1: false, at2: false, go: false };
+  const COUNTDOWN_DURATION_MS = 3000;
+
   function render() {
+    const now = performance.now();
+
+    // Detect execution start.
+    if (state.phase === 'execution' && lastPhase === 'planning') {
+      countdownStartMs = now;
+      playCountdownTick();           // "3"
+    }
+    lastPhase = state.phase;
+
     clearCanvas(rc);
     renderBoard(rc, state.board, viewer);
     renderPets(rc, state.pets, viewer, viewer ? state.board : null);
@@ -183,6 +266,37 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
     if (bindings?.getPendingDeployments) {
       renderPendingGhosts(rc, bindings.getPendingDeployments());
     }
+
+    // 3-2-1 GO countdown overlay during the first 3 s of execution.
+    if (countdownStartMs !== null) {
+      const elapsed = now - countdownStartMs;
+      if (elapsed < COUNTDOWN_DURATION_MS) {
+        renderCountdown(rc, elapsed, COUNTDOWN_DURATION_MS);
+        // Fire tick sounds at 1 s and 2 s marks (approx), and GO at 3 s.
+        if (elapsed >= 1000 && !countdownSfxFired.at1) {
+          countdownSfxFired.at1 = true;
+          playCountdownTick();   // "2"
+        }
+        if (elapsed >= 2000 && !countdownSfxFired.at2) {
+          countdownSfxFired.at2 = true;
+          playCountdownTick();   // "1"
+        }
+      } else {
+        if (!countdownSfxFired.go) {
+          countdownSfxFired.go = true;
+          playCountdownGo();     // "GO"
+          playRoundStart();
+        }
+        // Fade out GO text for 400 ms after countdown ends.
+        if (elapsed < COUNTDOWN_DURATION_MS + 400) {
+          renderCountdown(rc, elapsed, COUNTDOWN_DURATION_MS);
+        } else {
+          countdownStartMs = null;
+          countdownSfxFired = { at1: false, at2: false, go: false };
+        }
+      }
+    }
+
     refreshAll(state, ui);
     refreshWinOverlay(state);
   }
