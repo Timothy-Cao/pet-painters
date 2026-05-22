@@ -30,6 +30,7 @@ describe('advanceTick', () => {
 
   it('fires the mouse move tuple exactly once per interval', () => {
     // Mouse move tuple interval = 0.25s = 5 ticks at 20Hz (speed 4 tiles/sec).
+    state.energy.A = MOUSE.cost;
     tryDeploy(state, 'A', MOUSE.id, { x: 3, y: 0 }, 'N');
     const pet = state.pets[0];
     runTicks(state, 4);

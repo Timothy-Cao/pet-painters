@@ -13,6 +13,7 @@ describe('tryDeploy', () => {
   beforeEach(() => { state = createInitialMatch(); });
 
   it('player A can deploy a 1x1 mouse in the bottom-left corner', () => {
+    state.energy.A = MOUSE.cost;
     const r = tryDeploy(state, 'A', MOUSE.id, { x: 3, y: 0 }, 'N');
     expect(r.ok).toBe(true);
     if (r.ok) {
@@ -37,6 +38,7 @@ describe('tryDeploy', () => {
   });
 
   it('player B home zone is the top-right corner', () => {
+    state.energy.B = MOUSE.cost;
     const r = tryDeploy(state, 'B', MOUSE.id, { x: HOME_B_MAX_X, y: HOME_B_MAX_Y }, 'S');
     expect(r.ok).toBe(true);
   });
@@ -53,13 +55,14 @@ describe('tryDeploy', () => {
   });
 
   it('cannot deploy on a tile already occupied by another pet', () => {
+    state.energy.A = MOUSE.cost * 2;
     tryDeploy(state, 'A', MOUSE.id, { x: 3, y: 0 }, 'N');
-    state.energy.A = 5;
     const r = tryDeploy(state, 'A', MOUSE.id, { x: 3, y: 0 }, 'N');
     expect(r.ok).toBe(false);
   });
 
   it('debits energy on successful deploy', () => {
+    state.energy.A = MOUSE.cost + 2;
     const before = state.energy.A;
     tryDeploy(state, 'A', MOUSE.id, { x: 3, y: 0 }, 'N');
     expect(state.energy.A).toBe(before - MOUSE.cost);

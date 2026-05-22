@@ -5,7 +5,7 @@ import { walkOrTurnAtWall } from '../behaviors';
 import { pushDamage, pushHit } from '../../render/effects';
 
 const STATS = {
-  cost: 4,                          // corner-zones r2: 5→4 — 5×5 corner reduces deployment pressure; 4 allows pairs again
+  cost: 3,                          // final final: 4→3 — Elephant stayed Dead at cost 4; aggressive cut
   speedTilesPerSec: 0.75,           // final balance r2: 0.5→0.75 — needs to reach combat sooner
   weight: 10,
   maxHp: 25,
