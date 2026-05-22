@@ -222,7 +222,8 @@ export const SandboxScreen: Screen = {
         </div>
       </div>
       <div class="win-actions">
-        <button class="btn-primary" id="win-rematch">▶ New Match</button>
+        <button class="btn-primary" id="win-rematch">▶ Play Again</button>
+        <button class="btn-secondary" id="win-home">← Back to Home</button>
       </div>
     </div>
   </div>
@@ -238,6 +239,9 @@ export const SandboxScreen: Screen = {
     import('../../ui/win-overlay').then(({ setWinOverlayRoot }) => {
       setWinOverlayRoot(container);
     });
+
+    // Wire win overlay secondary button (always available, no async needed).
+    container.querySelector('#win-home')?.addEventListener('click', () => navigate('home'));
 
     // Boot the full sandbox within the container.
     import('../../ui/sandbox-boot').then(({ bootSandbox }) => {
