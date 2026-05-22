@@ -159,10 +159,38 @@ export function renderCrossingGame(rc: CrossingRenderContext, state: CGameState)
         ctx.strokeRect(px + 2, py + 2, tileSize - 4, tileSize - 4);
         ctx.setLineDash([]);
 
-        // Hover-over-move highlight
+        // Hover-over-move: ghost preview + action label
         if (state.hoverTile && state.hoverTile.x === m.to.x && state.hoverTile.y === m.to.y) {
           ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
           ctx.fillRect(px + 2, py + 2, tileSize - 4, tileSize - 4);
+
+          // Ghost unit preview
+          const def = getUnitDef(unit.defId);
+          ctx.save();
+          ctx.globalAlpha = 0.4;
+          ctx.font = `${Math.floor(tileSize * 0.45)}px sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#fff';
+          ctx.fillText(def.emoji, px + tileSize / 2, py + tileSize / 2 - 4);
+          ctx.globalAlpha = 1.0;
+
+          // Action label
+          let label = 'Move';
+          let labelColor = 'rgba(79, 209, 165, 0.9)';
+          if (m.captureId != null) {
+            label = '\u{2694} Capture!';
+            labelColor = 'rgba(255, 100, 80, 0.9)';
+          } else if (m.push != null) {
+            label = '\u{1F4A8} Push';
+            labelColor = 'rgba(255, 180, 50, 0.9)';
+          }
+          ctx.font = `bold ${Math.floor(tileSize * 0.16)}px system-ui, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillStyle = labelColor;
+          ctx.fillText(label, px + tileSize / 2, py + tileSize - 4);
+          ctx.restore();
         }
       }
     }
