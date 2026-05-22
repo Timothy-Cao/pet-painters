@@ -76,7 +76,7 @@ describe('combat', () => {
     pin(state.pets[1]);
     pin(state.pets[2]);
     // Unpin only elephant's attack tuple (ATK=2, mouse HP=3 → 2 hits to kill, 2s per hit = 4s).
-    const elephantAtkIdx = ELEPHANT.tuples.findIndex((t) => t.action.name === 'applyAttack');
+    const elephantAtkIdx = ELEPHANT.tuples.findIndex((t) => t.action.name === 'elephantAttack');
     state.pets[0].tupleLastFireTick[elephantAtkIdx] = -1;
 
     runTicks(state, TICKS_PER_SEC * 4);
@@ -91,7 +91,7 @@ describe('combat', () => {
     state.pets[1].anchor = { x: 5, y: 7 };
     pin(state.pets[0]);
     pin(state.pets[1]);
-    const elephantAtkIdx = ELEPHANT.tuples.findIndex((t) => t.action.name === 'applyAttack');
+    const elephantAtkIdx = ELEPHANT.tuples.findIndex((t) => t.action.name === 'elephantAttack');
     state.pets[0].tupleLastFireTick[elephantAtkIdx] = -1;
 
     runTicks(state, TICKS_PER_SEC * 4);

@@ -5,8 +5,8 @@ import { declareMove, facingDelta, frontIsWall, turnAround } from '../behaviors'
 import { pushDust, pushHit, pushDamage } from '../../render/effects';
 
 const STATS = {
-  cost: 5,                          // corner-zones r3: 7→5 — still 0% after r2 speed buff; needs to fit in budget alongside core picks
-  speedTilesPerSec: 2.0,            // corner-zones r2: 1.5→2.0 — faster sprint means momentum builds before midfield engagement
+  cost: 4,                          // final balance r2: 5→4 — sprint-charger needs to slot into more comps at 20-energy budget
+  speedTilesPerSec: 2.5,            // final balance: 2.0→2.5 — sprint-charger needs more speed to compete
   weight: 9,                      // close to elephant's 10 — barely pushable
   maxHp: 15,
   atk: 2,                         // base damage; momentum adds on top

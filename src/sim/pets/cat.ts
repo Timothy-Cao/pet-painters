@@ -6,7 +6,7 @@ import { pushPounce, pushDamage } from '../../render/effects';
 import { MOUSE } from './mouse';
 
 const STATS = {
-  cost: 4,                           // reworks r4: 3→4 — overcorrected to 93.5%; landing between r3's collapse and r4's dominance
+  cost: 5,                           // final balance: 4→5 — Cat at 72.7% is over-present; cost nerf to reduce inclusion
   speedTilesPerSec: 2,
   weight: 2,
   maxHp: 4,

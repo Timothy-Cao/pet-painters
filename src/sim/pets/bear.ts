@@ -16,7 +16,7 @@ const STATS = {
   atkSpeedPerSec: 1,
   order: 1,
   brawlRange: 3,                    // reworks r2: 2→3 — easier to trigger brawl on busy board
-  brawlThreshold: 2,                // min enemy pets within range to trigger brawl
+  brawlThreshold: 1,                // final balance: 2→1 — brawl triggers as soon as Bear meets ANY enemy
 } as const;
 
 function isRaged(pet: Pet): boolean {
@@ -70,7 +70,7 @@ export const BEAR: PetDefinition = {
     hotkey: '0',
     short: 'Wounded = faster; surrounded = berserk',
     ability:
-      '2×2 bruiser. At half HP or less it enters rage and moves at 1.6×. When 2+ enemies are within 3 tiles it enters brawl mode and moves at 2.5×. Hits hard enough to one-shot mice.',
+      '2×2 bruiser. At half HP or less it enters rage and moves at 1.6×. When ANY enemy is within 3 tiles it enters brawl mode and moves at 2.5×. Hits hard enough to one-shot mice.',
   },
   tuples: [
     // Brawl mode: 2+ enemies nearby → fastest cadence (trumps rage).
