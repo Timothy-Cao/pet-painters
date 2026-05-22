@@ -161,13 +161,26 @@ function showPopup(anchor: HTMLElement, def: PetDefinition): void {
   const rect = anchor.getBoundingClientRect();
   const popupWidth = 300;
   const margin = 12;
+  const edgePadding = 8;
+
+  // Horizontal: prefer right of anchor, fall back to left if it would overflow.
   let left = rect.right + margin;
-  if (left + popupWidth > window.innerWidth - 8) {
+  if (left + popupWidth > window.innerWidth - edgePadding) {
     left = rect.left - popupWidth - margin;
   }
-  popup.style.left = `${Math.max(8, left)}px`;
-  popup.style.top = `${Math.max(8, rect.top)}px`;
+  left = Math.max(edgePadding, Math.min(left, window.innerWidth - popupWidth - edgePadding));
+
+  // Vertical: anchor at the anchor's top, but clamp so the popup stays in viewport.
+  // We measure popup height after setting innerHTML so we know exactly how tall it is.
+  popup.style.left = `${left}px`;
+  popup.style.top = `${edgePadding}px`;          // pre-place to allow measurement
+  popup.style.visibility = 'hidden';
   popup.classList.add('show');
+  const popupHeight = popup.offsetHeight;
+  const maxTop = window.innerHeight - popupHeight - edgePadding;
+  const top = Math.max(edgePadding, Math.min(rect.top, maxTop));
+  popup.style.top = `${top}px`;
+  popup.style.visibility = '';
 }
 
 function hidePopup(): void {
