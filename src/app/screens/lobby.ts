@@ -16,13 +16,13 @@ export const LobbyScreen: Screen = {
         <div class="lobby-actions">
           <div class="action-card" id="create-card">
             <h3>Create Room</h3>
-            <input type="password" id="create-pw" placeholder="Optional password" />
+            <input type="text" id="create-pw" placeholder="Optional password" autocomplete="off" data-1p-ignore data-lpignore="true" />
             <button class="big-btn" id="btn-create">Create</button>
           </div>
           <div class="action-card">
             <h3>Join Room</h3>
-            <input type="text" id="join-code" placeholder="6-letter code" maxlength="6" autocomplete="off" />
-            <input type="password" id="join-pw" placeholder="Password (if required)" />
+            <input type="text" id="join-code" placeholder="6-letter code" maxlength="6" autocomplete="off" data-1p-ignore data-lpignore="true" />
+            <input type="text" id="join-pw" placeholder="Password (if required)" autocomplete="off" data-1p-ignore data-lpignore="true" />
             <button class="big-btn" id="btn-join">Join</button>
           </div>
         </div>
