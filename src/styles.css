@@ -1601,3 +1601,92 @@ kbd {
   padding-top: 16px;
   border-top: 1px solid #333;
 }
+
+/* ── Global Settings Gear ─────────────────────────────────────────────── */
+.global-settings-btn {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 9000;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(30, 30, 30, 0.85);
+  backdrop-filter: blur(8px);
+  color: #ccc;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.global-settings-btn:hover {
+  background: rgba(50, 50, 50, 0.95);
+  transform: scale(1.08);
+  color: #fff;
+}
+
+.global-settings-panel {
+  position: fixed;
+  bottom: 70px;
+  right: 16px;
+  z-index: 9001;
+  width: 260px;
+  background: rgba(28, 28, 32, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  font-family: inherit;
+  color: #eee;
+}
+
+.gs-title {
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #aaa;
+  margin-bottom: 12px;
+}
+
+.gs-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.gs-row > span:first-child {
+  min-width: 52px;
+  color: #ccc;
+}
+.gs-row input[type="range"] {
+  flex: 1;
+  accent-color: #4fd1a5;
+  height: 4px;
+}
+.gs-val {
+  min-width: 38px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: #999;
+  font-size: 13px;
+}
+
+.gs-toggle {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.gs-toggle input[type="checkbox"] {
+  accent-color: #4fd1a5;
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+}

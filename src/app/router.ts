@@ -1,3 +1,5 @@
+import { setMusicCategory } from '../render/audio';
+
 export type ScreenName =
   | 'home'
   | 'sandbox'
@@ -19,6 +21,9 @@ export function registerScreen(s: Screen): void { REGISTRY.set(s.name, s); }
 let currentUnmount: (() => void) | null = null;
 let root: HTMLElement | null = null;
 
+/** Screens that should play gameplay music; everything else gets menu music. */
+const GAMEPLAY_SCREENS: Set<ScreenName> = new Set(['sandbox', 'online-match']);
+
 export function startRouter(rootEl: HTMLElement, initial: ScreenName = 'home'): void {
   root = rootEl;
   navigate(initial);
@@ -33,6 +38,9 @@ export function navigate(name: ScreenName, params: Record<string, string> = {}):
   if (!screen) throw new Error(`unknown screen: ${name}`);
   const unmount = screen.mount(root, params);
   currentUnmount = typeof unmount === 'function' ? unmount : null;
+
+  // Switch music category based on screen type.
+  setMusicCategory(GAMEPLAY_SCREENS.has(name) ? 'gameplay' : 'menu');
 
   const url = new URL(window.location.href);
   url.searchParams.delete('screen');

@@ -6,6 +6,7 @@ import { LobbyScreen } from './app/screens/lobby';
 import { RoomWaitingScreen } from './app/screens/room-waiting';
 import { OnlineMatchScreen } from './app/screens/online-match';
 import { SettingsScreen } from './app/screens/settings';
+import { mountGlobalSettings } from './ui/global-settings';
 
 registerScreen(HomeScreen);
 registerScreen(SandboxScreen);
@@ -14,6 +15,8 @@ registerScreen(LobbyScreen);
 registerScreen(RoomWaitingScreen);
 registerScreen(OnlineMatchScreen);
 registerScreen(SettingsScreen);
+
+mountGlobalSettings();
 
 const root = document.getElementById('screen-root') as HTMLElement;
 startRouter(root, screenFromUrl());

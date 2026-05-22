@@ -35,7 +35,7 @@ export function advanceTick(state: MatchState): void {
       const d = getPetDef(p.defId);
       pushEvent(d.emoji, `${d.displayName} (${p.owner}) fell`);
       // Poof at the pet's center (anchor + half-size for multi-tile pets).
-      pushPoof(p.anchor.x + (d.size.w - 1) / 2, p.anchor.y + (d.size.h - 1) / 2, p.owner);
+      pushPoof(p.anchor.x + (d.size.w - 1) / 2, p.anchor.y + (d.size.h - 1) / 2, p.owner, p.petId);
     }
   }
   state.pets = state.pets.filter((p) => p.hp > 0);

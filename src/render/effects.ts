@@ -28,6 +28,7 @@ const effects: Effect[] = [];
 
 import { side } from './palette';
 import { playHit, playDeath } from './sfx';
+import { triggerHitAnim, triggerDeathAnim, triggerAttackAnim } from './pets';
 
 function colorFor(owner: PlayerId): string {
   return side(owner).accent;
@@ -46,10 +47,12 @@ function now(): number {
 let effectsEnabled = true;
 export function setEffectsEnabled(on: boolean): void { effectsEnabled = on; }
 
-export function pushHit(x: number, y: number, owner: PlayerId): void {
+export function pushHit(x: number, y: number, owner: PlayerId, targetPetId?: number, attackerPetId?: number, aDx?: number, aDy?: number): void {
   if (!effectsEnabled) return;
   effects.push({ kind: 'hit', x, y, owner, born: now() });
   playHit();
+  if (targetPetId != null) triggerHitAnim(targetPetId);
+  if (attackerPetId != null && aDx != null && aDy != null) triggerAttackAnim(attackerPetId, aDx, aDy);
 }
 export function pushPounce(x: number, y: number, owner: PlayerId): void {
   if (!effectsEnabled) return;
@@ -64,10 +67,11 @@ export function pushSplat(x: number, y: number, owner: PlayerId): void {
   // Random angle so adjacent splats don't visually rhyme.
   effects.push({ kind: 'splat', x, y, owner, born: now(), angle: Math.random() * Math.PI * 2 });
 }
-export function pushPoof(x: number, y: number, owner: PlayerId): void {
+export function pushPoof(x: number, y: number, owner: PlayerId, petId?: number): void {
   if (!effectsEnabled) return;
   effects.push({ kind: 'poof', x, y, owner, born: now() });
   playDeath();
+  if (petId != null) triggerDeathAnim(petId);
 }
 export function pushDamage(x: number, y: number, owner: PlayerId, amount: number): void {
   if (!effectsEnabled) return;

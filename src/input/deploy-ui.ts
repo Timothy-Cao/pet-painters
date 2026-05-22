@@ -9,7 +9,7 @@ import { tileToPixel } from '../render/canvas';
 import type { SandboxUIState } from '../ui/sandbox-ui';
 import { refreshAll, showBanner } from '../ui/sandbox-ui';
 import { getTile } from '../sim/board';
-import { playDeploy } from '../render/sfx';
+import { playPetDeploy } from '../render/sfx';
 
 const CW_NEXT: Record<Direction, Direction> = { N: 'E', E: 'S', S: 'W', W: 'N' };
 
@@ -121,7 +121,7 @@ export function attachDeployUI(
     if (bindings.onDeploy) {
       // Online mode: hand off to the controller; do NOT mutate state.pets here.
       bindings.onDeploy(ui.selectedDefId, ui.hoverTile, ui.facing);
-      playDeploy();
+      playPetDeploy(ui.selectedDefId);
       showBanner('Deployment queued');
       if (state.lastRoundSummary) state.lastRoundSummary = null;
     } else {
@@ -129,7 +129,7 @@ export function attachDeployUI(
       if (!result.ok) {
         showBanner(`Cannot deploy: ${result.reason}`);
       } else {
-        playDeploy();
+        playPetDeploy(ui.selectedDefId!);
         if (state.lastRoundSummary) state.lastRoundSummary = null;
       }
     }

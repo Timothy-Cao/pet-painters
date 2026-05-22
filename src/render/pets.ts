@@ -8,6 +8,39 @@ import { side } from './palette';
 import type { PetRole } from '../types/pet';
 import { computeVisibility, tileKey } from '../sim/board';
 
+function now(): number {
+  return typeof performance !== 'undefined' ? performance.now() : Date.now();
+}
+
+// ── Per-pet combat animation state ──────────────────────────────────────
+
+interface HitAnim { startMs: number; }
+interface DeathAnim { startMs: number; }
+interface AttackAnim { startMs: number; dx: number; dy: number; }
+
+const hitAnims = new Map<number, HitAnim>();
+const deathAnims = new Map<number, DeathAnim>();
+const attackAnims = new Map<number, AttackAnim>();
+
+const HIT_FLASH_MS = 260;
+const DEATH_SHRINK_MS = 350;
+const ATTACK_BUMP_MS = 180;
+
+/** Call when a pet takes damage — triggers a red flash + shake. */
+export function triggerHitAnim(petId: number): void {
+  hitAnims.set(petId, { startMs: now() });
+}
+
+/** Call when a pet dies — triggers shrink-to-nothing. */
+export function triggerDeathAnim(petId: number): void {
+  deathAnims.set(petId, { startMs: now() });
+}
+
+/** Call when a pet attacks — triggers a forward bump. dx/dy in tile-space direction. */
+export function triggerAttackAnim(petId: number, dx: number, dy: number): void {
+  attackAnims.set(petId, { startMs: now(), dx, dy });
+}
+
 export const ROLE_TINT: Record<PetRole, string> = {
   painter:    'rgba(79, 209, 165, 0.65)',   // teal
   predator:   'rgba(255, 209, 102, 0.65)',  // warm yellow
@@ -16,8 +49,12 @@ export const ROLE_TINT: Record<PetRole, string> = {
   specialist: 'rgba(164, 255, 124, 0.60)',  // lime
 };
 
-function now(): number {
-  return typeof performance !== 'undefined' ? performance.now() : Date.now();
+/** Prune finished combat animations. Called each frame. */
+function pruneCombatAnims(): void {
+  const t = now();
+  for (const [id, a] of hitAnims) if (t - a.startMs > HIT_FLASH_MS) hitAnims.delete(id);
+  for (const [id, a] of deathAnims) if (t - a.startMs > DEATH_SHRINK_MS * 2) deathAnims.delete(id);
+  for (const [id, a] of attackAnims) if (t - a.startMs > ATTACK_BUMP_MS) attackAnims.delete(id);
 }
 
 /**
@@ -35,6 +72,7 @@ export function renderPets(
   board?: import('../types/game').Board | null,
 ): void {
   const { ctx, tileSize } = rc;
+  pruneCombatAnims();
 
   // Pre-compute visibility once per frame when fog is active.
   const visSet: Set<number> | null = (viewer && board) ? computeVisibility(board, viewer) : null;
@@ -64,11 +102,34 @@ export function renderPets(
     const scale = 0.35 + 0.65 * eased;
     const alpha = eased;
 
+    // ── Combat animations: attack bump offset ──
+    let bumpOffX = 0, bumpOffY = 0;
+    const atkAnim = attackAnims.get(pet.petId);
+    if (atkAnim) {
+      const atkAge = now() - atkAnim.startMs;
+      const atkT = Math.min(1, atkAge / ATTACK_BUMP_MS);
+      // Quick forward lunge then snap back (sine half-wave).
+      const bumpMag = Math.sin(atkT * Math.PI) * tileSize * 0.25;
+      bumpOffX = atkAnim.dx * bumpMag;
+      bumpOffY = -atkAnim.dy * bumpMag; // canvas Y is inverted
+    }
+
+    // ── Combat animations: death shrink ──
+    let deathScale = 1;
+    let deathAlpha = 1;
+    const deathAnim = deathAnims.get(pet.petId);
+    if (deathAnim) {
+      const deathAge = now() - deathAnim.startMs;
+      const deathT = Math.min(1, deathAge / DEATH_SHRINK_MS);
+      deathScale = 1 - deathT;
+      deathAlpha = 1 - deathT;
+    }
+
     ctx.save();
-    ctx.translate(px + w / 2, py + h / 2);
-    ctx.scale(scale, scale);
+    ctx.translate(px + w / 2 + bumpOffX, py + h / 2 + bumpOffY);
+    ctx.scale(scale * deathScale, scale * deathScale);
     ctx.translate(-(px + w / 2), -(py + h / 2));
-    ctx.globalAlpha = alpha;
+    ctx.globalAlpha = alpha * deathAlpha;
 
     // Role aura — a slow-pulsing radial glow behind the pet so each archetype
     // is recognizable at a glance. 2.4s sine cycle, alpha 0.55→0.95 of the
@@ -104,9 +165,23 @@ export function renderPets(
     roundRect(ctx, px + 3, py + 3, w - 6, h - 6, 6);
     ctx.stroke();
 
+    // ── Hit flash: shake + red overlay when damaged ──
+    let shakeX = 0, shakeY = 0;
+    let hitFlashAlpha = 0;
+    const hitAnim = hitAnims.get(pet.petId);
+    if (hitAnim) {
+      const hitAge = now() - hitAnim.startMs;
+      const hitT = Math.min(1, hitAge / HIT_FLASH_MS);
+      // Rapid shake: damped high-frequency oscillation
+      const shakeAmp = tileSize * 0.06 * (1 - hitT);
+      shakeX = Math.sin(hitAge * 0.06) * shakeAmp;
+      shakeY = Math.cos(hitAge * 0.08) * shakeAmp * 0.6;
+      hitFlashAlpha = (1 - hitT) * 0.45;
+    }
+
     // Emoji rotates with facing direction
     ctx.save();
-    ctx.translate(px + w / 2, py + h / 2);
+    ctx.translate(px + w / 2 + shakeX, py + h / 2 + shakeY);
     ctx.rotate(rad);
     ctx.font = `${Math.floor(h * 0.65)}px sans-serif`;
     ctx.textAlign = 'center';
@@ -114,6 +189,20 @@ export function renderPets(
     ctx.fillStyle = '#fff';
     ctx.fillText(def.emoji, 0, 2);
     ctx.restore();
+
+    // Red flash overlay on hit
+    if (hitFlashAlpha > 0) {
+      ctx.save();
+      ctx.globalAlpha = hitFlashAlpha;
+      ctx.fillStyle = '#ff3333';
+      ctx.beginPath();
+      const cx = px + w / 2 + shakeX;
+      const cy = py + h / 2 + shakeY;
+      const flashR = Math.max(w, h) * 0.4;
+      ctx.arc(cx, cy, flashR, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
 
     // HP bar (only if damaged) — stays axis-aligned for readability
     if (pet.hp < def.maxHp) {

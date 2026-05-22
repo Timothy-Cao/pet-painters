@@ -7,11 +7,14 @@
  * Respects prefers-reduced-motion: sounds disabled when that media query is set.
  */
 
+import { sfxGain } from './audio';
+
 const STORAGE_KEY = 'pet-painters-sound';
 
 // ---------- state ----------
 let _ctx: AudioContext | null = null;
 let _enabled = false;
+let _masterGain: GainNode | null = null;
 
 function isReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -44,7 +47,13 @@ export function setSoundEnabled(on: boolean): void {
 
 function getCtx(): AudioContext | null {
   if (!_enabled || isReducedMotion()) return null;
-  if (!_ctx) _ctx = new AudioContext();
+  if (!_ctx) {
+    _ctx = new AudioContext();
+    _masterGain = _ctx.createGain();
+    _masterGain.connect(_ctx.destination);
+  }
+  // Update master gain to current SFX volume each time.
+  if (_masterGain) _masterGain.gain.value = sfxGain();
   return _ctx;
 }
 
@@ -80,7 +89,7 @@ function playTone(params: ToneParams): void {
   gain.gain.exponentialRampToValueAtTime(0.0001, now + (attackMs + decayMs) / 1000);
 
   osc.connect(gain);
-  gain.connect(ctx.destination);
+  gain.connect(_masterGain ?? ctx.destination);
 
   osc.start(now);
   osc.stop(now + (attackMs + decayMs) / 1000 + 0.01);
@@ -112,7 +121,7 @@ export function playDeath(): void {
   gain.gain.setValueAtTime(0.15, now);
   gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.30);
   osc.connect(gain);
-  gain.connect(ctx.destination);
+  gain.connect(_masterGain ?? ctx.destination);
   osc.start(now);
   osc.stop(now + 0.32);
 }
@@ -141,4 +150,123 @@ export function playCountdownTick(): void {
 export function playCountdownGo(): void {
   playTone({ freq: 660, type: 'sine', gainPeak: 0.20, attackMs: 8, decayMs: 200 });
   playTone({ freq: 880, type: 'sine', gainPeak: 0.14, attackMs: 5, decayMs: 260, startOffsetMs: 60 });
+}
+
+// ---------- Pet-specific deploy SFX ----------
+// Each pet gets a unique short synth sound when deployed on the board.
+// Mapped by defId (lowercase pet name).
+
+const PET_DEPLOY_SFX: Record<string, () => void> = {
+  mouse: () => {
+    // Quick high squeak
+    playTone({ freq: 1200, type: 'sine', gainPeak: 0.10, attackMs: 3, decayMs: 60 });
+    playTone({ freq: 1400, type: 'sine', gainPeak: 0.07, attackMs: 3, decayMs: 40, startOffsetMs: 30 });
+  },
+  cat: () => {
+    // Soft purr-like vibrato
+    playTone({ freq: 320, type: 'triangle', gainPeak: 0.10, attackMs: 10, decayMs: 140 });
+    playTone({ freq: 340, type: 'triangle', gainPeak: 0.08, attackMs: 8, decayMs: 120, startOffsetMs: 60 });
+  },
+  rabbit: () => {
+    // Bouncy double boop
+    playTone({ freq: 520, type: 'sine', gainPeak: 0.10, attackMs: 5, decayMs: 70 });
+    playTone({ freq: 620, type: 'sine', gainPeak: 0.08, attackMs: 5, decayMs: 60, startOffsetMs: 50 });
+  },
+  turtle: () => {
+    // Low sturdy thud
+    playTone({ freq: 140, type: 'triangle', gainPeak: 0.14, attackMs: 15, decayMs: 200 });
+  },
+  spider: () => {
+    // Eerie descending whistle
+    const ctx = getCtx();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(800, now);
+    osc.frequency.exponentialRampToValueAtTime(300, now + 0.15);
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+    osc.connect(gain);
+    gain.connect(_masterGain ?? ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.2);
+  },
+  eagle: () => {
+    // Sharp ascending screech
+    const ctx = getCtx();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(600, now);
+    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.12);
+    gain.gain.setValueAtTime(0.06, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+    osc.connect(gain);
+    gain.connect(_masterGain ?? ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.18);
+  },
+  lion: () => {
+    // Low growl burst
+    playTone({ freq: 120, type: 'sawtooth', gainPeak: 0.10, attackMs: 10, decayMs: 180 });
+    playTone({ freq: 160, type: 'triangle', gainPeak: 0.08, attackMs: 8, decayMs: 140, startOffsetMs: 40 });
+  },
+  bear: () => {
+    // Deep rumbling thump
+    playTone({ freq: 90, type: 'triangle', gainPeak: 0.14, attackMs: 20, decayMs: 250 });
+    playTone({ freq: 110, type: 'sine', gainPeak: 0.08, attackMs: 15, decayMs: 200, startOffsetMs: 60 });
+  },
+  elephant: () => {
+    // Trumpet-like ascending blast
+    playTone({ freq: 180, type: 'sawtooth', gainPeak: 0.10, attackMs: 15, decayMs: 200 });
+    playTone({ freq: 360, type: 'sine', gainPeak: 0.08, attackMs: 10, decayMs: 160, startOffsetMs: 50 });
+  },
+  whale: () => {
+    // Deep whale-song sweep
+    const ctx = getCtx();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(120, now);
+    osc.frequency.exponentialRampToValueAtTime(200, now + 0.15);
+    osc.frequency.exponentialRampToValueAtTime(100, now + 0.30);
+    gain.gain.setValueAtTime(0.10, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+    osc.connect(gain);
+    gain.connect(_masterGain ?? ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.38);
+  },
+  dragon: () => {
+    // Fiery roar: noise-like sawtooth burst
+    playTone({ freq: 100, type: 'sawtooth', gainPeak: 0.12, attackMs: 10, decayMs: 160 });
+    playTone({ freq: 200, type: 'sawtooth', gainPeak: 0.08, attackMs: 8, decayMs: 200, startOffsetMs: 40 });
+    playTone({ freq: 400, type: 'sine', gainPeak: 0.06, attackMs: 5, decayMs: 180, startOffsetMs: 80 });
+  },
+  rhino: () => {
+    // Heavy charge stomp
+    playTone({ freq: 100, type: 'triangle', gainPeak: 0.14, attackMs: 8, decayMs: 160 });
+    playTone({ freq: 80, type: 'sine', gainPeak: 0.10, attackMs: 12, decayMs: 200, startOffsetMs: 40 });
+  },
+  skunk: () => {
+    // Hissy puff
+    playTone({ freq: 800, type: 'sawtooth', gainPeak: 0.05, attackMs: 5, decayMs: 100 });
+    playTone({ freq: 200, type: 'triangle', gainPeak: 0.08, attackMs: 10, decayMs: 120, startOffsetMs: 30 });
+  },
+};
+
+/** Play pet-specific deploy sound. Falls back to generic deploy if no custom SFX. */
+export function playPetDeploy(defId: string): void {
+  const fn = PET_DEPLOY_SFX[defId];
+  if (fn) {
+    fn();
+  } else {
+    playDeploy();
+  }
 }
