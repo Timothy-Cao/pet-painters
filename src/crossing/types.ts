@@ -51,6 +51,16 @@ export interface VFX {
   duration: number;
 }
 
+export interface GameEvent {
+  turn: number;
+  owner: PlayerId;
+  text: string;
+  icon: string;
+  time: number; // performance.now()
+}
+
+export type AIDifficulty = 'easy' | 'normal' | 'hard';
+
 export type GamePhase = 'playing' | 'ended';
 
 export interface CGameState {
@@ -70,4 +80,10 @@ export interface CGameState {
   vfx: VFX[];
   hoverTile: Vec2 | null;
   lastMove: { unitId: number; from: Vec2; to: Vec2 } | null;
+
+  // ── Event log ──
+  events: GameEvent[];
+
+  // ── Settings ──
+  difficulty: AIDifficulty;
 }

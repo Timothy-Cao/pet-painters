@@ -4,13 +4,13 @@
  * 8×8 board, 5 units per side, first to score 3 wins.
  */
 
-import type { CGameState, CUnit, PlayerId, Vec2 } from './types';
-import { DEFAULT_ARMY } from './units';
+import type { CGameState, CUnit, PlayerId, Vec2, AIDifficulty } from './types';
+import { DEFAULT_ARMY, getUnitDef } from './units';
 import { getValidMoves, executeMove } from './moves';
 
 const SCORE_TO_WIN = 3;
 
-export function createCrossingGame(): CGameState {
+export function createCrossingGame(difficulty: AIDifficulty = 'normal'): CGameState {
   const units: CUnit[] = [];
   let id = 1;
 
@@ -52,6 +52,8 @@ export function createCrossingGame(): CGameState {
     vfx: [],
     hoverTile: null,
     lastMove: null,
+    events: [],
+    difficulty,
   };
 }
 
@@ -89,9 +91,31 @@ export function performMove(state: CGameState, unitId: number, to: Vec2): boolea
 
   const result = executeMove(state, unitId, move);
   const now = performance.now();
+  const def = getUnitDef(unit.defId);
+  const ownerLabel = unit.owner === 'A' ? 'You' : 'AI';
 
   // Track last move
   state.lastMove = { unitId, from: unit.animFrom!, to: { ...to } };
+
+  // Event log
+  let eventText = `${ownerLabel} moved ${def.displayName}`;
+  let eventIcon = def.emoji;
+  if (result.captured) {
+    const capDef = getUnitDef(state.units.find(u => u.unitId === result.captured!.unitId)!.defId);
+    eventText = `${ownerLabel}'s ${def.displayName} captured ${capDef.displayName}!`;
+    eventIcon = '\u{2694}'; // crossed swords
+  } else if (result.pushed) {
+    const pushDef = getUnitDef(state.units.find(u => u.unitId === result.pushed!.unitId)!.defId);
+    eventText = `${ownerLabel}'s ${def.displayName} pushed ${pushDef.displayName}`;
+    eventIcon = '\u{1F4A8}'; // dash
+  }
+  if (result.scored) {
+    eventText += ` \u{2014} Scored!`;
+    eventIcon = '\u{2B50}'; // star
+  }
+  state.events.push({ turn: state.turn, owner: unit.owner, text: eventText, icon: eventIcon, time: now });
+  // Keep last 12 events
+  if (state.events.length > 12) state.events.shift();
 
   // VFX
   if (result.scored) {
@@ -100,8 +124,8 @@ export function performMove(state: CGameState, unitId: number, to: Vec2): boolea
       pos: { ...to },
       size: 1,
       owner: unit.owner,
-      startTime: now + 200,
-      duration: 800,
+      startTime: now + 180,
+      duration: 1000,
     });
   }
   if (result.captured) {
@@ -111,7 +135,7 @@ export function performMove(state: CGameState, unitId: number, to: Vec2): boolea
       size: 1,
       owner: state.units.find(u => u.unitId === result.captured!.unitId)!.owner,
       startTime: now,
-      duration: 600,
+      duration: 750,
     });
   }
   if (result.pushed) {

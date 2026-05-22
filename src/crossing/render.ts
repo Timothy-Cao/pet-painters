@@ -253,42 +253,100 @@ function renderVFX(rc: CrossingRenderContext, vfx: VFX, now: number): void {
 
   if (vfx.type === 'score-flash') {
     const { px, py } = tileToPixel(rc, vfx.pos.x, vfx.pos.y);
-    const alpha = (1 - progress) * 0.6;
-    const expand = progress * 8;
+    const cx = px + tileSize / 2;
+    const cy = py + tileSize / 2;
+    const alpha = (1 - progress) * 0.7;
 
     ctx.save();
-    ctx.fillStyle = `rgba(255, 209, 102, ${alpha})`;
-    ctx.fillRect(px - expand, py - expand, tileSize + expand * 2, tileSize + expand * 2);
 
+    // Expanding golden ring
+    const ringRadius = tileSize * 0.4 + progress * tileSize * 0.8;
+    ctx.strokeStyle = `rgba(255, 209, 102, ${alpha * 0.8})`;
+    ctx.lineWidth = 3 * (1 - progress);
+    ctx.beginPath();
+    ctx.arc(cx, cy, ringRadius, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Inner glow
+    const glowAlpha = alpha * 0.4;
+    const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, tileSize * 0.6);
+    gradient.addColorStop(0, `rgba(255, 209, 102, ${glowAlpha})`);
+    gradient.addColorStop(1, `rgba(255, 209, 102, 0)`);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(px - 10, py - 10, tileSize + 20, tileSize + 20);
+
+    // Particle sparkles (8 particles bursting outward)
+    for (let i = 0; i < 8; i++) {
+      const angle = (i / 8) * Math.PI * 2 + progress * 0.5;
+      const dist = progress * tileSize * 0.9;
+      const pAlpha = (1 - progress) * 0.9;
+      const sparkX = cx + Math.cos(angle) * dist;
+      const sparkY = cy + Math.sin(angle) * dist;
+      const size = (1 - progress) * 3;
+
+      ctx.fillStyle = `rgba(255, 230, 150, ${pAlpha})`;
+      ctx.beginPath();
+      ctx.arc(sparkX, sparkY, size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Floating "Scored!" text
     if (progress < 0.7) {
-      ctx.font = `bold ${Math.floor(tileSize * 0.35)}px system-ui, sans-serif`;
+      ctx.font = `bold ${Math.floor(tileSize * 0.4)}px system-ui, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = `rgba(255, 255, 255, ${(1 - progress / 0.7) * 0.9})`;
-      const floatY = py + tileSize / 2 - progress * 20;
-      ctx.fillText('Scored!', px + tileSize / 2, floatY);
+      const textAlpha = (1 - progress / 0.7) * 0.95;
+      ctx.fillStyle = `rgba(255, 255, 255, ${textAlpha})`;
+      ctx.shadowColor = 'rgba(255, 209, 102, 0.8)';
+      ctx.shadowBlur = 8;
+      const floatY = cy - progress * 30;
+      ctx.fillText('\u{2B50} Scored!', cx, floatY);
+      ctx.shadowBlur = 0;
     }
     ctx.restore();
   }
 
   if (vfx.type === 'capture') {
     const { px, py } = tileToPixel(rc, vfx.pos.x, vfx.pos.y);
-    const alpha = (1 - progress) * 0.5;
+    const cx = px + tileSize / 2;
+    const cy = py + tileSize / 2;
+    const alpha = (1 - progress) * 0.6;
+
     ctx.save();
+
+    // Shockwave ring
+    const ringRadius = progress * tileSize * 0.7;
     ctx.strokeStyle = `rgba(255, 80, 60, ${alpha})`;
-    ctx.lineWidth = 2.5;
-    const expand = progress * 10;
-    ctx.strokeRect(px - expand, py - expand, tileSize + expand * 2, tileSize + expand * 2);
-    // X mark
-    if (progress < 0.5) {
-      ctx.globalAlpha = (1 - progress * 2) * 0.6;
+    ctx.lineWidth = 2.5 * (1 - progress);
+    ctx.beginPath();
+    ctx.arc(cx, cy, ringRadius, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Debris particles (6 particles)
+    for (let i = 0; i < 6; i++) {
+      const angle = (i / 6) * Math.PI * 2 + i * 0.7;
+      const dist = progress * tileSize * 0.6 * (0.8 + Math.sin(i * 2.3) * 0.3);
+      const pAlpha = (1 - progress) * 0.7;
+      const sparkX = cx + Math.cos(angle) * dist;
+      const sparkY = cy + Math.sin(angle) * dist - progress * 8; // slight upward drift
+      const size = (1 - progress) * 2.5;
+
+      ctx.fillStyle = `rgba(255, 120, 80, ${pAlpha})`;
+      ctx.beginPath();
+      ctx.arc(sparkX, sparkY, size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // X mark (early in animation)
+    if (progress < 0.4) {
+      ctx.globalAlpha = (1 - progress / 0.4) * 0.5;
       ctx.strokeStyle = '#ff5040';
       ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.moveTo(px + 8, py + 8);
-      ctx.lineTo(px + tileSize - 8, py + tileSize - 8);
-      ctx.moveTo(px + tileSize - 8, py + 8);
-      ctx.lineTo(px + 8, py + tileSize - 8);
+      ctx.moveTo(px + 12, py + 12);
+      ctx.lineTo(px + tileSize - 12, py + tileSize - 12);
+      ctx.moveTo(px + tileSize - 12, py + 12);
+      ctx.lineTo(px + 12, py + tileSize - 12);
       ctx.stroke();
     }
     ctx.restore();
@@ -296,12 +354,31 @@ function renderVFX(rc: CrossingRenderContext, vfx: VFX, now: number): void {
 
   if (vfx.type === 'push') {
     const { px, py } = tileToPixel(rc, vfx.pos.x, vfx.pos.y);
-    const alpha = (1 - progress) * 0.4;
+    const cx = px + tileSize / 2;
+    const cy = py + tileSize / 2;
+    const alpha = (1 - progress) * 0.5;
+
     ctx.save();
-    ctx.strokeStyle = `rgba(255, 150, 50, ${alpha})`;
-    ctx.lineWidth = 2;
-    const expand = progress * 6;
-    ctx.strokeRect(px - expand, py - expand, tileSize + expand * 2, tileSize + expand * 2);
+    // Impact ring
+    const ringRadius = progress * tileSize * 0.5;
+    ctx.strokeStyle = `rgba(255, 180, 50, ${alpha})`;
+    ctx.lineWidth = 2 * (1 - progress);
+    ctx.beginPath();
+    ctx.arc(cx, cy, ringRadius, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Speed lines
+    for (let i = 0; i < 4; i++) {
+      const angle = (i / 4) * Math.PI * 2 + progress;
+      const inner = tileSize * 0.2;
+      const outer = tileSize * 0.2 + progress * tileSize * 0.4;
+      ctx.strokeStyle = `rgba(255, 200, 100, ${alpha * 0.6})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(angle) * inner, cy + Math.sin(angle) * inner);
+      ctx.lineTo(cx + Math.cos(angle) * outer, cy + Math.sin(angle) * outer);
+      ctx.stroke();
+    }
     ctx.restore();
   }
 }

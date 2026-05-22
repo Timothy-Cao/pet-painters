@@ -2146,22 +2146,82 @@ kbd {
 .cx-ability-emoji { font-size: 18px; flex-shrink: 0; line-height: 1; }
 .cx-ability-name { font-weight: 600; margin-bottom: 1px; }
 .cx-ability-desc { color: var(--text-dim); font-size: 11px; line-height: 1.35; }
+.cx-ability-move { color: var(--text-dim); font-size: 11px; font-style: italic; margin-bottom: 2px; }
+
+/* ── Difficulty selector ───────────────────────────────────────────────── */
+
+.cx-difficulty {
+  display: flex; gap: 4px;
+}
+.cx-diff-btn {
+  flex: 1;
+  padding: 5px 0;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cx-diff-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.cx-diff-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.cx-diff-btn[data-diff="easy"].cx-diff-active { background: #4fd1a5; border-color: #4fd1a5; }
+.cx-diff-btn[data-diff="hard"].cx-diff-active { background: #f25f5c; border-color: #f25f5c; }
+
+/* ── Event log ─────────────────────────────────────────────────────────── */
+
+.cx-event-log {
+  max-height: 180px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+.cx-event-empty {
+  font-size: 11px;
+  color: var(--text-faint);
+  font-style: italic;
+  padding: 4px 0;
+}
+.cx-event {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 11px;
+  line-height: 1.4;
+  padding: 4px 6px;
+  border-radius: 4px;
+  animation: cx-event-in 0.25s ease-out;
+}
+@keyframes cx-event-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.cx-event-you {
+  background: rgba(91, 141, 239, 0.08);
+  border-left: 2px solid rgba(91, 141, 239, 0.4);
+}
+.cx-event-ai {
+  background: rgba(242, 95, 92, 0.08);
+  border-left: 2px solid rgba(242, 95, 92, 0.4);
+}
+.cx-event-icon { flex-shrink: 0; font-size: 13px; }
+.cx-event-text { color: var(--text-dim); }
 
 /* ── Help panel ─────────────────────────────────────────────────────────── */
 
 .cx-help { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
-
-/* Combo tips */
-.cx-combos {
-  display: flex; flex-direction: column; gap: 5px;
-}
-.cx-combo-tip {
-  font-size: 11px; color: var(--text-dim); line-height: 1.4;
-  padding: 4px 6px;
-  background: rgba(79, 209, 165, 0.06);
-  border-left: 2px solid rgba(79, 209, 165, 0.3);
-  border-radius: 0 4px 4px 0;
-}
 .cx-help p { margin: 0 0 6px; }
 .cx-help strong { color: var(--text); }
 
