@@ -1376,6 +1376,31 @@ kbd {
   font-family: serif;
 }
 
+.sign-in-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  color: var(--text-dim, #aaa);
+  font-size: 13px;
+}
+.sign-in-divider::before, .sign-in-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--text-dim, #aaa);
+  opacity: 0.3;
+}
+.guest-btn {
+  background: var(--surface, #333) !important;
+  border: 1px solid var(--text-dim, #555) !important;
+}
+.guest-note {
+  font-size: 12px !important;
+  color: var(--text-dim, #888) !important;
+  margin-top: -16px !important;
+}
+
 /* Lobby screen */
 .lobby-screen {
   max-width: 720px;

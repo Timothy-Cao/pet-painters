@@ -1,7 +1,7 @@
 import type { Screen } from '../router';
 import { navigate } from '../router';
 import { createRoom, joinRoom, listAdminRooms, adminDeleteRoom } from '../../online/rooms';
-import { ensureProfile, signOut } from '../../online/auth';
+import { ensureProfile, signOut, isGuest } from '../../online/auth';
 
 export const LobbyScreen: Screen = {
   name: 'lobby',
@@ -47,9 +47,15 @@ export const LobbyScreen: Screen = {
     }
 
     ensureProfile()
-      .then((profile) => {
+      .then(async (profile) => {
+        const guest = await isGuest();
         (root.querySelector('#lobby-user') as HTMLElement).textContent =
-          `Signed in as ${profile.display_name || profile.email}${profile.is_admin ? ' (admin)' : ''}`;
+          `Playing as ${profile.display_name || profile.email}${profile.is_admin ? ' (admin)' : ''}${guest ? ' (guest)' : ''}`;
+        if (guest) {
+          // Hide create-room for guests — they can only join.
+          const createCard = root.querySelector('.action-card:first-child') as HTMLElement;
+          if (createCard) createCard.style.display = 'none';
+        }
         if (profile.is_admin) {
           (root.querySelector('#admin-panel') as HTMLElement).style.display = 'block';
           refreshAdminRooms();

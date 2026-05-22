@@ -101,6 +101,7 @@ drop policy if exists "rooms_participant_read" on pet_painters.rooms;
 drop policy if exists "rooms_host_insert" on pet_painters.rooms;
 drop policy if exists "rooms_participant_update" on pet_painters.rooms;
 drop policy if exists "rooms_admin_delete" on pet_painters.rooms;
+drop policy if exists "rooms_host_or_admin_delete" on pet_painters.rooms;
 
 drop policy if exists "subs_participant_read" on pet_painters.round_submissions;
 drop policy if exists "subs_self_insert" on pet_painters.round_submissions;
@@ -141,8 +142,8 @@ create policy "rooms_participant_update" on pet_painters.rooms
     or pet_painters.is_admin()
   );
 
-create policy "rooms_admin_delete" on pet_painters.rooms
-  for delete using (pet_painters.is_admin());
+create policy "rooms_host_or_admin_delete" on pet_painters.rooms
+  for delete using (auth.uid() = host_id or pet_painters.is_admin());
 
 -- Round submissions: room participants + admins can read; users can only
 -- insert their own slot (matches user_id = auth.uid()).
