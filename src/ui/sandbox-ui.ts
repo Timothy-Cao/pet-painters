@@ -198,7 +198,7 @@ function bindFacing(ui: SandboxUIState): void {
 }
 
 function bindActions(state: MatchState, bindings: SandboxUIBindings): void {
-  q('btn-start')!.addEventListener('click', () => {
+  q('btn-start')?.addEventListener('click', () => {
     if (state.phase !== 'planning') return;
     if (bindings.onReady) {
       bindings.onReady();
@@ -207,7 +207,7 @@ function bindActions(state: MatchState, bindings: SandboxUIBindings): void {
       submitReady(state, 'B');
     }
   });
-  q('btn-reset')!.addEventListener('click', () => {
+  q('btn-reset')?.addEventListener('click', () => {
     bindings.onReset();
   });
   q('rs-close')?.addEventListener('click', () => {
@@ -248,39 +248,44 @@ function refreshScores(state: MatchState): void {
   const aPct = (a / total) * 100;
   const bPct = (b / total) * 100;
   const nPct = (n / total) * 100;
-  q('pct-a')!.textContent = `${aPct.toFixed(0)}%`;
-  q('pct-b')!.textContent = `${bPct.toFixed(0)}%`;
-  (q('fill-a') as HTMLElement).style.width = `${aPct}%`;
-  (q('fill-n') as HTMLElement).style.width = `${nPct}%`;
-  (q('fill-b') as HTMLElement).style.width = `${bPct}%`;
+  const pctA = q('pct-a'); if (pctA) pctA.textContent = `${aPct.toFixed(0)}%`;
+  const pctB = q('pct-b'); if (pctB) pctB.textContent = `${bPct.toFixed(0)}%`;
+  const fillA = q('fill-a'); if (fillA) fillA.style.width = `${aPct}%`;
+  const fillN = q('fill-n'); if (fillN) fillN.style.width = `${nPct}%`;
+  const fillB = q('fill-b'); if (fillB) fillB.style.width = `${bPct}%`;
   void WIN_PAINT_THRESHOLD;
 }
 
 function refreshEnergy(state: MatchState): void {
-  const aEl = q('energy-a')!;
-  const bEl = q('energy-b')!;
+  const aEl = q('energy-a');
+  const bEl = q('energy-b');
   if (state.sandbox) {
-    aEl.textContent = '∞';
-    bEl.textContent = '∞';
+    if (aEl) aEl.textContent = '∞';
+    if (bEl) bEl.textContent = '∞';
   } else {
-    aEl.textContent = String(state.energy.A);
-    bEl.textContent = String(state.energy.B);
+    if (aEl) aEl.textContent = String(state.energy.A);
+    if (bEl) bEl.textContent = String(state.energy.B);
   }
 }
 
 function refreshPhase(state: MatchState): void {
-  const pill = q('phase-pill')!;
-  const text = q('phase-text')!;
-  pill.classList.remove('phase-planning', 'phase-execution', 'phase-ended');
-  pill.classList.add(`phase-${state.phase}`);
-  if (state.phase === 'planning') text.textContent = 'Planning';
-  else if (state.phase === 'execution') text.textContent = 'Executing';
-  else text.textContent = state.winner ? `Player ${state.winner} wins!` : 'Ended';
+  const pill = q('phase-pill');
+  const text = q('phase-text');
+  if (pill) {
+    pill.classList.remove('phase-planning', 'phase-execution', 'phase-ended');
+    pill.classList.add(`phase-${state.phase}`);
+  }
+  if (text) {
+    if (state.phase === 'planning') text.textContent = 'Planning';
+    else if (state.phase === 'execution') text.textContent = 'Executing';
+    else text.textContent = state.winner ? `Player ${state.winner} wins!` : 'Ended';
+  }
 
-  _root.querySelector('.layout')!.classList.toggle('exec', state.phase === 'execution');
+  const layout = _root.querySelector('.layout');
+  if (layout) layout.classList.toggle('exec', state.phase === 'execution');
 
-  const startBtn = q('btn-start') as HTMLButtonElement;
-  startBtn.disabled = state.phase !== 'planning';
+  const startBtn = q('btn-start') as HTMLButtonElement | null;
+  if (startBtn) startBtn.disabled = state.phase !== 'planning';
 }
 
 function refreshTactical(state: MatchState): void {
@@ -406,9 +411,10 @@ function setDelta(id: string, value: number): void {
 }
 
 function refreshExecBar(state: MatchState): void {
-  const bar = q('exec-bar')!;
-  const fill = q('exec-fill')!;
-  const label = q('exec-label')!;
+  const bar = q('exec-bar');
+  const fill = q('exec-fill');
+  const label = q('exec-label');
+  if (!bar || !fill || !label) return;
   if (state.phase === 'execution') {
     bar.classList.add('active');
     const elapsedTicks = state.tick - state.execPhaseStartTick;

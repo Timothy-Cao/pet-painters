@@ -55,8 +55,11 @@ export async function leaveRoom(roomId: string): Promise<void> {
   if (!room) return;
   const profile = await ensureProfile();
   if (room.guest_id === profile.id) {
-    // Guest leaves — remove them but keep the room for the host.
-    await supabase.from('rooms').update({ guest_id: null }).eq('id', roomId);
+    // Guest leaves — remove them and reopen the room for a new player.
+    await supabase.from('rooms').update({
+      guest_id: null,
+      status: 'waiting',
+    }).eq('id', roomId);
   } else {
     // Host leaves (or any other case) — delete the room entirely.
     await supabase.from('rooms').delete().eq('id', roomId);

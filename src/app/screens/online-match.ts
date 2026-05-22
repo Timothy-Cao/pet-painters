@@ -1,7 +1,7 @@
 import type { Screen } from '../router';
 import { navigate } from '../router';
 import { OnlineMatchController } from '../../online/online-match';
-import { getRoom, leaveRoom, endRoom } from '../../online/rooms';
+import { getRoom, leaveRoom, endRoom, subscribeToRoom } from '../../online/rooms';
 import { ensureProfile } from '../../online/auth';
 import { bootSandbox } from '../../ui/sandbox-boot';
 
@@ -249,6 +249,7 @@ export const OnlineMatchScreen: Screen = {
     let controller: OnlineMatchController | null = null;
     let bootHandle: ReturnType<typeof bootSandbox> | null = null;
     let matchEnded = false;
+    let unsubRoom: (() => void) | null = null;
 
     // Leave room on exit
     const handleLeave = async () => {
@@ -333,6 +334,20 @@ export const OnlineMatchScreen: Screen = {
 
       controller = new OnlineMatchController(roomId, mySlot, bootHandle.state);
       controller.attach();
+
+      // Watch for room changes (opponent leaving, room deleted, etc.)
+      unsubRoom = subscribeToRoom(roomId, (r) => {
+        if (r.status === 'abandoned' || r.status === 'ended') {
+          statusEl.textContent = 'Opponent left the match';
+          setTimeout(() => navigate('lobby'), 1500);
+        } else if (r.status === 'waiting' && !matchEnded) {
+          // Guest left mid-match — room reopened. If I'm the host, go back to waiting.
+          if (mySlot === 'A') {
+            statusEl.textContent = 'Opponent left — returning to waiting room';
+            setTimeout(() => navigate('room-waiting', { room: roomId }), 1500);
+          }
+        }
+      });
     }).catch((e) => {
       statusEl.textContent = 'Error: ' + (e as Error).message;
     });
@@ -340,6 +355,7 @@ export const OnlineMatchScreen: Screen = {
     return () => {
       if (controller) controller.detach();
       if (bootHandle) bootHandle.stop();
+      if (unsubRoom) unsubRoom();
       window.removeEventListener('beforeunload', onBeforeUnload);
     };
   },

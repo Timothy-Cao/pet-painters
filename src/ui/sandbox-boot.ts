@@ -165,14 +165,15 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
   const canvas = container.querySelector('#game') as HTMLCanvasElement;
   const rc = createRenderContext(canvas);
 
-  const state = createInitialMatch({ sandbox: true });
+  const isOnline = !!bindings?.onReady;
+  const state = createInitialMatch({ sandbox: !isOnline });
   if (bindings?.initialRound !== undefined) {
     state.round = bindings.initialRound;
   }
   const ui = createDeployUIState();
 
   function resetMatch(): void {
-    resetMatchInPlace(state, { sandbox: true });
+    resetMatchInPlace(state, { sandbox: state.sandbox });
     clearEffects();
     clearRenderHistory();
     clearEvents();
@@ -185,6 +186,7 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
     onReset: resetMatch,
     onDeploy: bindings?.onDeploy,
     onReady: bindings?.onReady,
+    viewer: bindings?.viewer ?? null,
   });
   mountSandboxUI(state, ui, {
     onReset: resetMatch,

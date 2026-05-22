@@ -13,6 +13,9 @@ import { playPetDeploy } from '../render/sfx';
 
 const CW_NEXT: Record<Direction, Direction> = { N: 'E', E: 'S', S: 'W', W: 'N' };
 
+// Module-level viewer for deploy preview validation.
+let _viewer: import('../types/game').PlayerId | null = null;
+
 // Derived from each pet's `ui.hotkey`. Pet authors declare their own.
 const PET_HOTKEYS: Record<string, string> = Object.fromEntries(
   ALL_PETS.map((def) => [def.ui.hotkey, def.id]),
@@ -45,6 +48,11 @@ export interface DeployUIBindings {
    * The sandbox-ui Ready button equivalent (btn-start) is handled separately via SandboxUIBindings.
    */
   onReady?: () => void;
+  /**
+   * In online mode, restricts deployment to only this player's territory.
+   * Omit (or null) for sandbox — both sides can deploy anywhere they own.
+   */
+  viewer?: import('../types/game').PlayerId | null;
 }
 
 export function attachDeployUI(
@@ -54,6 +62,8 @@ export function attachDeployUI(
   ui: DeployUIState,
   bindings: DeployUIBindings,
 ): void {
+  _viewer = bindings.viewer ?? null;
+
   window.addEventListener('keydown', (e) => {
     const k = e.key.toLowerCase();
     if (state.phase !== 'planning') return;
@@ -116,6 +126,11 @@ export function attachDeployUI(
     const player = inferPlayerFromAnchor(state, ui.hoverTile.x, ui.hoverTile.y, def.size.w, def.size.h);
     if (!player) {
       showBanner('Deploy onto a tile in your own territory');
+      return;
+    }
+    // In online mode, only allow deploying on your own territory.
+    if (bindings.viewer && player !== bindings.viewer) {
+      showBanner('Deploy onto your own territory');
       return;
     }
     if (bindings.onDeploy) {
@@ -185,7 +200,8 @@ export function renderDeployPreview(
   const def = getPetDef(ui.selectedDefId);
 
   const player = inferPlayerFromAnchor(state, ui.hoverTile.x, ui.hoverTile.y, def.size.w, def.size.h);
-  const valid = player !== null;
+  // In online mode, only your own territory is valid for deployment preview.
+  const valid = player !== null && (!_viewer || player === _viewer);
 
   const { px, py } = tileToPixel(rc, ui.hoverTile.x, ui.hoverTile.y + def.size.h - 1);
   const w = def.size.w * rc.tileSize;

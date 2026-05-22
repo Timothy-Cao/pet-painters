@@ -25,6 +25,10 @@ export class OnlineMatchController {
   }
 
   attach(): void {
+    // Mark room as playing now that both players are in the match.
+    const supabase = getSupabase();
+    supabase.from('rooms').update({ status: 'playing' }).eq('id', this.roomId).then(() => {});
+
     this.unsubSubmissions = subscribeToSubmissions(this.roomId, (sub) => {
       if (sub.round !== this.state.round) return;
       this.maybeStartRound();
@@ -77,12 +81,15 @@ export class OnlineMatchController {
     this.bothInFlight = true;
     try {
       const subs = await fetchSubmissions(this.roomId, this.state.round);
-      if (subs.length < 2) { this.bothInFlight = false; return; }
+      if (subs.length < 2) {
+        this.bothInFlight = false;
+        return;
+      }
       // Apply both players' deployments in a deterministic order.
       const ordered = [...subs].sort((a, b) => a.player_slot.localeCompare(b.player_slot));
       for (const sub of ordered) {
         for (const d of sub.deployments) {
-          tryDeploy(this.state, sub.player_slot, d.defId, d.anchor, d.facing);
+          tryDeploy(this.state, sub.player_slot as import('../types/game').PlayerId, d.defId, d.anchor, d.facing);
         }
       }
       this.reseedRng();
@@ -92,7 +99,9 @@ export class OnlineMatchController {
       // Reset for next round.
       this.pendingDeployments = [];
       this.readyForCurrentRound = false;
-    } finally {
+      this.bothInFlight = false;
+    } catch (e) {
+      console.error('maybeStartRound failed:', e);
       this.bothInFlight = false;
     }
   }
