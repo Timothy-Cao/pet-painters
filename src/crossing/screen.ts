@@ -34,11 +34,13 @@ export const CrossingScreen: Screen = {
         <div class="cx-score cx-score-a">
           <span class="cx-score-tag">You</span>
           <span class="cx-score-val" id="cx-score-a">0 / 12</span>
+          <div class="cx-progress"><div class="cx-progress-fill cx-progress-a" id="cx-prog-a" style="width:0%"></div></div>
         </div>
         <div class="cx-score-vs">vs</div>
         <div class="cx-score cx-score-b">
           <span class="cx-score-tag">AI</span>
           <span class="cx-score-val" id="cx-score-b">0 / 12</span>
+          <div class="cx-progress"><div class="cx-progress-fill cx-progress-b" id="cx-prog-b" style="width:0%"></div></div>
         </div>
       </div>
     </header>
@@ -122,6 +124,46 @@ export const CrossingScreen: Screen = {
 
     // Build ability list
     buildAbilityList(container);
+
+    // ── Hover tracking ──
+    canvas.addEventListener('mousemove', (e) => {
+      const tile = pixelToTile(rc, e.clientX, e.clientY);
+      state.hoverTile = tile;
+
+      // Update cursor
+      if (!tile || state.phase !== 'playing' || state.currentPlayer !== 'A') {
+        canvas.style.cursor = 'default';
+        return;
+      }
+
+      if (state.selectedUnitId != null) {
+        const unit = state.units.find(u => u.unitId === state.selectedUnitId);
+        if (unit) {
+          const moves = getValidMoves(state, unit);
+          if (moves.some(m => m.x === tile.x && m.y === tile.y)) {
+            canvas.style.cursor = 'pointer';
+            return;
+          }
+        }
+      }
+
+      // Check if hovering a selectable unit
+      for (const u of state.units) {
+        if (u.scored || u.owner !== 'A') continue;
+        const def = getUnitDef(u.defId);
+        const fp = footprint(u.pos, def.size);
+        if (fp.some(t => t.x === tile.x && t.y === tile.y)) {
+          canvas.style.cursor = 'pointer';
+          return;
+        }
+      }
+      canvas.style.cursor = 'default';
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      state.hoverTile = null;
+      canvas.style.cursor = 'default';
+    });
 
     // ── Render loop ──
     function render() {
@@ -250,11 +292,15 @@ function refreshHUD(container: HTMLElement, state: CGameState): void {
     }
   }
 
-  // Scores
+  // Scores + progress bars
   const scoreA = q('cx-score-a');
   const scoreB = q('cx-score-b');
   if (scoreA) scoreA.textContent = `${state.scored.A} / ${state.totalUnits.A}`;
   if (scoreB) scoreB.textContent = `${state.scored.B} / ${state.totalUnits.B}`;
+  const progA = q('cx-prog-a') as HTMLElement | null;
+  const progB = q('cx-prog-b') as HTMLElement | null;
+  if (progA) progA.style.width = `${(state.scored.A / state.totalUnits.A) * 100}%`;
+  if (progB) progB.style.width = `${(state.scored.B / state.totalUnits.B) * 100}%`;
 
   // Turn count
   const turnCount = q('cx-turn-count');

@@ -2031,7 +2031,7 @@ kbd {
 .crossing-scores {
   display: flex; align-items: center; gap: 10px; font-size: 13px;
 }
-.cx-score { display: flex; align-items: center; gap: 4px; }
+.cx-score { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .cx-score-tag {
   font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em;
   color: var(--text-dim); font-weight: 600;
@@ -2040,6 +2040,19 @@ kbd {
 .cx-score-b .cx-score-tag { color: var(--player-b); }
 .cx-score-val { font-weight: 700; font-variant-numeric: tabular-nums; }
 .cx-score-vs { color: var(--text-faint); font-size: 11px; }
+
+/* Score progress bars */
+.cx-progress {
+  width: 60px; height: 4px;
+  background: var(--bg); border-radius: 2px;
+  overflow: hidden; margin-top: 2px;
+}
+.cx-progress-fill {
+  height: 100%; border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.cx-progress-a { background: var(--player-a); }
+.cx-progress-b { background: var(--player-b); }
 
 /* ── Main layout (sidebar – board – sidebar) ───────────────────────────── */
 
@@ -2110,7 +2123,8 @@ kbd {
 }
 
 .crossing-canvas-frame canvas {
-  display: block; width: 100%; height: auto;
+  display: block; width: 100%; max-width: 600px; height: auto;
+  aspect-ratio: 1 / 1;
 }
 
 .player-tag {

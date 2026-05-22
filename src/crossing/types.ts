@@ -34,6 +34,25 @@ export interface CUnit {
   pos: Vec2;
   /** True if the unit has been scored (crossed the goal line). */
   scored: boolean;
+
+  // ── Animation state (managed by game.ts, consumed by render.ts) ──
+  /** Previous position for slide animation. */
+  animFrom?: Vec2;
+  /** Animation start timestamp (performance.now()). */
+  animStart?: number;
+}
+
+/** Visual effect for rendering (scoring flash, last-move marker, etc). */
+export interface VFX {
+  type: 'score-flash' | 'last-move' | 'push';
+  pos: Vec2;
+  /** Size of the unit (for footprint rendering). */
+  size: number;
+  /** Who triggered / owns this effect. */
+  owner: PlayerId;
+  startTime: number;
+  /** Duration in ms. */
+  duration: number;
 }
 
 export interface CBoard {
@@ -60,4 +79,12 @@ export interface CGameState {
   selectedUnitId: number | null;
   /** Turn counter. */
   turn: number;
+
+  // ── Visual state ──
+  /** Active visual effects (auto-cleaned by renderer). */
+  vfx: VFX[];
+  /** Tile hovered by the cursor (for highlight). */
+  hoverTile: Vec2 | null;
+  /** Last move made (for showing what AI did). */
+  lastMove: { unitId: number; from: Vec2; to: Vec2 } | null;
 }

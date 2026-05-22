@@ -37,6 +37,9 @@ export function createCrossingGame(): CGameState {
     winner: null,
     selectedUnitId: null,
     turn: 1,
+    vfx: [],
+    hoverTile: null,
+    lastMove: null,
   };
 }
 
@@ -199,12 +202,46 @@ export function performMove(state: CGameState, unitId: number, to: Vec2): boolea
   const valid = getValidMoves(state, unit);
   if (!valid.some(m => m.x === to.x && m.y === to.y)) return false;
 
+  const fromPos = { ...unit.pos };
   const result = executeMove(state, unitId, to);
+
+  // Set slide animation on the moved unit
+  const now = performance.now();
+  unit.animFrom = fromPos;
+  unit.animStart = now;
+
+  // Track last move for visual indicator
+  state.lastMove = { unitId, from: fromPos, to: { ...to } };
+
+  // Set slide animation on pushed units
+  for (const push of result.pushes) {
+    const pushedUnit = state.units.find(u => u.unitId === push.unitId);
+    if (pushedUnit) {
+      pushedUnit.animFrom = push.from;
+      pushedUnit.animStart = now;
+      state.vfx.push({
+        type: 'push',
+        pos: push.to,
+        size: 1,
+        owner: pushedUnit.owner,
+        startTime: now,
+        duration: 400,
+      });
+    }
+  }
 
   // Check if the moved unit scored
   if (result.scored) {
     unit.scored = true;
     state.scored[unit.owner]++;
+    state.vfx.push({
+      type: 'score-flash',
+      pos: { ...to },
+      size: getUnitDef(unit.defId).size,
+      owner: unit.owner,
+      startTime: now + 250, // delay until slide finishes
+      duration: 800,
+    });
   }
 
   // Check if any pushed units scored (pushed across their own goal = still counts!)
