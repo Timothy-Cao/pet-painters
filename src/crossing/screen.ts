@@ -1,7 +1,7 @@
 /**
- * screen.ts — Critter Crossing game screen.
+ * screen.ts — Critter Crossing v2 game screen.
  *
- * Full game experience: board, HUD, turn management, AI opponent.
+ * 8×8 board, 5 units per side, score 3 to win, AI opponent.
  */
 
 import type { Screen } from '../app/router';
@@ -11,7 +11,6 @@ import { createCrossingGame, performMove, skipTurnIfNeeded } from './game';
 import { createCrossingRC, renderCrossingGame, pixelToTile } from './render';
 import { getValidMoves } from './moves';
 import { getUnitDef, ALL_CROSSING_UNITS } from './units';
-import { footprint } from './board';
 import { scheduleAIMove } from './ai';
 
 export const CrossingScreen: Screen = {
@@ -33,13 +32,13 @@ export const CrossingScreen: Screen = {
       <div class="crossing-scores">
         <div class="cx-score cx-score-a">
           <span class="cx-score-tag">You</span>
-          <span class="cx-score-val" id="cx-score-a">0 / 12</span>
+          <span class="cx-score-val" id="cx-score-a">0 / 3</span>
           <div class="cx-progress"><div class="cx-progress-fill cx-progress-a" id="cx-prog-a" style="width:0%"></div></div>
         </div>
         <div class="cx-score-vs">vs</div>
         <div class="cx-score cx-score-b">
           <span class="cx-score-tag">AI</span>
-          <span class="cx-score-val" id="cx-score-b">0 / 12</span>
+          <span class="cx-score-val" id="cx-score-b">0 / 3</span>
           <div class="cx-progress"><div class="cx-progress-fill cx-progress-b" id="cx-prog-b" style="width:0%"></div></div>
         </div>
       </div>
@@ -55,10 +54,10 @@ export const CrossingScreen: Screen = {
         <div class="cx-turn-count" id="cx-turn-count">Turn 1</div>
         <div class="panel-title" style="margin-top:16px">Legend</div>
         <div class="legend">
-          <div class="legend-item"><span class="swatch" style="background:#1a1f2a;border:1px solid var(--border)"></span> Land</div>
-          <div class="legend-item"><span class="swatch" style="background:rgba(40,80,140,0.6);border:1px solid var(--border)"></span> Water</div>
-          <div class="legend-item"><span class="swatch" style="background:rgba(79,209,165,0.35);border:1px solid rgba(79,209,165,0.7)"></span> Valid move</div>
-          <div class="legend-item"><span class="swatch" style="background:rgba(255,209,102,0.3);border:1px solid rgba(255,209,102,0.5)"></span> Goal line</div>
+          <div class="legend-item"><span class="swatch" style="background:rgba(79,209,165,0.35);border:1px solid rgba(79,209,165,0.7)"></span> Move</div>
+          <div class="legend-item"><span class="swatch" style="background:rgba(255,100,80,0.25);border:1px solid rgba(255,100,80,0.7)"></span> Capture</div>
+          <div class="legend-item"><span class="swatch" style="background:rgba(255,180,50,0.25);border:1px solid rgba(255,180,50,0.7)"></span> Push</div>
+          <div class="legend-item"><span class="swatch" style="background:rgba(255,209,102,0.3);border:1px solid rgba(255,209,102,0.5)"></span> Goal row</div>
         </div>
       </aside>
 
@@ -73,26 +72,18 @@ export const CrossingScreen: Screen = {
       <aside class="crossing-sidebar crossing-sidebar-right">
         <div class="panel-title">How to Play</div>
         <div class="cx-help">
-          <p>Get <strong>all your units</strong> across the center line to win.</p>
-          <p><strong>Click</strong> a unit, then <strong>click</strong> a green tile to move.</p>
-          <p>Units have unique abilities that <strong>work together</strong>!</p>
+          <p>Score <strong>3 units</strong> on the enemy's back row to win!</p>
+          <p><strong>Click</strong> a unit, then <strong>click</strong> a highlighted tile.</p>
+          <p>Captured units respawn on their home row.</p>
         </div>
-        <div class="panel-title" style="margin-top:12px">\u{1F4A1} Combos</div>
-        <div class="cx-combos">
-          <div class="cx-combo-tip">\u{1F422}\u{2192}\u{1F30A} \u{2192} \u{1F431} Turtle in water = hop bridge for Cat</div>
-          <div class="cx-combo-tip">\u{1F418}\u{2192}\u{1F42D}\u{1F430} Elephant pushes allies forward!</div>
-          <div class="cx-combo-tip">\u{1F42D}\u{1F42D}\u{1F42D}\u{2192}\u{1F42D} Mouse slides through ally lines</div>
-          <div class="cx-combo-tip">\u{1F430}\u{2197}\u{1F430}\u{2197}\u{1F430} Rabbit chains over packed units</div>
-          <div class="cx-combo-tip">\u{1F985}\u{21E9} Eagle bumps enemies on landing</div>
-        </div>
-        <div class="panel-title" style="margin-top:12px">Unit Abilities</div>
+        <div class="panel-title" style="margin-top:12px">Units</div>
         <div class="cx-ability-list" id="cx-ability-list"></div>
       </aside>
     </main>
 
     <footer class="footer">
       <span><kbd>Click</kbd> select unit</span>
-      <span><kbd>Click</kbd> green tile to move</span>
+      <span><kbd>Click</kbd> highlighted tile to move</span>
       <span><kbd>Esc</kbd> deselect</span>
     </footer>
   </div>
@@ -104,18 +95,18 @@ export const CrossingScreen: Screen = {
       <div class="win-recap">
         <div class="win-recap-side">
           <span class="win-recap-tag win-recap-tag-a">You</span>
-          <span class="win-recap-val" id="cx-win-score-a">0/12</span>
+          <span class="win-recap-val" id="cx-win-score-a">0/3</span>
         </div>
         <div class="win-recap-vs">vs</div>
         <div class="win-recap-side">
           <span class="win-recap-tag win-recap-tag-b">AI</span>
-          <span class="win-recap-val" id="cx-win-score-b">0/12</span>
+          <span class="win-recap-val" id="cx-win-score-b">0/3</span>
         </div>
       </div>
       <div class="cx-win-turns" id="cx-win-turns">Completed in 0 turns</div>
       <div class="win-actions">
-        <button class="btn-primary" id="cx-win-rematch">▶ Play Again</button>
-        <button class="btn-secondary" id="cx-win-home">← Back to Home</button>
+        <button class="btn-primary" id="cx-win-rematch">\u{25B6} Play Again</button>
+        <button class="btn-secondary" id="cx-win-home">\u{2190} Back to Home</button>
       </div>
     </div>
   </div>
@@ -138,7 +129,6 @@ export const CrossingScreen: Screen = {
       const tile = pixelToTile(rc, e.clientX, e.clientY);
       state.hoverTile = tile;
 
-      // Update cursor
       if (!tile || state.phase !== 'playing' || state.currentPlayer !== 'A') {
         canvas.style.cursor = 'default';
         return;
@@ -148,7 +138,7 @@ export const CrossingScreen: Screen = {
         const unit = state.units.find(u => u.unitId === state.selectedUnitId);
         if (unit) {
           const moves = getValidMoves(state, unit);
-          if (moves.some(m => m.x === tile.x && m.y === tile.y)) {
+          if (moves.some(m => m.to.x === tile.x && m.to.y === tile.y)) {
             canvas.style.cursor = 'pointer';
             return;
           }
@@ -157,10 +147,8 @@ export const CrossingScreen: Screen = {
 
       // Check if hovering a selectable unit
       for (const u of state.units) {
-        if (u.scored || u.owner !== 'A') continue;
-        const def = getUnitDef(u.defId);
-        const fp = footprint(u.pos, def.size);
-        if (fp.some(t => t.x === tile.x && t.y === tile.y)) {
+        if (u.owner !== 'A') continue;
+        if (u.pos.x === tile.x && u.pos.y === tile.y) {
           canvas.style.cursor = 'pointer';
           return;
         }
@@ -185,7 +173,7 @@ export const CrossingScreen: Screen = {
     // ── Click handling ──
     canvas.addEventListener('click', (e) => {
       if (state.phase !== 'playing') return;
-      if (state.currentPlayer !== 'A') return; // Only human can click
+      if (state.currentPlayer !== 'A') return;
 
       const tile = pixelToTile(rc, e.clientX, e.clientY);
       if (!tile) return;
@@ -195,7 +183,7 @@ export const CrossingScreen: Screen = {
         const unit = state.units.find(u => u.unitId === state.selectedUnitId);
         if (unit) {
           const valid = getValidMoves(state, unit);
-          if (valid.some(m => m.x === tile.x && m.y === tile.y)) {
+          if (valid.some(m => m.to.x === tile.x && m.to.y === tile.y)) {
             performMove(state, state.selectedUnitId, tile);
             state.selectedUnitId = null;
             maybeAITurn();
@@ -206,12 +194,10 @@ export const CrossingScreen: Screen = {
         state.selectedUnitId = null;
       }
 
-      // Try to select a unit at this tile
+      // Try to select a unit at this tile (size is always 1 in v2)
       for (const u of state.units) {
-        if (u.scored || u.owner !== 'A') continue;
-        const def = getUnitDef(u.defId);
-        const fp = footprint(u.pos, def.size);
-        if (fp.some(t => t.x === tile.x && t.y === tile.y)) {
+        if (u.owner !== 'A') continue;
+        if (u.pos.x === tile.x && u.pos.y === tile.y) {
           state.selectedUnitId = u.unitId;
           return;
         }
@@ -234,7 +220,6 @@ export const CrossingScreen: Screen = {
     // ── AI turn ──
     function maybeAITurn() {
       if (state.phase !== 'playing') return;
-      // Skip turns if needed
       skipTurnIfNeeded(state);
       if (state.currentPlayer !== 'B') return;
 
@@ -245,7 +230,6 @@ export const CrossingScreen: Screen = {
         setTimeout(() => {
           performMove(state, unitId, to);
           state.selectedUnitId = null;
-          // Check if it's AI's turn again (skip if A has no moves)
           skipTurnIfNeeded(state);
           if (state.currentPlayer === 'B' && state.phase === 'playing') {
             maybeAITurn();
@@ -268,7 +252,7 @@ export const CrossingScreen: Screen = {
     // Back button
     const backBtn = document.createElement('button');
     backBtn.className = 'back-btn';
-    backBtn.textContent = '← Home';
+    backBtn.textContent = '\u{2190} Home';
     backBtn.addEventListener('click', () => navigate('home'));
     root.appendChild(backBtn);
 
@@ -303,12 +287,12 @@ function refreshHUD(container: HTMLElement, state: CGameState): void {
   // Scores + progress bars
   const scoreA = q('cx-score-a');
   const scoreB = q('cx-score-b');
-  if (scoreA) scoreA.textContent = `${state.scored.A} / ${state.totalUnits.A}`;
-  if (scoreB) scoreB.textContent = `${state.scored.B} / ${state.totalUnits.B}`;
+  if (scoreA) scoreA.textContent = `${state.scored.A} / ${state.scoreToWin}`;
+  if (scoreB) scoreB.textContent = `${state.scored.B} / ${state.scoreToWin}`;
   const progA = q('cx-prog-a') as HTMLElement | null;
   const progB = q('cx-prog-b') as HTMLElement | null;
-  if (progA) progA.style.width = `${(state.scored.A / state.totalUnits.A) * 100}%`;
-  if (progB) progB.style.width = `${(state.scored.B / state.totalUnits.B) * 100}%`;
+  if (progA) progA.style.width = `${(state.scored.A / state.scoreToWin) * 100}%`;
+  if (progB) progB.style.width = `${(state.scored.B / state.scoreToWin) * 100}%`;
 
   // Turn count
   const turnCount = q('cx-turn-count');
@@ -319,7 +303,7 @@ function refreshHUD(container: HTMLElement, state: CGameState): void {
   if (infoEl) {
     if (state.selectedUnitId != null) {
       const unit = state.units.find(u => u.unitId === state.selectedUnitId);
-      if (unit && !unit.scored) {
+      if (unit) {
         const def = getUnitDef(unit.defId);
         const moves = getValidMoves(state, unit);
         infoEl.innerHTML = `
@@ -328,8 +312,9 @@ function refreshHUD(container: HTMLElement, state: CGameState): void {
             <span class="cx-sel-name">${def.displayName}</span>
             <span class="cx-sel-owner">${unit.owner === 'A' ? 'You' : 'AI'}</span>
           </div>
+          <div class="cx-sel-move">${def.moveDesc}</div>
           <div class="cx-sel-ability">${def.abilityDesc}</div>
-          <div class="cx-sel-moves">${moves.length} valid move${moves.length !== 1 ? 's' : ''}</div>
+          <div class="cx-sel-moves">${moves.length} valid move${moves.length !== 1 ? 's' : ''}${unit.scored ? ' \u{2714} Scored' : ''}</div>
         `;
       } else {
         infoEl.innerHTML = '<div class="cx-no-selection">Click one of your units to see moves</div>';
@@ -351,8 +336,8 @@ function checkWin(container: HTMLElement, state: CGameState): void {
 
   const scoreA = container.querySelector('#cx-win-score-a');
   const scoreB = container.querySelector('#cx-win-score-b');
-  if (scoreA) scoreA.textContent = `${state.scored.A}/${state.totalUnits.A}`;
-  if (scoreB) scoreB.textContent = `${state.scored.B}/${state.totalUnits.B}`;
+  if (scoreA) scoreA.textContent = `${state.scored.A}/${state.scoreToWin}`;
+  if (scoreB) scoreB.textContent = `${state.scored.B}/${state.scoreToWin}`;
 
   const turns = container.querySelector('#cx-win-turns');
   if (turns) turns.textContent = `Completed in ${state.turn} turns`;
@@ -366,6 +351,7 @@ function buildAbilityList(container: HTMLElement): void {
       <span class="cx-ability-emoji">${def.emoji}</span>
       <div>
         <div class="cx-ability-name">${def.displayName}</div>
+        <div class="cx-ability-move">${def.moveDesc}</div>
         <div class="cx-ability-desc">${def.abilityDesc}</div>
       </div>
     </div>

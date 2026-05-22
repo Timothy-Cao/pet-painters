@@ -1,29 +1,31 @@
 /**
- * types.ts — Core types for Critter Crossing.
+ * types.ts — Core types for Critter Crossing v2.
  *
- * Completely independent from Pet Painters types.
+ * Redesigned for fast, interactive games:
+ * - 8×8 board, no water
+ * - 5 units per side with chess-inspired movement
+ * - Capture = send enemy to home row (respawn)
+ * - Win = get 3 of your 5 units to opponent's back row
  */
 
 export type PlayerId = 'A' | 'B';
-export type Terrain = 'land' | 'water';
 
 export interface Vec2 {
-  x: number; // column 0..11
-  y: number; // row 0..11
+  x: number; // column 0..7
+  y: number; // row 0..7
 }
 
-/** Terrain classification for movement rules. */
-export type UnitTerrain = 'land' | 'water' | 'amphibious' | 'flying';
+export type UnitTerrain = 'land';
 
 export interface UnitDef {
   id: string;
   displayName: string;
   emoji: string;
-  /** 1 for small units, 2 for 2×2 large units. */
-  size: number;
-  /** What terrain this unit can occupy. */
+  size: 1;
   terrain: UnitTerrain;
-  /** Brief description of the unit's ability. */
+  /** Brief description of the unit's movement. */
+  moveDesc: string;
+  /** One-line ability note. */
   abilityDesc: string;
 }
 
@@ -32,59 +34,40 @@ export interface CUnit {
   defId: string;
   owner: PlayerId;
   pos: Vec2;
-  /** True if the unit has been scored (crossed the goal line). */
+  /** True if the unit is on the opponent's back row (scored but stays on board). */
   scored: boolean;
 
-  // ── Animation state (managed by game.ts, consumed by render.ts) ──
-  /** Previous position for slide animation. */
+  // ── Animation state ──
   animFrom?: Vec2;
-  /** Animation start timestamp (performance.now()). */
   animStart?: number;
 }
 
-/** Visual effect for rendering (scoring flash, last-move marker, etc). */
 export interface VFX {
-  type: 'score-flash' | 'last-move' | 'push';
+  type: 'score-flash' | 'capture' | 'push';
   pos: Vec2;
-  /** Size of the unit (for footprint rendering). */
   size: number;
-  /** Who triggered / owns this effect. */
   owner: PlayerId;
   startTime: number;
-  /** Duration in ms. */
   duration: number;
 }
 
-export interface CBoard {
-  size: number; // 12
-  /** Row-major terrain map (size*size). */
-  terrain: Terrain[];
-}
-
-export type GamePhase = 'placing' | 'playing' | 'ended';
+export type GamePhase = 'playing' | 'ended';
 
 export interface CGameState {
-  board: CBoard;
   units: CUnit[];
   nextUnitId: number;
   phase: GamePhase;
-  /** Whose turn it is. */
   currentPlayer: PlayerId;
-  /** Score: how many units each player has crossed. */
+  /** How many units each player has scored (reached far wall). */
   scored: { A: number; B: number };
-  /** Total units each player started with. */
-  totalUnits: { A: number; B: number };
+  /** Units needed to win. */
+  scoreToWin: number;
   winner: PlayerId | null;
-  /** The currently selected unit (for UI). */
   selectedUnitId: number | null;
-  /** Turn counter. */
   turn: number;
 
   // ── Visual state ──
-  /** Active visual effects (auto-cleaned by renderer). */
   vfx: VFX[];
-  /** Tile hovered by the cursor (for highlight). */
   hoverTile: Vec2 | null;
-  /** Last move made (for showing what AI did). */
   lastMove: { unitId: number; from: Vec2; to: Vec2 } | null;
 }

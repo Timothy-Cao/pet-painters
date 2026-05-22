@@ -1,12 +1,12 @@
 /**
- * render.ts — Canvas renderer for Critter Crossing.
+ * render.ts — Canvas renderer for Critter Crossing v2.
  *
- * Renders the 12×12 board, terrain, units, selection highlights, valid moves,
- * slide animations, hover feedback, VFX, and last-move indicators.
+ * 8×8 board, no water, chess-inspired units with capture/push mechanics.
+ * Renders board, units, selection highlights, valid moves, animations, VFX.
  */
 
 import type { CGameState, Vec2, PlayerId, CUnit, VFX } from './types';
-import { BOARD_SIZE, WATER_COLS, GOAL_ROW_A, GOAL_ROW_B } from './board';
+import { BOARD_SIZE, GOAL_ROW_A, GOAL_ROW_B } from './board';
 import { getUnitDef } from './units';
 import { getValidMoves } from './moves';
 import { side } from '../render/palette';
@@ -25,13 +25,7 @@ export interface CrossingRenderContext {
 export function createCrossingRC(canvas: HTMLCanvasElement): CrossingRenderContext {
   const ctx = canvas.getContext('2d')!;
   const tileSize = canvas.width / BOARD_SIZE;
-  return {
-    canvas,
-    ctx,
-    tileSize,
-    width: canvas.width,
-    height: canvas.height,
-  };
+  return { canvas, ctx, tileSize, width: canvas.width, height: canvas.height };
 }
 
 /** Convert board coords to pixel coords (top-left of tile). Y is inverted (row 0 = bottom). */
@@ -49,23 +43,27 @@ function easeOutCubic(t: number): number {
 
 // ── Colors ──────────────────────────────────────────────────────────────
 
-const LAND_COLOR = '#1a1f2a';
-const LAND_ALT = '#1e2430';
-const WATER_COLOR = 'rgba(30, 70, 130, 0.55)';
-const WATER_ALT = 'rgba(25, 60, 115, 0.55)';
-const WATER_DEEP = 'rgba(20, 50, 100, 0.3)';
+const LAND_DARK = '#1a1f2a';
+const LAND_LIGHT = '#1e2430';
 const GRID_COLOR = 'rgba(255, 255, 255, 0.06)';
+const GOAL_TINT_A = 'rgba(91, 141, 239, 0.10)';
+const GOAL_TINT_B = 'rgba(242, 95, 92, 0.10)';
 const GOAL_LINE_COLOR = 'rgba(255, 209, 102, 0.6)';
 const SELECT_GLOW = 'rgba(255, 255, 255, 0.35)';
 const VALID_MOVE_COLOR = 'rgba(79, 209, 165, 0.30)';
 const VALID_MOVE_STROKE = 'rgba(79, 209, 165, 0.7)';
-const HOME_A_TINT = 'rgba(91, 141, 239, 0.08)';
-const HOME_B_TINT = 'rgba(242, 95, 92, 0.08)';
+const CAPTURE_MOVE_COLOR = 'rgba(255, 100, 80, 0.25)';
+const CAPTURE_MOVE_STROKE = 'rgba(255, 100, 80, 0.7)';
+const PUSH_MOVE_COLOR = 'rgba(255, 180, 50, 0.25)';
+const PUSH_MOVE_STROKE = 'rgba(255, 180, 50, 0.7)';
+const HOME_A_TINT = 'rgba(91, 141, 239, 0.06)';
+const HOME_B_TINT = 'rgba(242, 95, 92, 0.06)';
 const HOVER_COLOR = 'rgba(255, 255, 255, 0.08)';
 const HOVER_STROKE = 'rgba(255, 255, 255, 0.2)';
 const LAST_MOVE_FROM = 'rgba(255, 209, 102, 0.12)';
 const LAST_MOVE_TO = 'rgba(255, 209, 102, 0.18)';
 const LAST_MOVE_STROKE = 'rgba(255, 209, 102, 0.4)';
+const SCORED_GLOW = 'rgba(255, 209, 102, 0.35)';
 
 // ── Main render ─────────────────────────────────────────────────────────
 
@@ -80,30 +78,30 @@ export function renderCrossingGame(rc: CrossingRenderContext, state: CGameState)
   ctx.fillStyle = '#0e1014';
   ctx.fillRect(0, 0, rc.width, rc.height);
 
-  // Draw terrain tiles
+  // Draw board tiles
   for (let y = 0; y < BOARD_SIZE; y++) {
     for (let x = 0; x < BOARD_SIZE; x++) {
       const { px, py } = tileToPixel(rc, x, y);
-      const isWater = WATER_COLS.has(x);
       const checker = (x + y) % 2 === 0;
 
-      ctx.fillStyle = isWater
-        ? (checker ? WATER_COLOR : WATER_ALT)
-        : (checker ? LAND_COLOR : LAND_ALT);
+      ctx.fillStyle = checker ? LAND_DARK : LAND_LIGHT;
       ctx.fillRect(px, py, tileSize, tileSize);
 
-      // Deeper water center gradient
-      if (isWater) {
-        ctx.fillStyle = WATER_DEEP;
-        ctx.fillRect(px, py, tileSize, tileSize);
-      }
-
-      // Home zone tints
+      // Home zone tints (rows 0-1 for A, rows 6-7 for B)
       if (y <= 1) {
         ctx.fillStyle = HOME_A_TINT;
         ctx.fillRect(px, py, tileSize, tileSize);
-      } else if (y >= 10) {
+      } else if (y >= 6) {
         ctx.fillStyle = HOME_B_TINT;
+        ctx.fillRect(px, py, tileSize, tileSize);
+      }
+
+      // Goal row highlight
+      if (y === GOAL_ROW_A) {
+        ctx.fillStyle = GOAL_TINT_A;
+        ctx.fillRect(px, py, tileSize, tileSize);
+      } else if (y === GOAL_ROW_B) {
+        ctx.fillStyle = GOAL_TINT_B;
         ctx.fillRect(px, py, tileSize, tileSize);
       }
 
@@ -114,32 +112,7 @@ export function renderCrossingGame(rc: CrossingRenderContext, state: CGameState)
     }
   }
 
-  // Water wave pattern (more visible)
-  for (let y = 0; y < BOARD_SIZE; y++) {
-    for (const x of WATER_COLS) {
-      const { px, py } = tileToPixel(rc, x, y);
-      const t = (now / 2500 + x * 0.3 + y * 0.2) % 1;
-      ctx.save();
-      ctx.globalAlpha = 0.12;
-      ctx.strokeStyle = '#7ab8ff';
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      const waveY = py + tileSize / 2 + Math.sin(t * Math.PI * 2) * 3.5;
-      ctx.moveTo(px + 2, waveY);
-      ctx.quadraticCurveTo(px + tileSize / 2, waveY - 5, px + tileSize - 2, waveY);
-      ctx.stroke();
-      // Second wave
-      const waveY2 = py + tileSize * 0.75 + Math.sin((t + 0.4) * Math.PI * 2) * 2;
-      ctx.globalAlpha = 0.06;
-      ctx.beginPath();
-      ctx.moveTo(px + 5, waveY2);
-      ctx.quadraticCurveTo(px + tileSize / 2, waveY2 - 3, px + tileSize - 5, waveY2);
-      ctx.stroke();
-      ctx.restore();
-    }
-  }
-
-  // Last move indicator (before goal lines so it's below them)
+  // Last move indicator
   if (state.lastMove) {
     drawLastMove(rc, state.lastMove);
   }
@@ -161,37 +134,47 @@ export function renderCrossingGame(rc: CrossingRenderContext, state: CGameState)
   // Valid move highlights (if a unit is selected)
   if (state.selectedUnitId != null) {
     const unit = state.units.find(u => u.unitId === state.selectedUnitId);
-    if (unit && !unit.scored) {
+    if (unit) {
       const moves = getValidMoves(state, unit);
       for (const m of moves) {
-        const { px, py } = tileToPixel(rc, m.x, m.y);
-        // Pulsing valid move
+        const { px, py } = tileToPixel(rc, m.to.x, m.to.y);
         const pulse = 0.7 + Math.sin(now / 400) * 0.3;
-        ctx.fillStyle = VALID_MOVE_COLOR;
+
+        // Color-code: capture=red, push=orange, normal=green
+        let fillColor = VALID_MOVE_COLOR;
+        let strokeColor = VALID_MOVE_STROKE;
+        if (m.captureId != null) {
+          fillColor = CAPTURE_MOVE_COLOR;
+          strokeColor = CAPTURE_MOVE_STROKE;
+        } else if (m.push != null) {
+          fillColor = PUSH_MOVE_COLOR;
+          strokeColor = PUSH_MOVE_STROKE;
+        }
+
+        ctx.fillStyle = fillColor;
         ctx.fillRect(px + 2, py + 2, tileSize - 4, tileSize - 4);
-        ctx.strokeStyle = VALID_MOVE_STROKE;
+        ctx.strokeStyle = strokeColor;
         ctx.lineWidth = 2 * pulse;
         ctx.setLineDash([3, 3]);
         ctx.strokeRect(px + 2, py + 2, tileSize - 4, tileSize - 4);
         ctx.setLineDash([]);
 
-        // Hover-over-move highlight (brighter)
-        if (state.hoverTile && state.hoverTile.x === m.x && state.hoverTile.y === m.y) {
-          ctx.fillStyle = 'rgba(79, 209, 165, 0.25)';
+        // Hover-over-move highlight
+        if (state.hoverTile && state.hoverTile.x === m.to.x && state.hoverTile.y === m.to.y) {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
           ctx.fillRect(px + 2, py + 2, tileSize - 4, tileSize - 4);
         }
       }
     }
   }
 
-  // VFX: score flash, push effects
+  // VFX
   for (const vfx of state.vfx) {
     renderVFX(rc, vfx, now);
   }
 
   // Units (with slide animation)
   for (const unit of state.units) {
-    if (unit.scored) continue;
     renderUnit(rc, state, unit, now);
   }
 }
@@ -234,11 +217,13 @@ function drawLastMove(rc: CrossingRenderContext, lastMove: { from: Vec2; to: Vec
   ctx.restore();
 }
 
-function drawGoalLine(rc: CrossingRenderContext, _goalRow: number, player: PlayerId): void {
+function drawGoalLine(rc: CrossingRenderContext, goalRowY: number, player: PlayerId): void {
   const { ctx, tileSize, width } = rc;
+  // For player A, goal is row 7 (top of board visually) — line at top edge of row 7
+  // For player B, goal is row 0 (bottom visually) — line at bottom edge of row 0
   const lineY = player === 'A'
-    ? (BOARD_SIZE - GOAL_ROW_A) * tileSize
-    : (BOARD_SIZE - 1 - GOAL_ROW_B) * tileSize + tileSize;
+    ? (BOARD_SIZE - 1 - goalRowY) * tileSize
+    : (BOARD_SIZE - goalRowY) * tileSize;
 
   ctx.save();
   ctx.strokeStyle = GOAL_LINE_COLOR;
@@ -250,42 +235,61 @@ function drawGoalLine(rc: CrossingRenderContext, _goalRow: number, player: Playe
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // Label — use friendly names
   ctx.font = 'bold 10px system-ui, sans-serif';
   ctx.fillStyle = GOAL_LINE_COLOR;
   ctx.textAlign = player === 'A' ? 'left' : 'right';
   const labelX = player === 'A' ? 4 : width - 4;
-  const labelY = lineY + (player === 'A' ? -4 : 14);
-  ctx.fillText(player === 'A' ? '⬆ your goal' : '⬇ AI goal', labelX, labelY);
+  const labelY = lineY + (player === 'A' ? 12 : -4);
+  ctx.fillText(player === 'A' ? 'your goal' : 'AI goal', labelX, labelY);
   ctx.restore();
 }
 
 function renderVFX(rc: CrossingRenderContext, vfx: VFX, now: number): void {
   const { ctx, tileSize } = rc;
   const elapsed = now - vfx.startTime;
-  if (elapsed < 0) return; // not started yet
+  if (elapsed < 0) return;
 
   const progress = Math.min(1, elapsed / vfx.duration);
 
   if (vfx.type === 'score-flash') {
-    const { px, py } = tileToPixel(rc, vfx.pos.x, vfx.pos.y + vfx.size - 1);
-    const w = vfx.size * tileSize;
-    const h = vfx.size * tileSize;
+    const { px, py } = tileToPixel(rc, vfx.pos.x, vfx.pos.y);
     const alpha = (1 - progress) * 0.6;
     const expand = progress * 8;
 
     ctx.save();
     ctx.fillStyle = `rgba(255, 209, 102, ${alpha})`;
-    ctx.fillRect(px - expand, py - expand, w + expand * 2, h + expand * 2);
+    ctx.fillRect(px - expand, py - expand, tileSize + expand * 2, tileSize + expand * 2);
 
-    // "✓" text
     if (progress < 0.7) {
-      ctx.font = `bold ${Math.floor(tileSize * 0.5)}px system-ui, sans-serif`;
+      ctx.font = `bold ${Math.floor(tileSize * 0.35)}px system-ui, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = `rgba(255, 255, 255, ${(1 - progress / 0.7) * 0.9})`;
-      const floatY = py + h / 2 - progress * 20;
-      ctx.fillText('✓ Scored!', px + w / 2, floatY);
+      const floatY = py + tileSize / 2 - progress * 20;
+      ctx.fillText('Scored!', px + tileSize / 2, floatY);
+    }
+    ctx.restore();
+  }
+
+  if (vfx.type === 'capture') {
+    const { px, py } = tileToPixel(rc, vfx.pos.x, vfx.pos.y);
+    const alpha = (1 - progress) * 0.5;
+    ctx.save();
+    ctx.strokeStyle = `rgba(255, 80, 60, ${alpha})`;
+    ctx.lineWidth = 2.5;
+    const expand = progress * 10;
+    ctx.strokeRect(px - expand, py - expand, tileSize + expand * 2, tileSize + expand * 2);
+    // X mark
+    if (progress < 0.5) {
+      ctx.globalAlpha = (1 - progress * 2) * 0.6;
+      ctx.strokeStyle = '#ff5040';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(px + 8, py + 8);
+      ctx.lineTo(px + tileSize - 8, py + tileSize - 8);
+      ctx.moveTo(px + tileSize - 8, py + 8);
+      ctx.lineTo(px + 8, py + tileSize - 8);
+      ctx.stroke();
     }
     ctx.restore();
   }
@@ -309,7 +313,7 @@ function renderUnit(rc: CrossingRenderContext, state: CGameState, unit: CUnit, n
   const isSelected = state.selectedUnitId === unit.unitId;
   const isCurrentPlayer = unit.owner === state.currentPlayer;
 
-  // ── Compute animated position ──
+  // Compute animated position
   let drawX = unit.pos.x;
   let drawY = unit.pos.y;
 
@@ -321,15 +325,12 @@ function renderUnit(rc: CrossingRenderContext, state: CGameState, unit: CUnit, n
       drawX = unit.animFrom.x + (unit.pos.x - unit.animFrom.x) * ease;
       drawY = unit.animFrom.y + (unit.pos.y - unit.animFrom.y) * ease;
     } else {
-      // Animation done — clean up
       unit.animFrom = undefined;
       unit.animStart = undefined;
     }
   }
 
-  const { px, py } = tileToPixel(rc, drawX, drawY + def.size - 1);
-  const w = def.size * tileSize;
-  const h = def.size * tileSize;
+  const { px, py } = tileToPixel(rc, drawX, drawY);
 
   // Idle bob animation (suppressed during slide)
   const isAnimating = unit.animFrom != null;
@@ -338,12 +339,22 @@ function renderUnit(rc: CrossingRenderContext, state: CGameState, unit: CUnit, n
 
   ctx.save();
 
+  // Scored indicator: golden glow
+  if (unit.scored) {
+    ctx.shadowColor = '#ffd166';
+    ctx.shadowBlur = 12;
+    ctx.fillStyle = SCORED_GLOW;
+    roundRect(ctx, px + 1, py + 1, tileSize - 2, tileSize - 2, 5);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
   // Selection highlight
   if (isSelected) {
     ctx.shadowColor = palette.accent;
     ctx.shadowBlur = 14;
     ctx.fillStyle = SELECT_GLOW;
-    roundRect(ctx, px + 1, py + 1, w - 2, h - 2, 5);
+    roundRect(ctx, px + 1, py + 1, tileSize - 2, tileSize - 2, 5);
     ctx.fill();
     ctx.shadowBlur = 0;
   }
@@ -354,27 +365,44 @@ function renderUnit(rc: CrossingRenderContext, state: CGameState, unit: CUnit, n
     ctx.strokeStyle = `rgba(255, 255, 255, ${pulseAlpha})`;
     ctx.lineWidth = 1.5;
     ctx.setLineDash([3, 3]);
-    ctx.strokeRect(px + 2, py + 2, w - 4, h - 4);
+    ctx.strokeRect(px + 2, py + 2, tileSize - 4, tileSize - 4);
     ctx.setLineDash([]);
   }
 
   // Owner-colored background
   ctx.fillStyle = palette.accent.replace(')', ', 0.15)').replace('rgb', 'rgba');
-  roundRect(ctx, px + 3, py + 3, w - 6, h - 6, 4);
+  roundRect(ctx, px + 3, py + 3, tileSize - 6, tileSize - 6, 4);
   ctx.fill();
 
   // Owner ring
-  ctx.strokeStyle = palette.accent;
-  ctx.lineWidth = 2;
-  roundRect(ctx, px + 3, py + 3, w - 6, h - 6, 4);
+  ctx.strokeStyle = unit.scored ? '#ffd166' : palette.accent;
+  ctx.lineWidth = unit.scored ? 2.5 : 2;
+  roundRect(ctx, px + 3, py + 3, tileSize - 6, tileSize - 6, 4);
   ctx.stroke();
 
   // Emoji
-  ctx.font = `${Math.floor(h * 0.6)}px sans-serif`;
+  ctx.font = `${Math.floor(tileSize * 0.55)}px sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = '#fff';
-  ctx.fillText(def.emoji, px + w / 2, py + h / 2 + bobY + 1);
+  ctx.fillText(def.emoji, px + tileSize / 2, py + tileSize / 2 + bobY + 1);
+
+  // Scored checkmark
+  if (unit.scored) {
+    ctx.font = `bold ${Math.floor(tileSize * 0.2)}px system-ui, sans-serif`;
+    ctx.fillStyle = '#ffd166';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'top';
+    ctx.fillText('✓', px + tileSize - 4, py + 3);
+  }
+
+  // Elephant shield icon (capture-immune indicator)
+  if (def.id === 'elephant') {
+    ctx.font = `${Math.floor(tileSize * 0.18)}px sans-serif`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText('\u{1F6E1}', px + 2, py + 2);
+  }
 
   ctx.restore();
 }
