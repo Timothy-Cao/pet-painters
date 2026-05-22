@@ -27,6 +27,7 @@ import { setWinOverlayRoot, bindWinOverlay, refreshWinOverlay } from './win-over
 import type { DeploymentDTO } from '../online/submissions';
 import { getPetDef } from '../sim/pet-defs';
 import { loadSoundPref, isSoundEnabled, setSoundEnabled, playRoundStart, playCountdownTick, playCountdownGo } from '../render/sfx';
+import { maybeShowTutorial } from './tutorial';
 
 /**
  * Draw the 3-2-1-GO countdown overlay on the canvas.
@@ -316,6 +317,8 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
   loop.start();
 
   refreshAll(state, ui);
+
+  maybeShowTutorial(container, bindings?.viewer);
 
   return {
     state,

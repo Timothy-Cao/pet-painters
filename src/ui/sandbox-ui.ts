@@ -430,7 +430,7 @@ function refreshExecBar(state: MatchState): void {
 }
 
 let bannerTimeout: number | null = null;
-export function showBanner(msg: string): void {
+export function showBanner(msg: string, type: 'info' | 'error' | 'success' = 'info'): void {
   let el = _root.querySelector<HTMLElement>('.banner');
   if (!el) {
     el = document.createElement('div');
@@ -438,7 +438,8 @@ export function showBanner(msg: string): void {
     _root.appendChild(el);
   }
   el.textContent = msg;
-  el.classList.add('show');
+  el.classList.remove('info', 'error', 'success');
+  el.classList.add('show', type);
   if (bannerTimeout) window.clearTimeout(bannerTimeout);
   bannerTimeout = window.setTimeout(() => el!.classList.remove('show'), 1800);
 }

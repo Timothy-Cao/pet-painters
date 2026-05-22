@@ -73,9 +73,9 @@ const SANDBOX_MARKUP = `
 
     <section class="stage">
       <div class="canvas-frame">
-        <div class="player-tag player-tag-b">Player B (top)</div>
+        <div class="player-tag player-tag-b" id="player-tag-b">Player B (top)</div>
         <canvas id="game" width="640" height="640"></canvas>
-        <div class="player-tag player-tag-a">Player A (bottom)</div>
+        <div class="player-tag player-tag-a" id="player-tag-a">Player A (bottom)</div>
         <div class="pet-inspect" id="pet-inspect" hidden>
           <div class="inspect-head">
             <span class="inspect-emoji" id="inspect-emoji">🐭</span>
@@ -174,11 +174,11 @@ const SANDBOX_MARKUP = `
       <div class="panel-title">Energy</div>
       <div class="energy-row">
         <div class="energy-cell energy-a">
-          <div class="energy-label">A</div>
+          <div class="energy-label" id="energy-label-a">A</div>
           <div class="energy-val" id="energy-a">∞</div>
         </div>
         <div class="energy-cell energy-b">
-          <div class="energy-label">B</div>
+          <div class="energy-label" id="energy-label-b">B</div>
           <div class="energy-val" id="energy-b">∞</div>
         </div>
       </div>
@@ -228,6 +228,7 @@ const SANDBOX_MARKUP = `
 </div>
 
 <div id="online-banner">
+  <span class="online-dot" id="online-dot"></span>
   <span id="online-status">Connecting…</span>
 </div>
 `;
@@ -280,6 +281,32 @@ export const OnlineMatchScreen: Screen = {
       }
       const mySlot: 'A' | 'B' = room.host_id === profile.id ? 'A' : 'B';
       statusEl.textContent = `Online · You are Player ${mySlot} · Room ${room.code}`;
+
+      // Mark connected with green dot
+      const dotEl = container.querySelector('#online-dot') as HTMLElement | null;
+      if (dotEl) dotEl.classList.add('connected');
+
+      // Update player tags: show "You" / "Opponent" labels
+      const tagA = container.querySelector('#player-tag-a') as HTMLElement | null;
+      const tagB = container.querySelector('#player-tag-b') as HTMLElement | null;
+      if (mySlot === 'A') {
+        if (tagA) tagA.textContent = 'You (Player A)';
+        if (tagB) tagB.textContent = 'Opponent (Player B)';
+      } else {
+        if (tagA) tagA.textContent = 'Opponent (Player A)';
+        if (tagB) tagB.textContent = 'You (Player B)';
+      }
+
+      // Update energy labels: show "You" / "Opp"
+      const eLabelA = container.querySelector('#energy-label-a') as HTMLElement | null;
+      const eLabelB = container.querySelector('#energy-label-b') as HTMLElement | null;
+      if (mySlot === 'A') {
+        if (eLabelA) eLabelA.textContent = 'You';
+        if (eLabelB) eLabelB.textContent = 'Opp';
+      } else {
+        if (eLabelA) eLabelA.textContent = 'Opp';
+        if (eLabelB) eLabelB.textContent = 'You';
+      }
 
       bootHandle = bootSandbox(container, {
         initialRound: room.current_round,

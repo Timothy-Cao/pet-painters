@@ -125,24 +125,24 @@ export function attachDeployUI(
     const def = getPetDef(ui.selectedDefId);
     const player = inferPlayerFromAnchor(state, ui.hoverTile.x, ui.hoverTile.y, def.size.w, def.size.h);
     if (!player) {
-      showBanner('Deploy onto a tile in your own territory');
+      showBanner('Deploy onto a tile in your own territory', 'error');
       return;
     }
     // In online mode, only allow deploying on your own territory.
     if (bindings.viewer && player !== bindings.viewer) {
-      showBanner('Deploy onto your own territory');
+      showBanner('Deploy onto your own territory', 'error');
       return;
     }
     if (bindings.onDeploy) {
       // Online mode: hand off to the controller; do NOT mutate state.pets here.
       bindings.onDeploy(ui.selectedDefId, ui.hoverTile, ui.facing);
       playPetDeploy(ui.selectedDefId);
-      showBanner('Deployment queued');
+      showBanner('Deployment queued', 'success');
       if (state.lastRoundSummary) state.lastRoundSummary = null;
     } else {
       const result = tryDeploy(state, player, ui.selectedDefId, ui.hoverTile, ui.facing);
       if (!result.ok) {
-        showBanner(`Cannot deploy: ${result.reason}`);
+        showBanner(`Cannot deploy: ${result.reason}`, 'error');
       } else {
         playPetDeploy(ui.selectedDefId!);
         if (state.lastRoundSummary) state.lastRoundSummary = null;
