@@ -55,7 +55,17 @@ export const LobbyScreen: Screen = {
           refreshAdminRooms();
         }
       })
-      .catch(() => navigate('sign-in'));
+      .catch((e) => {
+        const msg = (e as Error).message || '';
+        if (msg.includes('not signed in')) {
+          navigate('sign-in');
+        } else {
+          // DB/network error — show it instead of looping back to sign-in
+          console.error('ensureProfile failed:', e);
+          (root.querySelector('#lobby-user') as HTMLElement).textContent = 'Signed in';
+          showErr('Profile sync failed: ' + msg);
+        }
+      });
 
     root.querySelector('#btn-create')!.addEventListener('click', async () => {
       showErr('');

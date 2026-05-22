@@ -21,7 +21,7 @@ grant usage on schema pet_painters to anon, authenticated;
 
 -- Extensions ----------------------------------------------------------------
 -- (Extensions install into `public` or `extensions` schema; they're shared.)
-create extension if not exists pgcrypto;   -- crypt(), gen_salt() for password hashing
+create extension if not exists pgcrypto with schema extensions;   -- crypt(), gen_salt() for password hashing
 create extension if not exists "uuid-ossp"; -- gen_random_uuid()
 
 -- Tables --------------------------------------------------------------------
@@ -76,6 +76,21 @@ alter table pet_painters.profiles enable row level security;
 alter table pet_painters.rooms enable row level security;
 alter table pet_painters.round_submissions enable row level security;
 
+-- Helper: check admin status without triggering RLS recursion.
+-- SECURITY DEFINER bypasses RLS on the profiles table itself.
+create or replace function pet_painters.is_admin()
+returns boolean
+language sql
+security definer
+set search_path = pet_painters, pg_temp
+stable
+as $$
+  select coalesce(
+    (select is_admin from pet_painters.profiles where id = auth.uid()),
+    false
+  );
+$$;
+
 -- Drop existing policies before recreating (idempotent re-runs).
 drop policy if exists "profiles_self_read" on pet_painters.profiles;
 drop policy if exists "profiles_self_upsert_insert" on pet_painters.profiles;
@@ -94,7 +109,7 @@ drop policy if exists "subs_self_insert" on pet_painters.round_submissions;
 create policy "profiles_self_read" on pet_painters.profiles
   for select using (
     auth.uid() = id
-    or exists (select 1 from pet_painters.profiles p where p.id = auth.uid() and p.is_admin)
+    or pet_painters.is_admin()
   );
 
 create policy "profiles_self_upsert_insert" on pet_painters.profiles
@@ -104,9 +119,7 @@ create policy "profiles_self_update" on pet_painters.profiles
   for update using (auth.uid() = id);
 
 create policy "profiles_admin_all" on pet_painters.profiles
-  for all using (
-    exists (select 1 from pet_painters.profiles p where p.id = auth.uid() and p.is_admin)
-  );
+  for all using (pet_painters.is_admin());
 
 -- Rooms: participants (host or guest) and admins can read.
 -- Only the host can insert their own room. Both participants can update
@@ -115,7 +128,7 @@ create policy "rooms_participant_read" on pet_painters.rooms
   for select using (
     auth.uid() = host_id
     or auth.uid() = guest_id
-    or exists (select 1 from pet_painters.profiles p where p.id = auth.uid() and p.is_admin)
+    or pet_painters.is_admin()
   );
 
 create policy "rooms_host_insert" on pet_painters.rooms
@@ -125,13 +138,11 @@ create policy "rooms_participant_update" on pet_painters.rooms
   for update using (
     auth.uid() = host_id
     or auth.uid() = guest_id
-    or exists (select 1 from pet_painters.profiles p where p.id = auth.uid() and p.is_admin)
+    or pet_painters.is_admin()
   );
 
 create policy "rooms_admin_delete" on pet_painters.rooms
-  for delete using (
-    exists (select 1 from pet_painters.profiles p where p.id = auth.uid() and p.is_admin)
-  );
+  for delete using (pet_painters.is_admin());
 
 -- Round submissions: room participants + admins can read; users can only
 -- insert their own slot (matches user_id = auth.uid()).
@@ -143,7 +154,7 @@ create policy "subs_participant_read" on pet_painters.round_submissions
         and (
           r.host_id = auth.uid()
           or r.guest_id = auth.uid()
-          or exists (select 1 from pet_painters.profiles p where p.id = auth.uid() and p.is_admin)
+          or pet_painters.is_admin()
         )
     )
   );
@@ -161,7 +172,7 @@ create or replace function pet_painters.create_room(password_plain text default 
 returns table (id uuid, code text)
 language plpgsql
 security definer
-set search_path = pet_painters, public, pg_temp
+set search_path = pet_painters, extensions, public, pg_temp
 as $$
 declare
   active_count int;
@@ -223,7 +234,7 @@ create or replace function pet_painters.join_room(room_code text, password_plain
 returns uuid
 language plpgsql
 security definer
-set search_path = pet_painters, public, pg_temp
+set search_path = pet_painters, extensions, public, pg_temp
 as $$
 declare
   target pet_painters.rooms;
