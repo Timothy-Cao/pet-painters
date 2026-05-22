@@ -2,6 +2,10 @@
 
 Step-by-step guide to wire up the backend after the code is in place. Estimated time: **20–30 minutes**.
 
+**Last verified: 2026-05-22.** Schema, env var names, and OAuth steps confirmed against current code.
+This pattern (Supabase + Google OAuth via `@supabase/supabase-js`) is well-established and used in at
+least two sibling projects (`misconfigured` and `timi-and-jam`) with the same SDK version.
+
 You'll do four things:
 
 1. Create a Supabase project (5 min)
@@ -58,6 +62,11 @@ You should see "Success. No rows returned." at the bottom. If you see an error m
 To verify the schema:
 - Click **Table Editor** in the left nav. You should see three tables: `profiles`, `rooms`, `round_submissions`.
 - Click each one and confirm the columns match.
+
+**Realtime check:** The SQL migration runs `alter publication supabase_realtime add table ...` for `rooms`
+and `round_submissions`. On some Supabase projects this silently succeeds; on others you need to confirm
+it manually. Go to **Database → Replication** in the Supabase dashboard, find **supabase_realtime** under
+Publications, and confirm both tables are listed as sources. If not, add them there.
 
 ---
 
