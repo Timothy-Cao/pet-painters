@@ -16,6 +16,8 @@ export class OnlineMatchController {
   private pendingDeployments: DeploymentDTO[] = [];
   private readyForCurrentRound = false;
   private bothInFlight = false;
+  private opponentReadyForCurrentRound = false;
+  private opponentReadyListener: (() => void) | null = null;
 
   constructor(
     private roomId: string,
@@ -32,6 +34,10 @@ export class OnlineMatchController {
 
     this.unsubSubmissions = subscribeToSubmissions(this.roomId, (sub) => {
       if (sub.round !== this.state.round) return;
+      if (sub.player_slot !== this.mySlot && !this.opponentReadyForCurrentRound) {
+        this.opponentReadyForCurrentRound = true;
+        this.opponentReadyListener?.();
+      }
       this.maybeStartRound();
     });
     // Catch up on submissions that might have been sent before subscribe registered.
@@ -71,6 +77,16 @@ export class OnlineMatchController {
   /** True if this player has already submitted for the current round. */
   hasReadied(): boolean {
     return this.readyForCurrentRound;
+  }
+
+  /** True if the opponent has submitted for the current round. */
+  hasOpponentReadied(): boolean {
+    return this.opponentReadyForCurrentRound;
+  }
+
+  /** Register a callback fired whenever opponent-ready or own-ready transitions. */
+  setOpponentReadyListener(fn: (() => void) | null): void {
+    this.opponentReadyListener = fn;
   }
 
   cancelLastLocalDeployment(): boolean {
@@ -117,6 +133,8 @@ export class OnlineMatchController {
       // Reset for next round.
       this.pendingDeployments = [];
       this.readyForCurrentRound = false;
+      this.opponentReadyForCurrentRound = false;
+      this.opponentReadyListener?.();
       this.bothInFlight = false;
     } catch (e) {
       console.error('maybeStartRound failed:', e);

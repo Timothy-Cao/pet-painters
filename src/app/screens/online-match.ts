@@ -4,6 +4,7 @@ import { OnlineMatchController } from '../../online/online-match';
 import { getRoom, leaveRoom, endRoom, subscribeToRoom } from '../../online/rooms';
 import { ensureProfile } from '../../online/auth';
 import { bootSandbox } from '../../ui/sandbox-boot';
+import { joinRoomChannel, type RoomChannel, type ChatMessage } from '../../online/room-channel';
 
 // The sandbox HTML markup, scoped under .online-match-screen instead of .sandbox-screen.
 // Must include the same element IDs that sandbox-ui.ts queries.
@@ -180,6 +181,16 @@ const SANDBOX_MARKUP = `
         </div>
       </div>
 
+      <div class="panel-title">Opponent</div>
+      <div class="tactical">
+        <div class="tac-row opponent-row" id="opponent-row">
+          <span class="opponent-presence" id="opponent-presence">
+            <span class="opponent-dot" id="opponent-dot"></span>
+            <span id="opponent-status-text">Connecting…</span>
+          </span>
+        </div>
+      </div>
+
       <div class="panel-title">Recent Events</div>
       <div class="tactical">
         <ul class="tac-events" id="tac-events">
@@ -195,6 +206,20 @@ const SANDBOX_MARKUP = `
         <button class="btn-secondary" id="btn-leave-room">
           ⬅ Leave room
         </button>
+        <div class="chat-box" id="chat-box">
+          <div class="chat-log" id="chat-log"></div>
+          <form class="chat-input-row" id="chat-form" autocomplete="off">
+            <input
+              type="text"
+              class="chat-input"
+              id="chat-input"
+              maxlength="120"
+              placeholder="Send a message…"
+              aria-label="Chat with opponent"
+            />
+            <button type="submit" class="chat-send" aria-label="Send">↑</button>
+          </form>
+        </div>
       </div>
     </aside>
   </main>
@@ -256,6 +281,8 @@ export const OnlineMatchScreen: Screen = {
     let matchEnded = false;
     let unsubRoom: (() => void) | null = null;
     let disposed = false;
+    let roomChannelRef: RoomChannel | null = null;
+    let phaseTickRef: ReturnType<typeof setInterval> | null = null;
 
     // Leave room on exit
     const handleLeave = async () => {
@@ -386,6 +413,74 @@ export const OnlineMatchScreen: Screen = {
       controller = new OnlineMatchController(roomId, mySlot, bootHandle.state);
       controller.attach();
 
+      // Opponent state pill (planning / ready / playing) — refreshed on every
+      // submission event AND every round transition.
+      const oppDotEl = container.querySelector('#opponent-dot') as HTMLElement | null;
+      const oppStatusEl = container.querySelector('#opponent-status-text') as HTMLElement | null;
+      let opponentPresent = false;
+      function refreshOpponentStatus(): void {
+        if (!oppDotEl || !oppStatusEl || !controller) return;
+        const ready = controller.hasOpponentReadied();
+        const playing = bootHandle?.state.phase === 'execution';
+        oppDotEl.classList.remove('present', 'ready', 'playing', 'absent');
+        if (!opponentPresent) {
+          oppDotEl.classList.add('absent');
+          oppStatusEl.textContent = 'Opponent disconnected';
+        } else if (playing) {
+          oppDotEl.classList.add('playing');
+          oppStatusEl.textContent = 'Round in progress';
+        } else if (ready) {
+          oppDotEl.classList.add('ready');
+          oppStatusEl.textContent = 'Opponent ready — waiting on you';
+        } else {
+          oppDotEl.classList.add('present');
+          oppStatusEl.textContent = 'Opponent is planning…';
+        }
+      }
+      controller.setOpponentReadyListener(refreshOpponentStatus);
+
+      // Realtime room channel: opponent presence + chat broadcast.
+      const chatLog = container.querySelector('#chat-log') as HTMLElement | null;
+      const chatInput = container.querySelector('#chat-input') as HTMLInputElement | null;
+      const chatForm = container.querySelector('#chat-form') as HTMLFormElement | null;
+      function appendChat(msg: ChatMessage): void {
+        if (!chatLog) return;
+        const li = document.createElement('div');
+        li.className = `chat-msg chat-msg-${msg.fromSlot === mySlot ? 'self' : 'other'}`;
+        const tag = document.createElement('span');
+        tag.className = 'chat-tag';
+        tag.textContent = msg.fromSlot === mySlot ? 'You' : 'Opponent';
+        const txt = document.createElement('span');
+        txt.className = 'chat-text';
+        txt.textContent = msg.text;
+        li.append(tag, txt);
+        chatLog.appendChild(li);
+        chatLog.scrollTop = chatLog.scrollHeight;
+        // Cap the log at 30 messages.
+        while (chatLog.children.length > 30) chatLog.removeChild(chatLog.firstChild!);
+      }
+      roomChannelRef = joinRoomChannel(roomId, {
+        mySlot,
+        onOpponentPresence(present) {
+          opponentPresent = present;
+          refreshOpponentStatus();
+        },
+        onChat: appendChat,
+      });
+      const roomChannel = roomChannelRef;
+      if (chatForm && chatInput) {
+        chatForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const text = chatInput.value.trim();
+          if (!text) return;
+          roomChannel.sendChat(text);
+          chatInput.value = '';
+        });
+      }
+      // Re-render status whenever phase changes (round end, execution start).
+      phaseTickRef = setInterval(refreshOpponentStatus, 500);
+      refreshOpponentStatus();
+
       // Watch for room changes (opponent leaving, room deleted, etc.)
       unsubRoom = subscribeToRoom(roomId, (r) => {
         if (r.status === 'abandoned' || r.status === 'ended') {
@@ -408,6 +503,8 @@ export const OnlineMatchScreen: Screen = {
       if (controller) controller.detach();
       if (bootHandle) bootHandle.stop();
       if (unsubRoom) unsubRoom();
+      if (roomChannelRef) roomChannelRef.detach();
+      if (phaseTickRef) clearInterval(phaseTickRef);
       window.removeEventListener('beforeunload', onBeforeUnload);
     };
   },
