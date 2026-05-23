@@ -3,7 +3,6 @@ import { setMusicCategory } from '../render/audio';
 export type ScreenName =
   | 'home'
   | 'sandbox'
-  | 'crossing'
   | 'sign-in'
   | 'lobby'
   | 'room-waiting'
@@ -23,7 +22,7 @@ let currentUnmount: (() => void) | null = null;
 let root: HTMLElement | null = null;
 
 /** Screens that should play gameplay music; everything else gets menu music. */
-const GAMEPLAY_SCREENS: Set<ScreenName> = new Set(['sandbox', 'online-match', 'crossing']);
+const GAMEPLAY_SCREENS: Set<ScreenName> = new Set(['sandbox', 'online-match']);
 
 export function startRouter(rootEl: HTMLElement, initial: ScreenName = 'home'): void {
   root = rootEl;
