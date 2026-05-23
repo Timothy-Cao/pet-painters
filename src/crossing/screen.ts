@@ -152,6 +152,7 @@ export const CrossingScreen: Screen = {
     let cancelAI: (() => void) | null = null;
     let rafId: number | null = null;
     let lastEventCount = 0;
+    let aiGeneration = 0; // incremented on undo/reset to invalidate stale AI timers
 
     // ── Tutorial system ──
     const TUTORIAL_KEY = 'cx-tutorial-done';
@@ -226,6 +227,7 @@ export const CrossingScreen: Screen = {
     undoBtn.addEventListener('click', () => {
       if (!state.canUndo || !state.undoSnapshot) return;
       cancelAI?.();
+      aiGeneration++; // invalidate any pending AI inner timers
       restoreSnapshot(state, state.undoSnapshot);
       lastEventCount = -1; // force event log refresh
       cxPlayDeselect(); // subtle audio feedback
@@ -363,6 +365,7 @@ export const CrossingScreen: Screen = {
         if (state.canUndo && state.undoSnapshot) {
           e.preventDefault();
           cancelAI?.();
+          aiGeneration++;
           restoreSnapshot(state, state.undoSnapshot);
           lastEventCount = -1;
           cxPlayDeselect();
@@ -389,8 +392,11 @@ export const CrossingScreen: Screen = {
 
       cancelAI?.();
       cancelAI = scheduleAIMove(state, (unitId, to) => {
+        const gen = aiGeneration; // capture current generation
         state.selectedUnitId = unitId;
         setTimeout(() => {
+          // Bail if undo/reset happened during the 300ms delay
+          if (gen !== aiGeneration) return;
           // Determine move type for SFX
           const aiUnit = state.units.find(u => u.unitId === unitId);
           const aiWasScored = aiUnit?.scored ?? false;
@@ -419,6 +425,7 @@ export const CrossingScreen: Screen = {
     // ── Reset / rematch ──
     function resetGame() {
       cancelAI?.();
+      aiGeneration++;
       state = createCrossingGame(currentDifficulty);
       lastEventCount = -1;
       const winOverlay = container.querySelector('#cx-win-overlay') as HTMLElement;

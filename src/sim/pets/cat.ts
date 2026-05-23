@@ -21,11 +21,11 @@ const STATS = {
 function catWander(pet: Pet, state: MatchState): void {
   // Capricious random turn even when the way is clear — keeps the cat
   // covering ground in unpredictable arcs instead of straight lines.
-  if (Math.random() < STATS.wanderTurnChance) {
-    scurryTurn(pet);
+  if ((state.rng ? state.rng.next() : Math.random()) < STATS.wanderTurnChance) {
+    scurryTurn(pet, state);
     return;
   }
-  if (frontBlocked(pet, state)) scurryTurn(pet);
+  if (frontBlocked(pet, state)) scurryTurn(pet, state);
   else declareMove(pet, state);
 }
 

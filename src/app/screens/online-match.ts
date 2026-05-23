@@ -251,6 +251,7 @@ export const OnlineMatchScreen: Screen = {
     let bootHandle: ReturnType<typeof bootSandbox> | null = null;
     let matchEnded = false;
     let unsubRoom: (() => void) | null = null;
+    let disposed = false;
 
     // Leave room on exit
     const handleLeave = async () => {
@@ -275,6 +276,8 @@ export const OnlineMatchScreen: Screen = {
     window.addEventListener('beforeunload', onBeforeUnload);
 
     Promise.all([getRoom(roomId), ensureProfile()]).then(([room, profile]) => {
+      // Guard: if the screen was unmounted while we awaited, bail out.
+      if (disposed) return;
       if (!room) {
         statusEl.textContent = 'Room not found';
         return;
@@ -380,6 +383,7 @@ export const OnlineMatchScreen: Screen = {
     });
 
     return () => {
+      disposed = true;
       if (controller) controller.detach();
       if (bootHandle) bootHandle.stop();
       if (unsubRoom) unsubRoom();

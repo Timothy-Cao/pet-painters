@@ -27,7 +27,7 @@ function eagleFly(pet: Pet, state: MatchState): void {
   };
   if (!tileInBounds(state, landing) || anyPetAt(state, landing, pet)) {
     // Can't land — turn instead.
-    scurryTurn(pet);
+    scurryTurn(pet, state);
     return;
   }
   // Liftoff flutter at the takeoff tile.

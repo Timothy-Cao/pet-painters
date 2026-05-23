@@ -61,10 +61,10 @@ export function attachDeployUI(
   state: MatchState,
   ui: DeployUIState,
   bindings: DeployUIBindings,
-): void {
+): () => void {
   _viewer = bindings.viewer ?? null;
 
-  window.addEventListener('keydown', (e) => {
+  const onKeydown = (e: KeyboardEvent) => {
     const k = e.key.toLowerCase();
     if (state.phase !== 'planning') return;
     if (PET_HOTKEYS[k]) { ui.selectedDefId = PET_HOTKEYS[k]; refreshAll(state, ui); return; }
@@ -80,7 +80,8 @@ export function attachDeployUI(
       }
     }
     refreshAll(state, ui);
-  });
+  };
+  window.addEventListener('keydown', onKeydown);
 
   canvas.addEventListener('mousemove', (e) => {
     const rect = canvas.getBoundingClientRect();
@@ -150,6 +151,11 @@ export function attachDeployUI(
     }
     refreshAll(state, ui);
   });
+
+  // Return cleanup function to remove global listeners
+  return () => {
+    window.removeEventListener('keydown', onKeydown);
+  };
 }
 
 const PREVIEW = {

@@ -86,9 +86,10 @@ export function declareMove(pet: Pet, state: MatchState): void {
   });
 }
 
-/** 45% left / 45% right / 10% U-turn. Used by scurry-style pets. */
-export function scurryTurn(pet: Pet): void {
-  const r = Math.random();
+/** 45% left / 45% right / 10% U-turn. Used by scurry-style pets.
+ *  Accepts optional state for deterministic RNG in online play. */
+export function scurryTurn(pet: Pet, state?: MatchState): void {
+  const r = state?.rng ? state.rng.next() : Math.random();
   if (r < 0.45) pet.facing = CCW_NEXT[pet.facing];
   else if (r < 0.9) pet.facing = CW_NEXT[pet.facing];
   else pet.facing = OPPOSITE[pet.facing];
@@ -113,7 +114,7 @@ export function rotateCCW(pet: Pet): void {
 
 /** Walk forward when clear; scurry-turn otherwise. The "default safe walker". */
 export function walkOrScurry(pet: Pet, state: MatchState): void {
-  if (frontBlocked(pet, state)) scurryTurn(pet);
+  if (frontBlocked(pet, state)) scurryTurn(pet, state);
   else declareMove(pet, state);
 }
 

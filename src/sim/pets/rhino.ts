@@ -20,6 +20,12 @@ const STATS = {
 const momentum = new Map<number, number>();
 const lastAnchor = new Map<number, { x: number; y: number }>();
 
+/** Clear module-level state on match reset so stale petId data doesn't leak. */
+export function clearRhinoState(): void {
+  momentum.clear();
+  lastAnchor.clear();
+}
+
 function getMomentum(pet: Pet): number {
   return momentum.get(pet.petId) ?? 0;
 }

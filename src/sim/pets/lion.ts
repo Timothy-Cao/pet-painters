@@ -27,6 +27,12 @@ const lockedOn = new Map<number, boolean>();
 /** Rage stacks — incremented each time this lion kills an enemy. */
 const rageBonus = new Map<number, number>();
 
+/** Clear module-level state on match reset so stale petId data doesn't leak. */
+export function clearLionState(): void {
+  lockedOn.clear();
+  rageBonus.clear();
+}
+
 function getLionRage(petId: number): number {
   return rageBonus.get(petId) ?? 0;
 }
@@ -47,7 +53,7 @@ function lionWander(pet: Pet, state: MatchState): void {
   lockedOn.set(pet.petId, false);
   if (frontBlocked(pet, state)) {
     if (frontHasPet(pet, state)) rotateCW(pet);
-    else scurryTurn(pet);
+    else scurryTurn(pet, state);
     return;
   }
   declareMove(pet, state);

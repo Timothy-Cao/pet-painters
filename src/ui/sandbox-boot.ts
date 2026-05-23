@@ -29,6 +29,8 @@ import { getPetDef } from '../sim/pet-defs';
 import { loadSoundPref, isSoundEnabled, setSoundEnabled, playRoundStart, playCountdownTick, playCountdownGo } from '../render/sfx';
 import { maybeShowTutorial } from './tutorial';
 import { scheduleAIDeploy } from '../sim/ai';
+import { clearRhinoState } from '../sim/pets/rhino';
+import { clearLionState } from '../sim/pets/lion';
 
 /**
  * Draw the 3-2-1-GO countdown overlay on the canvas.
@@ -186,6 +188,8 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
     clearCombatAnims();
     clearRenderHistory();
     clearEvents();
+    clearRhinoState();
+    clearLionState();
     ui.hoverTile = null;
     winFired = false;
     refreshAll(state, ui);
@@ -193,7 +197,7 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
     triggerAIDeploy();
   }
 
-  attachDeployUI(canvas, rc, state, ui, {
+  const cleanupDeployUI = attachDeployUI(canvas, rc, state, ui, {
     onReset: resetMatch,
     onDeploy: bindings?.onDeploy,
     onReady: bindings?.onReady,
@@ -360,6 +364,7 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
     stop() {
       cancelAI?.();
       loop.stop();
+      cleanupDeployUI();
     },
   };
 }
