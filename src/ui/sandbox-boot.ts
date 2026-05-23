@@ -115,7 +115,7 @@ function renderPendingGhosts(rc: RenderContext, pending: readonly DeploymentDTO[
     ctx.strokeRect(px + 1, py + 1, w - 2, h - 2);
     ctx.setLineDash([]);
     // Emoji centered
-    ctx.font = `${Math.floor(h * 0.55)}px sans-serif`;
+    ctx.font = `${Math.floor(h * 0.85)}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#fff';

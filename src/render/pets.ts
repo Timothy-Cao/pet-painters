@@ -215,7 +215,7 @@ export function renderPets(
     ctx.translate(px + w / 2 + shakeX, py + h / 2 + shakeY + idleBobY);
     ctx.scale(idleScalePulse, idleScalePulse);
     ctx.rotate(rad);
-    ctx.font = `${Math.floor(h * 0.65)}px sans-serif`;
+    ctx.font = `${Math.floor(h * 0.85)}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#fff';

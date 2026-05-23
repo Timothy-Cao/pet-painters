@@ -232,7 +232,7 @@ export function renderDeployPreview(
   rc.ctx.globalAlpha = 0.85;
   rc.ctx.translate(px + w / 2, py + h / 2);
   rc.ctx.rotate(FACING_RAD[ui.facing]);
-  rc.ctx.font = `${Math.floor(rc.tileSize * 0.65)}px sans-serif`;
+  rc.ctx.font = `${Math.floor(rc.tileSize * 0.85)}px sans-serif`;
   rc.ctx.textAlign = 'center';
   rc.ctx.textBaseline = 'middle';
   rc.ctx.fillStyle = '#fff';
