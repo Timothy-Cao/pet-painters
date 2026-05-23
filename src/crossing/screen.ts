@@ -19,6 +19,15 @@ import {
   cxPlayInvalid, cxPlayGameStart,
 } from './sfx';
 
+/** Show a brief toast message overlaid on the crossing container. */
+function showCxToast(container: HTMLElement, msg: string): void {
+  const el = document.createElement('div');
+  el.className = 'cx-toast';
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 2000);
+}
+
 export const CrossingScreen: Screen = {
   name: 'crossing',
   mount(root) {
@@ -359,7 +368,10 @@ export const CrossingScreen: Screen = {
       });
     }
 
-    // Escape to deselect
+    // Double-tap Escape to leave
+    let escPending = false;
+    let escTimer: ReturnType<typeof setTimeout> | null = null;
+
     const onKey = (e: KeyboardEvent) => {
       if ((e.key === 'z' || e.key === 'Z') && (e.ctrlKey || e.metaKey)) {
         if (state.canUndo && state.undoSnapshot) {
@@ -377,8 +389,12 @@ export const CrossingScreen: Screen = {
           cxPlayDeselect();
           state.selectedUnitId = null;
           e.stopImmediatePropagation();
-        } else {
+        } else if (escPending) {
           navigate('home');
+        } else {
+          escPending = true;
+          showCxToast(container, 'Press Esc again to leave');
+          escTimer = setTimeout(() => { escPending = false; }, 2000);
         }
       }
     };
@@ -476,6 +492,7 @@ export const CrossingScreen: Screen = {
     return () => {
       cancelAI?.();
       if (rafId != null) cancelAnimationFrame(rafId);
+      if (escTimer) clearTimeout(escTimer);
       window.removeEventListener('keydown', onKey);
     };
   },

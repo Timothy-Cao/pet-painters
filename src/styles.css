@@ -2213,6 +2213,35 @@ kbd {
   cursor: not-allowed;
 }
 
+/* ── Toast ─────────────────────────────────────────────────────────────── */
+
+.cx-toast {
+  position: fixed;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(30, 34, 44, 0.92);
+  color: #e8e8ea;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  z-index: 900;
+  pointer-events: none;
+  animation: cx-toast-in 0.2s ease-out, cx-toast-out 0.3s 1.6s ease-in forwards;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+}
+
+@keyframes cx-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes cx-toast-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
 /* ── Event log ─────────────────────────────────────────────────────────── */
 
 .cx-event-log {
