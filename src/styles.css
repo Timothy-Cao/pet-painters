@@ -78,7 +78,7 @@ html, body {
 /* ---------- Top bar ---------- */
 .topbar {
   display: grid;
-  grid-template-columns: auto auto 1fr auto;
+  grid-template-columns: auto auto auto 1fr auto;
   align-items: center;
   gap: 18px;
   background: var(--bg-elev);
@@ -86,6 +86,22 @@ html, body {
   border-radius: 14px;
   padding: 12px 18px;
   box-shadow: var(--shadow);
+}
+.topbar-home {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.topbar-home:hover {
+  background: var(--bg-elev-2);
+  color: var(--text);
 }
 
 .brand {
@@ -840,6 +856,10 @@ html, body {
 }
 #game {
   display: block;
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+  aspect-ratio: 1;
   background: #0a0d12;
   border-radius: 8px;
   box-shadow: inset 0 0 0 1px var(--border-soft), 0 4px 16px rgba(0,0,0,0.4);
@@ -1426,14 +1446,7 @@ kbd {
 }
 
 /* Generic back button */
-.back-btn {
-  position: fixed; top: 12px; left: 12px;
-  background: rgba(0,0,0,0.4); color: #ddd; border: 1px solid #555;
-  padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;
-  font-family: inherit;
-  z-index: 100;
-}
-.back-btn:hover { background: rgba(0,0,0,0.6); }
+/* back-btn removed — home button now integrated into topbar */
 
 .sandbox-screen { position: relative; }
 
@@ -2070,12 +2083,12 @@ kbd {
 
 .crossing-layout {
   display: grid;
-  grid-template-columns: 180px 1fr 180px;
+  grid-template-columns: 200px 1fr 200px;
   gap: 16px;
   align-items: start;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .crossing-layout {
     grid-template-columns: 1fr;
   }

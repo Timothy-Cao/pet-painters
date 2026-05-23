@@ -26,6 +26,7 @@ export const CrossingScreen: Screen = {
 <div class="crossing-screen" id="crossing-container">
   <div class="crossing-app">
     <header class="crossing-topbar">
+      <button class="topbar-home" id="cx-btn-home" title="Back to Home">← Home</button>
       <div class="brand">
         <span class="brand-mark">\u{1F3C1}</span>
         <span class="brand-name">Critter Crossing</span>
@@ -431,12 +432,8 @@ export const CrossingScreen: Screen = {
     container.querySelector('#cx-win-rematch')?.addEventListener('click', resetGame);
     container.querySelector('#cx-win-home')?.addEventListener('click', () => navigate('home'));
 
-    // Back button
-    const backBtn = document.createElement('button');
-    backBtn.className = 'back-btn';
-    backBtn.textContent = '\u{2190} Home';
-    backBtn.addEventListener('click', () => navigate('home'));
-    root.appendChild(backBtn);
+    // Home button in topbar
+    container.querySelector('#cx-btn-home')?.addEventListener('click', () => navigate('home'));
 
     // Event log refresh helper (only update DOM when events change)
     function refreshEventLog(cont: HTMLElement, st: CGameState) {

@@ -10,6 +10,7 @@ import { bootSandbox } from '../../ui/sandbox-boot';
 const SANDBOX_MARKUP = `
 <div class="app">
   <header class="topbar">
+    <button class="topbar-home" id="btn-leave-topbar" title="Leave match">← Leave</button>
     <div class="brand">
       <span class="brand-mark">🎨</span>
       <span class="brand-name">Pet Painters</span>
@@ -152,25 +153,6 @@ const SANDBOX_MARKUP = `
         </button>
       </div>
 
-      <div class="panel-title">Tactical</div>
-      <div class="tactical">
-        <div class="tac-row tac-row-tick" id="tac-tick-row">
-          <span class="tac-label">Exec tick</span>
-          <span class="tac-value"><span id="tac-tick">0</span> <span class="tac-of">/ <span id="tac-tick-total">160</span></span></span>
-        </div>
-        <div class="tac-row">
-          <span class="tac-label">Deployed</span>
-          <span class="tac-deploy">
-            <span class="tac-deploy-pill tac-deploy-a"><span class="tac-deploy-dot dot-a"></span><span id="tac-deploy-a">0</span></span>
-            <span class="tac-deploy-pill tac-deploy-b"><span class="tac-deploy-dot dot-b"></span><span id="tac-deploy-b">0</span></span>
-          </span>
-        </div>
-        <div class="tac-events-head">Recent events</div>
-        <ul class="tac-events" id="tac-events">
-          <li class="tac-events-empty">No events yet</li>
-        </ul>
-      </div>
-
       <div class="panel-title">Energy</div>
       <div class="energy-row">
         <div class="energy-cell energy-a">
@@ -181,6 +163,28 @@ const SANDBOX_MARKUP = `
           <div class="energy-label" id="energy-label-b">B</div>
           <div class="energy-val" id="energy-b">∞</div>
         </div>
+      </div>
+
+      <div class="panel-title">Deployed</div>
+      <div class="tactical">
+        <div class="tac-row">
+          <span class="tac-label">Pets</span>
+          <span class="tac-deploy">
+            <span class="tac-deploy-pill tac-deploy-a"><span class="tac-deploy-dot dot-a"></span><span id="tac-deploy-a">0</span></span>
+            <span class="tac-deploy-pill tac-deploy-b"><span class="tac-deploy-dot dot-b"></span><span id="tac-deploy-b">0</span></span>
+          </span>
+        </div>
+        <div class="tac-row tac-row-tick" id="tac-tick-row">
+          <span class="tac-label">Exec tick</span>
+          <span class="tac-value"><span id="tac-tick">0</span> <span class="tac-of">/ <span id="tac-tick-total">160</span></span></span>
+        </div>
+      </div>
+
+      <div class="panel-title">Recent Events</div>
+      <div class="tactical">
+        <ul class="tac-events" id="tac-events">
+          <li class="tac-events-empty">No events yet</li>
+        </ul>
       </div>
 
       <div class="action-area">
@@ -264,6 +268,7 @@ export const OnlineMatchScreen: Screen = {
     };
 
     container.querySelector('#btn-leave-room')?.addEventListener('click', handleLeave);
+    container.querySelector('#btn-leave-topbar')?.addEventListener('click', handleLeave);
     container.querySelector('#win-rematch')?.addEventListener('click', async () => {
       await endRoom(roomId).catch(() => {});
       navigate('lobby');

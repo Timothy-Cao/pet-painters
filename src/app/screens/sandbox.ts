@@ -9,6 +9,7 @@ export const SandboxScreen: Screen = {
 <div class="sandbox-screen" id="sandbox-container">
   <div class="app">
     <header class="topbar">
+      <button class="topbar-home" id="btn-home" title="Back to Home">← Home</button>
       <div class="brand">
         <span class="brand-mark">🎨</span>
         <span class="brand-name">Pet Painters</span>
@@ -151,35 +152,39 @@ export const SandboxScreen: Screen = {
           </button>
         </div>
 
-        <div class="panel-title">Tactical</div>
-        <div class="tactical">
-          <div class="tac-row tac-row-tick" id="tac-tick-row">
-            <span class="tac-label">Exec tick</span>
-            <span class="tac-value"><span id="tac-tick">0</span> <span class="tac-of">/ <span id="tac-tick-total">160</span></span></span>
+        <div class="panel-title">Energy</div>
+        <div class="energy-row">
+          <div class="energy-cell energy-a">
+            <div class="energy-label" id="energy-label-a">${isAI ? 'You' : 'A'}</div>
+            <div class="energy-val" id="energy-a">${isAI ? '3' : '∞'}</div>
           </div>
+          <div class="energy-cell energy-b">
+            <div class="energy-label" id="energy-label-b">${isAI ? 'AI' : 'B'}</div>
+            <div class="energy-val" id="energy-b">${isAI ? '3' : '∞'}</div>
+          </div>
+        </div>
+
+        <div class="panel-title">Deployed</div>
+        <div class="tactical">
           <div class="tac-row">
-            <span class="tac-label">Deployed</span>
+            <span class="tac-label">Pets</span>
             <span class="tac-deploy">
               <span class="tac-deploy-pill tac-deploy-a"><span class="tac-deploy-dot dot-a"></span><span id="tac-deploy-a">0</span></span>
               <span class="tac-deploy-pill tac-deploy-b"><span class="tac-deploy-dot dot-b"></span><span id="tac-deploy-b">0</span></span>
             </span>
           </div>
-          <div class="tac-events-head">Recent events</div>
+          <!-- hidden tick row for exec phase, shown by JS -->
+          <div class="tac-row tac-row-tick" id="tac-tick-row">
+            <span class="tac-label">Exec tick</span>
+            <span class="tac-value"><span id="tac-tick">0</span> <span class="tac-of">/ <span id="tac-tick-total">160</span></span></span>
+          </div>
+        </div>
+
+        <div class="panel-title">Recent Events</div>
+        <div class="tactical">
           <ul class="tac-events" id="tac-events">
             <li class="tac-events-empty">No events yet</li>
           </ul>
-        </div>
-
-        <div class="panel-title">Energy</div>
-        <div class="energy-row">
-          <div class="energy-cell energy-a">
-            <div class="energy-label">${isAI ? 'You' : 'A'}</div>
-            <div class="energy-val" id="energy-a">${isAI ? '3' : '∞'}</div>
-          </div>
-          <div class="energy-cell energy-b">
-            <div class="energy-label">${isAI ? 'AI' : 'B'}</div>
-            <div class="energy-val" id="energy-b">${isAI ? '3' : '∞'}</div>
-          </div>
         </div>
 
         <div class="action-area">
@@ -189,7 +194,6 @@ export const SandboxScreen: Screen = {
           </button>
           <button class="btn-secondary" id="btn-reset">
             ⟲ Reset Match
-            <span class="btn-hotkey-light">R</span>
           </button>
         </div>
       </aside>
@@ -241,22 +245,13 @@ export const SandboxScreen: Screen = {
       setWinOverlayRoot(container);
     });
 
-    // Wire win overlay secondary button (always available, no async needed).
+    // Wire home and win buttons.
+    container.querySelector('#btn-home')?.addEventListener('click', () => navigate('home'));
     container.querySelector('#win-home')?.addEventListener('click', () => navigate('home'));
 
     // Boot the full sandbox within the container.
     import('../../ui/sandbox-boot').then(({ bootSandbox }) => {
       bootSandbox(container, isAI ? { withAI: true } : undefined);
     });
-
-    // Back button overlay.
-    const backBtn = document.createElement('button');
-    backBtn.className = 'back-btn';
-    backBtn.textContent = '← Home';
-    backBtn.addEventListener('click', () => navigate('home'));
-    root.appendChild(backBtn);
-
-    // No Escape-to-navigate — use the ← Home button instead.
-    // Escape is handled by sandbox-boot (deselect inspector / pet selection only).
   },
 };
