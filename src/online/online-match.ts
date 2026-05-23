@@ -2,6 +2,7 @@ import type { MatchState, PlayerId } from '../types/game';
 import { createRng, hashSeed } from '../sim/rng';
 import { tryDeploy } from '../sim/deploy';
 import { submitReady as localSubmitReady } from '../sim/match';
+import { getPetDef } from '../sim/pet-defs';
 import {
   submitRound,
   fetchSubmissions,
@@ -47,12 +48,29 @@ export class OnlineMatchController {
   /**
    * Player queued a deployment locally. We DON'T add it to state.pets yet —
    * deployments only enter the board when both submissions are merged at execution start.
-   * Returns false if Ready was already pressed and no more queuing is allowed this round.
+   * Returns false if Ready was already pressed, OR if the player can't afford
+   * this deployment given their current energy minus what's already queued.
    */
   queueLocalDeployment(d: DeploymentDTO): boolean {
     if (this.readyForCurrentRound) return false;
+    if (this.remainingEnergy() < getPetDef(d.defId).cost) return false;
     this.pendingDeployments.push(d);
     return true;
+  }
+
+  /** Energy this player still has to spend after subtracting all queued (but not yet committed) deployments. */
+  remainingEnergy(): number {
+    const available = this.state.energy[this.mySlot];
+    const queued = this.pendingDeployments.reduce(
+      (sum, p) => sum + getPetDef(p.defId).cost,
+      0,
+    );
+    return available - queued;
+  }
+
+  /** True if this player has already submitted for the current round. */
+  hasReadied(): boolean {
+    return this.readyForCurrentRound;
   }
 
   cancelLastLocalDeployment(): boolean {

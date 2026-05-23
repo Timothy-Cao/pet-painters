@@ -322,11 +322,27 @@ export const OnlineMatchScreen: Screen = {
         getPendingDeployments() {
           return controller ? controller.getPendingDeployments() : [];
         },
+        getPendingEnergyCost() {
+          if (!controller) return { A: 0, B: 0 };
+          const available = bootHandle?.state.energy[mySlot] ?? 0;
+          const remaining = controller.remainingEnergy();
+          // We only know our own slot's queue; opponent's is hidden.
+          const myPending = Math.max(0, available - remaining);
+          return mySlot === 'A' ? { A: myPending, B: 0 } : { A: 0, B: myPending };
+        },
         onDeploy(defId, anchor, facing) {
           if (controller) {
+            if (controller.hasReadied()) {
+              import('../../ui/sandbox-ui').then((m) =>
+                m.showBanner('Already locked in for this round', 'error'),
+              );
+              return;
+            }
             const ok = controller.queueLocalDeployment({ defId, anchor, facing });
             if (!ok) {
-              console.warn('queueLocalDeployment rejected — already readied?');
+              import('../../ui/sandbox-ui').then((m) =>
+                m.showBanner('Not enough energy for that deployment', 'error'),
+              );
             }
           }
         },

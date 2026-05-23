@@ -313,6 +313,13 @@ function refreshScores(state: MatchState): void {
   void WIN_PAINT_THRESHOLD;
 }
 
+/** Per-slot "energy queued for spend" — set by the online controller during
+ *  planning so the energy cell reads as "available minus queued". */
+let pendingEnergyCost: { A: number; B: number } = { A: 0, B: 0 };
+export function setPendingEnergyCost(c: { A: number; B: number }): void {
+  pendingEnergyCost = c;
+}
+
 function refreshEnergy(state: MatchState): void {
   const aEl = q('energy-a');
   const bEl = q('energy-b');
@@ -320,8 +327,17 @@ function refreshEnergy(state: MatchState): void {
     if (aEl) aEl.textContent = '∞';
     if (bEl) bEl.textContent = '∞';
   } else {
-    if (aEl) aEl.textContent = String(state.energy.A);
-    if (bEl) bEl.textContent = String(state.energy.B);
+    renderEnergyCell(aEl, state.energy.A, pendingEnergyCost.A);
+    renderEnergyCell(bEl, state.energy.B, pendingEnergyCost.B);
+  }
+}
+
+function renderEnergyCell(el: HTMLElement | null, available: number, pending: number): void {
+  if (!el) return;
+  if (pending > 0) {
+    el.innerHTML = `${available - pending}<span class="energy-pending"> (−${pending})</span>`;
+  } else {
+    el.textContent = String(available);
   }
 }
 

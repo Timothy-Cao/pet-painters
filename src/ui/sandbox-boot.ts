@@ -17,7 +17,7 @@ import {
   attachDeployUI,
   renderDeployPreview,
 } from '../input/deploy-ui';
-import { setSandboxRoot, mountSandboxUI, refreshAll, showBanner, snapshotExecStart } from './sandbox-ui';
+import { setSandboxRoot, mountSandboxUI, refreshAll, showBanner, snapshotExecStart, setPendingEnergyCost } from './sandbox-ui';
 import { GameLoop } from '../loop';
 import { renderEffects, clearEffects } from '../render/effects';
 import { clearRenderHistory } from '../render/interpolation';
@@ -154,6 +154,13 @@ export interface SandboxBootBindings {
    * When set, ghost overlays of queued pets are shown to the local player.
    */
   getPendingDeployments?: () => readonly import('../online/submissions').DeploymentDTO[];
+  /**
+   * Getter for how much energy each side has queued (but not yet spent) this
+   * planning phase. Used to render "5 (−2)" in the energy cell so the player
+   * sees what they've already committed. The opponent's cost is normally 0
+   * from the local view since their pending queue is hidden.
+   */
+  getPendingEnergyCost?: () => { A: number; B: number };
 }
 
 export interface SandboxBootHandle {
@@ -306,6 +313,12 @@ export function bootSandbox(container: HTMLElement, bindings?: SandboxBootBindin
     // Ghost overlay for pending deployments (online planning phase feedback).
     if (bindings?.getPendingDeployments) {
       renderPendingGhosts(rc, bindings.getPendingDeployments());
+    }
+    // Sync the energy cell's "− pending" annotation each frame.
+    if (bindings?.getPendingEnergyCost) {
+      setPendingEnergyCost(bindings.getPendingEnergyCost());
+    } else {
+      setPendingEnergyCost({ A: 0, B: 0 });
     }
 
     // 3-2-1 GO countdown overlay during the first 3 s of execution.
