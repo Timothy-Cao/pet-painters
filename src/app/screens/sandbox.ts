@@ -1,6 +1,5 @@
 import type { Screen } from '../router';
 import { navigate } from '../router';
-import { showBanner } from '../../ui/sandbox-ui';
 
 export const SandboxScreen: Screen = {
   name: 'sandbox',
@@ -257,23 +256,7 @@ export const SandboxScreen: Screen = {
     backBtn.addEventListener('click', () => navigate('home'));
     root.appendChild(backBtn);
 
-    let escPending = false;
-    let escTimer: ReturnType<typeof setTimeout> | null = null;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        if (escPending) {
-          navigate('home');
-        } else {
-          escPending = true;
-          showBanner('Press Esc again to leave', 'info');
-          escTimer = setTimeout(() => { escPending = false; }, 2000);
-        }
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      if (escTimer) clearTimeout(escTimer);
-    };
+    // No Escape-to-navigate — use the ← Home button instead.
+    // Escape is handled by sandbox-boot (deselect inspector / pet selection only).
   },
 };
