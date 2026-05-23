@@ -176,7 +176,14 @@ export const SandboxScreen: Screen = {
           <!-- hidden tick row for exec phase, shown by JS -->
           <div class="tac-row tac-row-tick" id="tac-tick-row">
             <span class="tac-label">Exec tick</span>
-            <span class="tac-value"><span id="tac-tick">0</span> <span class="tac-of">/ <span id="tac-tick-total">160</span></span></span>
+            <span class="tac-value"><span id="tac-tick">0</span> <span class="tac-of">/ <span id="tac-tick-total">120</span></span></span>
+          </div>
+          <div class="tac-row tac-row-boost" id="tac-boost-row" title="During execution, click your pet to spend a boost. Boosted pets act at 2× speed for 1.5 seconds.">
+            <span class="tac-label">⚡ Boost</span>
+            <span class="tac-deploy">
+              <span class="tac-deploy-pill tac-deploy-a"><span class="tac-deploy-dot dot-a"></span><span id="tac-boost-a">0</span></span>
+              <span class="tac-deploy-pill tac-deploy-b"><span class="tac-deploy-dot dot-b"></span><span id="tac-boost-b">0</span></span>
+            </span>
           </div>
         </div>
 

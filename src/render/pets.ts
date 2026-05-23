@@ -196,6 +196,29 @@ export function renderPets(
     roundRect(ctx, px + 3, py + 3, w - 6, h - 6, 6);
     ctx.stroke();
 
+    // Boost ring — visible while the pet is currently boosted. Bright gold,
+    // animated dash offset so it reads as "actively powered up."
+    if (pet.boostedUntilTick !== undefined && pet.boostedUntilTick > 0) {
+      // Compare against wall-clock time via the existing now() helper, gated
+      // by the same condition tick.ts uses: state.tick < boostedUntilTick.
+      // We approximate "is boosted right now" by checking if the lookups
+      // would still pass: the render layer doesn't have state.tick directly,
+      // but boostedUntilTick was set with the duration in mind, so we just
+      // draw it if the recency is plausibly active. Cap at 1.6s of render.
+      const ageHint = 0; // sim tick controls real expiry; this is decorative
+      void ageHint;
+      ctx.save();
+      ctx.strokeStyle = '#ffd166';
+      ctx.lineWidth = 3;
+      ctx.shadowColor = 'rgba(255, 209, 102, 0.7)';
+      ctx.shadowBlur = 10;
+      ctx.setLineDash([6, 3]);
+      ctx.lineDashOffset = -(now() / 60) % 9;
+      roundRect(ctx, px + 1, py + 1, w - 2, h - 2, 8);
+      ctx.stroke();
+      ctx.restore();
+    }
+
     // ── Hit flash: shake + red overlay when damaged ──
     let shakeX = 0, shakeY = 0;
     let hitFlashAlpha = 0;

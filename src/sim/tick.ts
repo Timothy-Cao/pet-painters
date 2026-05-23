@@ -13,11 +13,19 @@ export function advanceTick(state: MatchState): void {
     if (pet.hp <= 0) continue;
     // Frozen pets (e.g. webbed by a spider) skip all tuple firing this tick.
     if (pet.frozenUntilTick !== undefined && state.tick < pet.frozenUntilTick) continue;
+    // Clear stale boost markers so the renderer only sees active ones.
+    if (pet.boostedUntilTick !== undefined && state.tick >= pet.boostedUntilTick) {
+      pet.boostedUntilTick = undefined;
+    }
     const def = getPetDef(pet.defId);
+    // Boosted pets fire all their tuples on a halved interval — 2× action rate
+    // for the duration. Movement, attacks, special abilities all accelerate.
+    const isBoosted = pet.boostedUntilTick !== undefined && state.tick < pet.boostedUntilTick;
     for (let i = 0; i < def.tuples.length; i++) {
       if (pet.hp <= 0) break;
       const tuple = def.tuples[i];
-      const intervalTicks = Math.round(tuple.intervalSec * TICKS_PER_SEC);
+      const baseIntervalTicks = Math.round(tuple.intervalSec * TICKS_PER_SEC);
+      const intervalTicks = isBoosted ? Math.max(1, Math.floor(baseIntervalTicks / 2)) : baseIntervalTicks;
       const lastFire = pet.tupleLastFireTick[i];
       const referenceTick = lastFire >= 0 ? lastFire : pet.deployTick;
       if (state.tick - referenceTick >= intervalTicks) {

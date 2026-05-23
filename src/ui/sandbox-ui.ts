@@ -371,6 +371,14 @@ function refreshTactical(state: MatchState): void {
   setText('tac-deploy-a', String(aCount));
   setText('tac-deploy-b', String(bCount));
 
+  // Boost charges — visible during execution, dimmed during planning.
+  const boostRow = q('tac-boost-row');
+  if (boostRow) {
+    boostRow.classList.toggle('active', state.phase === 'execution');
+  }
+  setText('tac-boost-a', String(state.boostCharges.A));
+  setText('tac-boost-b', String(state.boostCharges.B));
+
   // Recent events.
   const list = q('tac-events');
   if (!list) return;

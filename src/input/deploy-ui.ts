@@ -1,6 +1,6 @@
 import type { MatchState, Direction, Vec2 } from '../types/game';
 import { tryDeploy, petAtTile } from '../sim/deploy';
-import { submitReady } from '../sim/match';
+import { submitReady, consumeBoost } from '../sim/match';
 import { getPetDef } from '../sim/pet-defs';
 import { ALL_PETS } from '../sim/pets';
 import { BOARD_SIZE } from '../config/constants';
@@ -10,6 +10,7 @@ import type { SandboxUIState } from '../ui/sandbox-ui';
 import { refreshAll, showBanner } from '../ui/sandbox-ui';
 import { getTile } from '../sim/board';
 import { playPetDeploy } from '../render/sfx';
+import { pushBoostFlash } from '../render/effects';
 
 const CW_NEXT: Record<Direction, Direction> = { N: 'E', E: 'S', S: 'W', W: 'N' };
 
@@ -53,6 +54,11 @@ export interface DeployUIBindings {
    * Omit (or null) for sandbox — both sides can deploy anywhere they own.
    */
   viewer?: import('../types/game').PlayerId | null;
+  /**
+   * If provided, called instead of consumeBoost when the player clicks their
+   * own pet during execution. Online mode uses this to broadcast the boost.
+   */
+  onBoost?: (petId: number) => void;
 }
 
 export function attachDeployUI(
@@ -109,8 +115,32 @@ export function attachDeployUI(
   });
 
   canvas.addEventListener('click', () => {
-    if (state.phase !== 'planning') return;
     if (!ui.hoverTile) return;
+
+    // Execution-phase click: try to spend a boost charge on a friendly pet.
+    if (state.phase === 'execution') {
+      const target = petAtTile(state, ui.hoverTile);
+      if (!target) return;
+      const player = bindings.viewer ?? target.owner;
+      if (target.owner !== player) {
+        showBanner("That's not your pet", 'error');
+        return;
+      }
+      if (state.boostCharges[player] <= 0) {
+        showBanner('No boost charges left', 'error');
+        return;
+      }
+      if (bindings.onBoost) {
+        bindings.onBoost(target.petId);
+      } else {
+        consumeBoost(state, player, target.petId);
+        pushBoostFlash(target.anchor.x + 0.5, target.anchor.y + 0.5, player);
+        refreshAll(state, ui);
+      }
+      return;
+    }
+
+    if (state.phase !== 'planning') return;
 
     // Click on an existing pet → toggle the inspector for it.
     const existing = petAtTile(state, ui.hoverTile);

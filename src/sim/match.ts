@@ -28,7 +28,29 @@ export function createInitialMatch(opts: { sandbox?: boolean } = {}): MatchState
     lastRoundSummary: null,
     round: 0,
     rng: null,
+    boostCharges: { A: 0, B: 0 },
   };
+}
+
+/** Boost charges awarded at the start of each execution.
+ *  Base + a comeback bonus for whoever is 30+ tiles behind. */
+export const BOOST_CHARGES_BASE = 2;
+export const BOOST_COMEBACK_DELTA = 30;
+export const BOOST_COMEBACK_BONUS = 1;
+/** How long (in ticks) a boost lasts. At 20Hz, 30 ticks = 1.5 seconds. */
+export const BOOST_DURATION_TICKS = 30;
+
+/** Attempt to boost `petId` on behalf of `player`. Returns true on success.
+ *  No-ops if it's not execution phase, the pet doesn't exist, the pet belongs
+ *  to the other side, or the player has no charges left. */
+export function consumeBoost(state: MatchState, player: PlayerId, petId: number): boolean {
+  if (state.phase !== 'execution') return false;
+  if (state.boostCharges[player] <= 0) return false;
+  const pet = state.pets.find((p) => p.petId === petId);
+  if (!pet || pet.owner !== player) return false;
+  state.boostCharges[player] -= 1;
+  pet.boostedUntilTick = state.tick + BOOST_DURATION_TICKS;
+  return true;
 }
 
 function takeSnapshot(state: MatchState): RoundSnapshot {
@@ -51,6 +73,14 @@ export function submitReady(state: MatchState, player: PlayerId): void {
     state.execStartSnapshot = takeSnapshot(state);
     state.lastRoundSummary = null; // any stale summary is gone now that a new round started
     state.round += 1;
+    // Refresh boost charges for the new execution. Whoever is 30+ tiles behind
+    // gets one extra charge as a comeback path.
+    const aTiles = state.execStartSnapshot.aTiles;
+    const bTiles = state.execStartSnapshot.bTiles;
+    state.boostCharges = {
+      A: BOOST_CHARGES_BASE + (bTiles - aTiles >= BOOST_COMEBACK_DELTA ? BOOST_COMEBACK_BONUS : 0),
+      B: BOOST_CHARGES_BASE + (aTiles - bTiles >= BOOST_COMEBACK_DELTA ? BOOST_COMEBACK_BONUS : 0),
+    };
   }
 }
 
@@ -131,4 +161,5 @@ export function resetMatchInPlace(state: MatchState, opts: { sandbox?: boolean }
   state.lastRoundSummary = fresh.lastRoundSummary;
   state.round = fresh.round;
   state.rng = fresh.rng;
+  state.boostCharges = fresh.boostCharges;
 }

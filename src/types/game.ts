@@ -48,6 +48,8 @@ export interface MatchState {
   lastRoundSummary: RoundSummary | null;
   /** Monotonic counter — round 1, round 2, …  Incremented on transition into execution. */
   round: number;
+  /** Boost charges available to each side during the current execution. */
+  boostCharges: { A: number; B: number };
 }
 
 export interface RoundSnapshot {

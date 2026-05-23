@@ -72,4 +72,6 @@ export interface Pet {
   tupleLastFireTick: number[];
   /** While state.tick < this, the pet's tuples don't fire (e.g. spider web). */
   frozenUntilTick?: number;
+  /** While state.tick < this, the pet's tuple intervals are halved (player boost). */
+  boostedUntilTick?: number;
 }

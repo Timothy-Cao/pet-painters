@@ -13,7 +13,8 @@ type Effect =
   | { kind: 'web'; x: number; y: number; owner: PlayerId; born: number }
   | { kind: 'flutter'; x: number; y: number; owner: PlayerId; born: number; dx: number; dy: number }
   | { kind: 'dust'; x: number; y: number; owner: PlayerId; born: number; dx: number; dy: number; intensity: number }
-  | { kind: 'flame'; x: number; y: number; owner: PlayerId; born: number; seed: number };
+  | { kind: 'flame'; x: number; y: number; owner: PlayerId; born: number; seed: number }
+  | { kind: 'boost'; x: number; y: number; owner: PlayerId; born: number };
 
 const DURATION_MS = 360;
 const SPLAT_MS = 480;
@@ -24,6 +25,7 @@ const WEB_MS = 600;
 const FLUTTER_MS = 400;
 const DUST_MS = 520;
 const FLAME_MS = 520;
+const BOOST_MS = 480;
 const effects: Effect[] = [];
 
 import { side } from './palette';
@@ -98,6 +100,10 @@ export function pushFlame(x: number, y: number, owner: PlayerId): void {
   if (!effectsEnabled) return;
   effects.push({ kind: 'flame', x, y, owner, born: now(), seed: Math.random() });
 }
+export function pushBoostFlash(x: number, y: number, owner: PlayerId): void {
+  if (!effectsEnabled) return;
+  effects.push({ kind: 'boost', x, y, owner, born: now() });
+}
 
 export function clearEffects(): void {
   effects.length = 0;
@@ -116,6 +122,7 @@ export function renderEffects(rc: RenderContext): void {
                    : e.kind === 'flutter' ? FLUTTER_MS
                    : e.kind === 'dust' ? DUST_MS
                    : e.kind === 'flame' ? FLAME_MS
+                   : e.kind === 'boost' ? BOOST_MS
                    : DURATION_MS;
     if (age >= lifetime) { effects.splice(i, 1); continue; }
     const t = age / lifetime;       // 0..1
@@ -288,6 +295,33 @@ export function renderEffects(rc: RenderContext): void {
       rc.ctx.beginPath();
       rc.ctx.arc(0, 0, r2, 0, Math.PI * 2);
       rc.ctx.stroke();
+    } else if (e.kind === 'boost') {
+      // Gold expanding starburst — twin rings + 6 quick rays radiating out.
+      const r1 = size * (0.25 + 0.55 * t);
+      const r2 = size * (0.10 + 0.40 * t);
+      rc.ctx.globalAlpha = (1 - t) * 0.9;
+      rc.ctx.strokeStyle = '#ffd166';
+      rc.ctx.lineWidth = 3;
+      rc.ctx.beginPath();
+      rc.ctx.arc(0, 0, r1, 0, Math.PI * 2);
+      rc.ctx.stroke();
+      rc.ctx.globalAlpha = (1 - t) * 0.6;
+      rc.ctx.lineWidth = 2;
+      rc.ctx.beginPath();
+      rc.ctx.arc(0, 0, r2, 0, Math.PI * 2);
+      rc.ctx.stroke();
+      // Six rays
+      rc.ctx.globalAlpha = (1 - t) * 0.8;
+      rc.ctx.lineWidth = 2;
+      for (let k = 0; k < 6; k++) {
+        const a = (Math.PI * 2 * k) / 6 + Math.PI / 12;
+        const inner = size * 0.12;
+        const outer = size * (0.30 + 0.45 * t);
+        rc.ctx.beginPath();
+        rc.ctx.moveTo(Math.cos(a) * inner, Math.sin(a) * inner);
+        rc.ctx.lineTo(Math.cos(a) * outer, Math.sin(a) * outer);
+        rc.ctx.stroke();
+      }
     } else if (e.kind === 'poof') {
       // Grey-tinted dust burst: 8 small dots drift outward and fade.
       const dots = 8;

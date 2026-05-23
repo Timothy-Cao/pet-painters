@@ -1040,6 +1040,9 @@ html, body {
 .tac-of { color: var(--text-faint); font-weight: 400; font-size: 11px; }
 .tac-row-tick { opacity: 0.55; transition: opacity 0.2s ease; }
 .tac-row-tick.active { opacity: 1; }
+.tac-row-boost { opacity: 0.55; transition: opacity 0.2s ease; }
+.tac-row-boost.active { opacity: 1; box-shadow: 0 0 0 1px rgba(255, 209, 102, 0.4); border-radius: 6px; }
+.tac-row-boost .tac-label { color: #ffd166; }
 .tac-deploy { display: inline-flex; gap: 6px; }
 .tac-deploy-pill {
   display: inline-flex;
